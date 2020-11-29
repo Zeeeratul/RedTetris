@@ -110,21 +110,21 @@ function Game() {
     const feelLineWithEmpty = () => new Array(10).fill(0)
 
     useEffect(() => {
-        const lineToDelete = []
-        grid.forEach((line, index) => {
-            if (checkFullLine(line))
-                lineToDelete.push(index)
-        })
+        // const lineToDelete = []
+        // grid.forEach((line, index) => {
+        //     if (checkFullLine(line))
+        //         lineToDelete.push(index)
+        // })
 
-        console.log('lineToDelete', lineToDelete)
+        // console.log('lineToDelete', lineToDelete)
 
-        const newGrid = [...grid]
+        // const newGrid = [...grid]
 
-        lineToDelete.forEach((lineDelete) => {
-            newGrid[lineDelete] = feelLineWithEmpty()
-        }, [])
+        // lineToDelete.forEach((lineDelete) => {
+        //     newGrid[lineDelete] = feelLineWithEmpty()
+        // }, [])
 
-        setGrid(newGrid)
+        // setGrid(newGrid)
     }, [grid])
 
     const piecePositions = currentPiece ? convertCoords(currentPiece) : null

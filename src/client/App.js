@@ -8,8 +8,7 @@ import {
 } from "react-router-dom"
 import Landing from './pages/Landing'
 import GamesList from './pages/GamesList'
-// import Game from './pages/game/Game'
-import Game from './pages/game'
+import Game from './pages/Game'
 import { ErrorBoundary } from 'react-error-boundary'
 
 // Route accessible only with a token

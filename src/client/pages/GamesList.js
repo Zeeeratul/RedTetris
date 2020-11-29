@@ -16,7 +16,6 @@ const GamesList = () => {
         })
 
         const timeoutRef = setInterval(() => {
-
             emitToEvent('get_games', '', ({ games }) => {
                 setGames(games)
             })
