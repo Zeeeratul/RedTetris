@@ -5,7 +5,7 @@ const app = express()
 const http = require('http')
 const path = require('path')
 
-const { Sockets } = require('./class/sockets')
+const { Sockets } = require('./class/Sockets')
 
 class Server {
     constructor(app, http) {
