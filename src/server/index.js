@@ -16,6 +16,7 @@ class Server {
 
     useStaticFiles() {
         this.app.use(express.static(path.resolve('build')))
+ 
         this.app.get('/*', (_, res) => res.sendFile(path.join(__dirname, 'build', 'index.html')))
 
         // this.app.get('*', (_, res) => res.sendFile(path.resolve('build', 'index.html')))
