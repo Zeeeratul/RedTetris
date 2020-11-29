@@ -1,5 +1,5 @@
 require('dotenv').config()
-const port = process.env.SERVER_PORT || 4000
+const port = process.env.SERVER_PORT || '8080'
 const express = require('express')
 const app = express()
 const http = require('http')
