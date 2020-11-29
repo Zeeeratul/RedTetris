@@ -29,7 +29,7 @@ class Sockets {
         // all others routes
         // middleware checking user token
         this.authRoutes.use((socket, next) => {
-            const token = socket?.handshake?.query?.token
+            const token = socket.handshake && socket.handshake.query.token
             console.log(token)
 
             if (!token)
