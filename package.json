@@ -85,6 +85,7 @@
     "prod_client": "node scripts/build.js",
     "dev_server": "nodemon src/server",
     "prod_server": "node src/server/index.js",
+    "build": "node scripts/build.js",
     "test": "node scripts/test.js"
   },
   "eslintConfig": {
