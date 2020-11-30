@@ -16,32 +16,34 @@ class Server {
 
     useStaticFiles() {
 
-        app.get('/', (req, res) => {
-            res.send('Hello World!')
-          })
-          
-          app.listen(port, () => {
-              console.log(`Our app is running on port ${ port }`);
-          })
+        // this.app.get('/', (req, res) => {
+        //     res.send('Hello World!')
+        //   })
+        // console.log(path.join(__dirname, '../../public'))
+
         // path.join(__dirname, 'build'))
         // this.app.use(express.static(path.join(__dirname, 'public')))
         // this.app.use(express.static(path.join(__dirname, '../../public')))
-        // this.app.use(express.static(path.join(__dirname, '../../build')))
+        this.app.use(express.static(path.join(__dirname, '../../build')))
         // this.app.use(express.static(path.resolve('../../build')))
         // this.app.get("/", function (req, res) {
         //     res.send("<h1>Hello World!</h1>")
         //   })
-        // this.app.get('/*', (_, res) => res.sendFile(path.join(__dirname, '../../build', 'index.html')))
+        this.app.get('/*', (_, res) => res.sendFile(path.join(__dirname, '../../build', 'index.html')))
 
         // this.app.get('*', (_, res) => res.sendFile(path.resolve('build', 'index.html')))
     }
 
-    // listen() {
-    //     this.http.listen(port, () => console.log(`Red Tetris api listening at http://localhost:${port}`))
-    // }
+    listen() {
+                  
+        // this.app.listen(port, () => {
+        //     console.log(`Our app is running on port ${ port }`);
+        // })
+        this.http.listen(port, () => console.log(`Our app is running on port ${ port }`))
+    }
 }
 
 const server = new Server(app, http)
 
 server.useStaticFiles()
-// server.listen()
+server.listen()
