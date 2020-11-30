@@ -36,12 +36,12 @@ class Server {
         // this.app.get('*', (_, res) => res.sendFile(path.resolve('build', 'index.html')))
     }
 
-    listen() {
-        this.http.listen(port, () => console.log(`Red Tetris api listening at http://localhost:${port}`))
-    }
+    // listen() {
+    //     this.http.listen(port, () => console.log(`Red Tetris api listening at http://localhost:${port}`))
+    // }
 }
 
 const server = new Server(app, http)
 
 server.useStaticFiles()
-server.listen()
+// server.listen()
