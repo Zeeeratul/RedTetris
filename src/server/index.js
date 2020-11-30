@@ -1,5 +1,5 @@
 require('dotenv').config()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 4000
 const express = require('express')
 const app = express()
 const http = require('http')
@@ -14,36 +14,13 @@ class Server {
         this.sockets = new Sockets(this.http).listenToEvents()
     }
 
-    useStaticFiles() {
-
-        // this.app.get('/', (req, res) => {
-        //     res.send('Hello World!')
-        //   })
-        // console.log(path.join(__dirname, '../../public'))
-
-        // path.join(__dirname, 'build'))
-        // this.app.use(express.static(path.join(__dirname, 'public')))
-        // this.app.use(express.static(path.join(__dirname, '../../public')))
-        this.app.use(express.static(path.join(__dirname, '../../build')))
-        // this.app.use(express.static(path.resolve('../../build')))
-        // this.app.get("/", function (req, res) {
-        //     res.send("<h1>Hello World!</h1>")
-        //   })
-        this.app.get('/*', (_, res) => res.sendFile(path.join(__dirname, '../../build', 'index.html')))
-
-        // this.app.get('*', (_, res) => res.sendFile(path.resolve('build', 'index.html')))
-    }
-
     listen() {
-                  
-        // this.app.listen(port, () => {
-        //     console.log(`Our app is running on port ${ port }`);
-        // })
-        this.http.listen(port, () => console.log(`Our app is running on port ${ port }`))
+        this.app.use(express.static(path.join(__dirname, '../../build')))
+        this.app.get('/*', (_, res) => res.sendFile(path.join(__dirname, '../../build', 'index.html')))
+        this.http.listen(port, () => console.log(`Our app is running on port ${ port }, http://localhost:${ port }`))
     }
 }
 
 const server = new Server(app, http)
 
-server.useStaticFiles()
 server.listen()

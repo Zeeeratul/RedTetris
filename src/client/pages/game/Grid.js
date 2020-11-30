@@ -25,9 +25,11 @@ const initGrid = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    ['I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I'],
+    ['I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I'],
+    ['I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I'], 
+    // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
 ]
 
 // pure function
@@ -99,33 +101,30 @@ function Game() {
         })
     }, [])
 
-    // useEffect(() => {
-    //     const intervalRef = setInterval(() => {
-    //         handleMoveBottom(1, grid, currentPiece)
-    //     }, 2000)
-
-        
-    // }, [grid, currentPiece])
-
     const feelLineWithEmpty = () => new Array(10).fill(0)
 
-    useEffect(() => {
-        // const lineToDelete = []
-        // grid.forEach((line, index) => {
-        //     if (checkFullLine(line))
-        //         lineToDelete.push(index)
-        // })
+    const clearFullLine = (grid) => {
+        const lineToDelete = []
+        let newGrid = [...grid]
 
-        // console.log('lineToDelete', lineToDelete)
+        grid.forEach((line, index) => {
+            if (checkFullLine(line))
+                lineToDelete.push(index)
+        })
 
-        // const newGrid = [...grid]
+        // remove all full line
+        _.reverse(lineToDelete).forEach((index) => {
+            newGrid.splice(index, 1)
+        })
 
-        // lineToDelete.forEach((lineDelete) => {
-        //     newGrid[lineDelete] = feelLineWithEmpty()
-        // }, [])
+        // add new empty line in the top of grid
+        lineToDelete.forEach(() => {
+            newGrid.unshift(feelLineWithEmpty())
+        })
 
+        return newGrid
         // setGrid(newGrid)
-    }, [grid])
+    }
 
     const piecePositions = currentPiece ? convertCoords(currentPiece) : null
 
@@ -159,7 +158,7 @@ function Game() {
             newGrid[y][x] = currentPiece.type
         })
 
-        setGrid(newGrid)
+        setGrid(clearFullLine(newGrid))
         emitToEvent('piece', '', ({ error, piece }) => {
             setCurrentPiece(piece)
         })
