@@ -25,6 +25,10 @@ function Game() {
             setLeader(isLeader)
         })
 
+        subscribeToEvent('stop_game', ({ looser }) => {
+            setGameStatus(`${looser} lose the game`)
+        })
+
         subscribeToEvent('start_game', () => {
             setGameStatus('started')
         })
@@ -43,22 +47,33 @@ function Game() {
         emitToEvent('start_game')
     }
 
-    return (
-        <div>
-            <button onClick={() => disconnectUser()}>Disconnect</button>
-            <button onClick={() => leaveGame()}>leaveGame</button>
-
-            {leader ? 
-                <button onClick={() => startGame()}>startGame</button>
-            : null}
-
-            {gameStatus === 'started' ?
+    if (gameStatus === 'started') {
+        return (
+            <div>
+                <button onClick={() => disconnectUser()}>Disconnect</button>
+                <button onClick={() => leaveGame()}>leaveGame</button>
+   
                 <GameGrid />
-            :
+           
+            </div>
+        )
+    }
+    else {
+        return (
+            <div>
+                <button onClick={() => disconnectUser()}>Disconnect</button>
+                <button onClick={() => leaveGame()}>leaveGame</button>
+    
+                {leader ? 
+                    <button onClick={() => startGame()}>startGame</button>
+                : null}
+    
                 <p>{gameStatus}</p>
-            }
-        </div>
-    )
+            </div>
+        )       
+    }
+
+  
 }
 
 export default Game

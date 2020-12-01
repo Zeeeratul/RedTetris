@@ -4,7 +4,6 @@ import { emitToEvent, subscribeToEvent } from '../../middlewares/socket'
 import _ from 'lodash'
 import './game.css'
 import Line from './Line'
-import { emit } from 'nodemon'
 
 const initGrid = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -12,26 +11,29 @@ const initGrid = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ['I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I'],
-    ['I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I'],
-    ['I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I'], 
-    // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-    // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
 ]
+
 
 // pieces functions
 const convertCoords = ({ position, structure }) => {
@@ -134,6 +136,12 @@ const addPieceToTheGrid = (piece, grid) => {
     return clearFullLine(newGrid)
 }
 
+const initialState = {
+    grid: initGrid,
+    currentPiece: null,
+    nextPiece: null
+}
+
 function reducer(state, action) {
     const { grid, currentPiece, nextPiece } = state
 
@@ -218,6 +226,9 @@ function reducer(state, action) {
             nextPiece
         }
     }
+    else if (action.type === 'reset') {
+        return initialState
+    }
     else {
         console.log('This key isn\'t supported: ', action.type)
         return state
@@ -225,11 +236,7 @@ function reducer(state, action) {
 }
 
 function Game() {
-    const [state, dispatch] = useReducer(reducer, {
-        grid: initGrid,
-        currentPiece: null,
-        nextPiece: null
-    })
+    const [state, dispatch] = useReducer(reducer, initialState)
     const { grid, currentPiece, nextPiece } = state
 
     useEffect(() => {
@@ -241,7 +248,10 @@ function Game() {
             dispatch({ type: 'ArrowDown' })
         }, 1000)
 
-        return () => clearInterval(intervalId)
+        return () => {
+            clearInterval(intervalId)
+            // dispatch({ type: 'reset' })
+        }
     }, [])
 
     useEffect(() => {
@@ -255,7 +265,7 @@ function Game() {
     useEffect(() => {
         if (lineCellsCounter(grid[1]) > 0) {
             console.log('you lose')
-            // emitToEvent('lose_game')
+            emitToEvent('lose_game')
         }
     }, [grid])
 
