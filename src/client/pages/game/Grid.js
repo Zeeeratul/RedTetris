@@ -32,7 +32,6 @@ const initGrid = [
     // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
 ]
 
-// pure function
 const convertCoords = ({ position, structure }) => {
     const convertedPiece = []
     const [x_position, y_position] = position 
@@ -47,7 +46,8 @@ const convertCoords = ({ position, structure }) => {
     return convertedPiece
 }
 
-// pure function
+const fillLineWithEmpty = () => new Array(10).fill(0)
+
 const rotatePiece = (piece) => {
     const N = piece.length
     const pieceClone = piece.map((arr) => arr.slice())
@@ -64,10 +64,9 @@ const rotatePiece = (piece) => {
     return pieceClone
 }
 
-// pure function
-const checkVerticalPosition = (futurPosition, grid) => {
-    for (let i = 0; i < futurPosition.length; i++) {
-        const [x, y] = futurPosition[i]
+const checkVerticalPosition = (positions, grid) => {
+    for (let i = 0; i < positions.length; i++) {
+        const [x, y] = positions[i]
         if (y > 21)
             return false
         if (grid[y][x])
@@ -76,10 +75,9 @@ const checkVerticalPosition = (futurPosition, grid) => {
     return true
 }
 
-// pure function
-const checkHorizontalPosition = (futurPosition, grid) => {
-    for (let i = 0; i < futurPosition.length; i++) {
-        const [x, y] = futurPosition[i]
+const checkHorizontalPosition = (positions, grid) => {
+    for (let i = 0; i < positions.length; i++) {
+        const [x, y] = positions[i]
         if (x < 0 || x > 9)
             return false
         if (grid[y][x])
@@ -88,23 +86,17 @@ const checkHorizontalPosition = (futurPosition, grid) => {
     return true
 }
 
-// change the name
-
-const checkFullLine = (line) => {
+const lineCellsCounter = (line) => {
     const reducer = (accumulator, currentValue) => accumulator + (currentValue ? 1 : 0)
-    if (line.reduce(reducer, 0) === 10)
-        return true
-    else
-        return false
+    return line.reduce(reducer, 0)
 }
 
-// change the name
 const clearFullLine = (grid) => {
     const lineToDelete = []
     let newGrid = [...grid]
 
     grid.forEach((line, index) => {
-        if (checkFullLine(line))
+        if (lineCellsCounter(line) === 10)
             lineToDelete.push(index)
     })
 
@@ -115,126 +107,113 @@ const clearFullLine = (grid) => {
 
     // add new empty line in the top of grid
     lineToDelete.forEach(() => {
-        newGrid.unshift(feelLineWithEmpty())
+        newGrid.unshift(fillLineWithEmpty())
     })
 
     return newGrid
 }
 
-const feelLineWithEmpty = () => new Array(10).fill(0)
-
-
-
-const initialState = {
-    grid: initGrid,
-    currentPiece: null,
-    nextPiece: null
-}
-
-const handleRotate = (currentPiece, grid) => {
-    const structureRotated = rotatePiece(currentPiece.structure)
-    const updatedPiece = { ...currentPiece, structure: structureRotated }
-    const newPiecePositions = convertCoords(updatedPiece)
-    if (checkVerticalPosition(newPiecePositions, grid) && checkHorizontalPosition(newPiecePositions, grid))
-        return updatedPiece
-    else
-        return currentPiece   
-
-        // setCurrentPiece(updatedPiece)
-}
-
-
-const handleMoveHorizontal = (x_axis_direction, grid, currentPiece) => {
-    const [x, y] = currentPiece.position
-    const updatedPiece = { ...currentPiece, position: [x + x_axis_direction, y] }
-    const newPiecePositions = convertCoords(updatedPiece)
-    if (checkHorizontalPosition(newPiecePositions, grid))
-        return updatedPiece
-    else
-        return currentPiece
-}
-
-
-const handleMoveBottom = (y_axis_direction, grid, currentPiece) => {
-    const [x, y] = currentPiece.position
-    const updatedPiece = { ...currentPiece, position: [x, y + y_axis_direction] }
-    const newPiecePositions = convertCoords(updatedPiece)
-
-    if (checkVerticalPosition(newPiecePositions, grid))
-        return updatedPiece
-    else {
-        return currentPiece
-    }
-}
-
-const addPieceToTheGrid = (currentPiece, grid) => {
+const addPieceToTheGrid = (piece, grid) => {
     const newGrid = [...grid]
-    const piecePositions = convertCoords(currentPiece)
 
-    piecePositions.forEach((part) => {
+    piece.positions.forEach((part) => {
         const [x, y] = part
-        newGrid[y][x] = currentPiece.type
+        newGrid[y][x] = piece.type
     })
 
     return clearFullLine(newGrid)
 }
 
-function reducer(state, action) {
-    const { grid, currentPiece, nextPiece } = state;
+const movePiece = (piece, xDirection, yDirection) => {
+    return {
+        ...piece,
+        positions: piece.positions.map((part) => [part[0] + xDirection, part[1] + yDirection]),
+        position: [piece.position[0] + xDirection, piece.position[1] + yDirection]
+    }
+}
 
-    if (action.type === 'ArrowRight') {
-        return {
-            ...state,
-            currentPiece: handleMoveHorizontal(1, grid, currentPiece)
-        }
-    } 
-    else if (action.type === 'ArrowLeft') {
-        return {
-            ...state,
-            currentPiece: handleMoveHorizontal(-1, grid, currentPiece)
-        }
-    } 
+function reducer(state, action) {
+    const { grid, currentPiece, nextPiece } = state
+
+    if (action.type === 'ArrowRight' || action.type === 'ArrowLeft') {
+        const xDirection = action.type === 'ArrowRight' ? 1 : -1 
+        const updatedPiece = movePiece(currentPiece, xDirection, 0)
+
+        if (checkHorizontalPosition(updatedPiece.positions, grid))
+            return {
+                ...state,
+                currentPiece: updatedPiece
+            }
+        else
+            return state
+    }
     else if (action.type === 'ArrowDown') {
-        const updatedPiece = handleMoveBottom(1, grid, currentPiece)
-        if (updatedPiece.position === currentPiece.position) {
+        const updatedPiece = movePiece(currentPiece, 0, 1)
+
+        if (checkVerticalPosition(updatedPiece.positions, grid))
+            return {
+                ...state,
+                currentPiece: updatedPiece
+            }
+        else
             return {
                 grid: addPieceToTheGrid(currentPiece, grid),
                 currentPiece: nextPiece,
                 nextPiece: null
             }
-        }
-        else {
-            return {
-                ...state,
-                currentPiece: updatedPiece
-            }
-        }
     } 
     else if (action.type === 'ArrowUp') {
-        const updatedPiece = handleRotate(currentPiece, grid)
-        return {
-            ...state,
-            currentPiece: updatedPiece
+
+        const rotatedStructure = rotatePiece(currentPiece.structure)
+        const newPositions = convertCoords({
+            position: currentPiece.position,
+            structure: rotatedStructure
+        })
+        
+        if (checkVerticalPosition(newPositions, grid) && checkHorizontalPosition(newPositions, grid)) {
+            return {
+                ...state,
+                currentPiece: {
+                    ...currentPiece,
+                    structure: rotatedStructure,
+                    positions: newPositions
+                }
+            }
         }
-    } 
-    else if (action.type === 'piece') {
-        return {
-            ...state,
-            currentPiece: action.payload
-        }
-    }
-    else if (action.type === 'next_piece') {
-        return {
-            ...state,
-            nextPiece: action.payload
-        }
+        else
+            return state
     }
     // space bar
     else if (action.type === ' ') {
-        console.log('space nbars')
+        // let countDown = 0
+
+ 
+        // while (true) {
+        //     const piece = handleMoveBottom(countDown, grid, currentPiece)
+        //     if (!piece)
+        //         break
+        //     countDown++
+        // }
+        // const finalPiece = handleMoveBottom(countDown, grid, currentPiece)
+        // console.log(finalPiece)
+        // return {
+        //     grid: addPieceToTheGrid(finalPiece, grid),
+        //     currentPiece: nextPiece,
+        //     nextPiece: null
+        // }
+    }
+    else if (action.type === 'piece') {
+        const currentPiece = { ...action.payload, positions: convertCoords(action.payload) }
         return {
             ...state,
-            // nextPiece: action.payload
+            currentPiece
+        }
+    }
+    else if (action.type === 'next_piece') {
+        const nextPiece = { ...action.payload, positions: convertCoords(action.payload) }
+        return {
+            ...state,
+            nextPiece
         }
     }
     else {
@@ -243,11 +222,14 @@ function reducer(state, action) {
 
     //   throw new Error()
     }
-  }
-
+}
 
 function Game() {
-    const [state, dispatch] = useReducer(reducer, initialState)
+    const [state, dispatch] = useReducer(reducer, {
+        grid: initGrid,
+        currentPiece: null,
+        nextPiece: null
+    })
     const { grid, currentPiece, nextPiece } = state
 
     useEffect(() => {
@@ -255,6 +237,11 @@ function Game() {
             dispatch({ type: 'piece', payload: piece })
         })
 
+        // const intervalId = setInterval(() => {
+        //     dispatch({ type: 'ArrowDown' })
+        // }, 1000)
+
+        // return () => clearInterval(intervalId)
     }, [])
 
     useEffect(() => {
@@ -266,18 +253,14 @@ function Game() {
     }, [nextPiece])
 
     useEffect(() => {
-        const intervalId = setInterval(() => {
-            dispatch({ type: 'ArrowDown' })
-        }, 2000)
-
-        return () => clearInterval(intervalId)
-    }, [])
+        if (lineCellsCounter(grid[1]) > 0) {
+            console.log('you lose')
+        }
+    }, [grid])
 
     const piecePositions = currentPiece ? convertCoords(currentPiece) : null
 
-    useEventListener('keydown', ({ key }) => dispatch({
-        type: key
-    }))
+    useEventListener('keydown', ({ key }) => dispatch({ type: key }))
 
     return (
         <div>
@@ -287,7 +270,7 @@ function Game() {
                         return (
                             <Line 
                                 key={`line_${lineNumber}`}
-                                currentPiece={piecePositions}
+                                currentPiece={currentPiece.positions}
                                 currentType={currentPiece.type}
                                 cells={data}
                                 lineNumber={lineNumber}
