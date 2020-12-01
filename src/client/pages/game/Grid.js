@@ -4,6 +4,7 @@ import { emitToEvent, subscribeToEvent } from '../../middlewares/socket'
 import _ from 'lodash'
 import './game.css'
 import Line from './Line'
+import { emit } from 'nodemon'
 
 const initGrid = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -32,6 +33,7 @@ const initGrid = [
     // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
 ]
 
+// pieces functions
 const convertCoords = ({ position, structure }) => {
     const convertedPiece = []
     const [x_position, y_position] = position 
@@ -46,7 +48,6 @@ const convertCoords = ({ position, structure }) => {
     return convertedPiece
 }
 
-const fillLineWithEmpty = () => new Array(10).fill(0)
 
 const rotatePiece = (piece) => {
     const N = piece.length
@@ -54,11 +55,11 @@ const rotatePiece = (piece) => {
 
     for (let i = 0; i < N / 2; i++) {
         for (let j = i; j < N - i - 1; j++) {
-            let temp = pieceClone[i][j];
-            pieceClone[i][j] = pieceClone[N - 1 - j][i];
-            pieceClone[N - 1 - j][i] = pieceClone[N - 1 - i][N - 1 - j];
-            pieceClone[N - 1 - i][N - 1 - j] = pieceClone[j][N - 1 - i];
-            pieceClone[j][N - 1 - i] = temp;
+            let temp = pieceClone[i][j]
+            pieceClone[i][j] = pieceClone[N - 1 - j][i]
+            pieceClone[N - 1 - j][i] = pieceClone[N - 1 - i][N - 1 - j]
+            pieceClone[N - 1 - i][N - 1 - j] = pieceClone[j][N - 1 - i]
+            pieceClone[j][N - 1 - i] = temp
         }
     }
     return pieceClone
@@ -85,6 +86,15 @@ const checkHorizontalPosition = (positions, grid) => {
     }
     return true
 }
+
+const movePiece = (piece, xDirection, yDirection) => ({
+    ...piece,
+    positions: piece.positions.map((part) => [part[0] + xDirection, part[1] + yDirection]),
+    position: [piece.position[0] + xDirection, piece.position[1] + yDirection]
+})
+
+// grid functions
+const fillLineWithEmpty = () => new Array(10).fill(0)
 
 const lineCellsCounter = (line) => {
     const reducer = (accumulator, currentValue) => accumulator + (currentValue ? 1 : 0)
@@ -122,14 +132,6 @@ const addPieceToTheGrid = (piece, grid) => {
     })
 
     return clearFullLine(newGrid)
-}
-
-const movePiece = (piece, xDirection, yDirection) => {
-    return {
-        ...piece,
-        positions: piece.positions.map((part) => [part[0] + xDirection, part[1] + yDirection]),
-        position: [piece.position[0] + xDirection, piece.position[1] + yDirection]
-    }
 }
 
 function reducer(state, action) {
@@ -219,8 +221,6 @@ function reducer(state, action) {
     else {
         console.log('This key isn\'t supported: ', action.type)
         return state
-
-    //   throw new Error()
     }
 }
 
@@ -237,11 +237,11 @@ function Game() {
             dispatch({ type: 'piece', payload: piece })
         })
 
-        // const intervalId = setInterval(() => {
-        //     dispatch({ type: 'ArrowDown' })
-        // }, 1000)
+        const intervalId = setInterval(() => {
+            dispatch({ type: 'ArrowDown' })
+        }, 1000)
 
-        // return () => clearInterval(intervalId)
+        return () => clearInterval(intervalId)
     }, [])
 
     useEffect(() => {
@@ -255,10 +255,9 @@ function Game() {
     useEffect(() => {
         if (lineCellsCounter(grid[1]) > 0) {
             console.log('you lose')
+            // emitToEvent('lose_game')
         }
     }, [grid])
-
-    const piecePositions = currentPiece ? convertCoords(currentPiece) : null
 
     useEventListener('keydown', ({ key }) => dispatch({ type: key }))
 

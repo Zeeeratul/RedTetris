@@ -9,9 +9,8 @@ function Game() {
 
     const location = useLocation()
     const history = useHistory()
-    const [players, setPlayers] = useState([])
     const [leader, setLeader] = useState(false)
-    const [gameStart, setGameStart] = useState(false)
+    const [gameStatus, setGameStatus] = useState('waiting for start')
 
     useEffect(() => {
         let hashUrl = location.hash
@@ -27,7 +26,7 @@ function Game() {
         })
 
         subscribeToEvent('start_game', () => {
-            setGameStart(true)
+            setGameStatus('started')
         })
 
         subscribeToEvent('leave_game', ({ information }) => {
@@ -52,19 +51,11 @@ function Game() {
             {leader ? 
                 <button onClick={() => startGame()}>startGame</button>
             : null}
-            {/* <div>
-                <h1>Players:</h1>
-                <ul>
-                    {players.map((player) => (
-                        <li key={`player_${player}`}>{player}</li>
-                    ))}
-                </ul>
-            </div> */}
 
-            {gameStart ?
+            {gameStatus === 'started' ?
                 <GameGrid />
             :
-                <p>not yet start</p>
+                <p>{gameStatus}</p>
             }
         </div>
     )

@@ -49,28 +49,29 @@ function App() {
   const history = useHistory()
 
   return (
-    <Router history={history}>
-      <Switch>
-        <Route exact path="/landing">
-          <Landing />
-        </Route>
-          <PrivateRoute path="/games-list">
-        {/* <ErrorBoundary
-          FallbackComponent={ErrorFallback}
-          onReset={() => {
-            // reset the state of your app so the error doesn't happen again
-            localStorage.removeItem('red_tetris_token')
-            window.location = '/landing'
-          }}
-        > */}
-            <GamesList />
-        {/* </ErrorBoundary> */}
-          </PrivateRoute>
-          <PrivateRoute path="/">
-            <Game />
-          </PrivateRoute>
-      </Switch>
-    </Router>
+    <p>tet</p>
+    // <Router history={history}>
+    //   <Switch>
+    //     <Route exact path="/landing">
+    //       <Landing />
+    //     </Route>
+    //       <PrivateRoute path="/games-list">
+    //     {/* <ErrorBoundary
+    //       FallbackComponent={ErrorFallback}
+    //       onReset={() => {
+    //         // reset the state of your app so the error doesn't happen again
+    //         localStorage.removeItem('red_tetris_token')
+    //         window.location = '/landing'
+    //       }}
+    //     > */}
+    //         <GamesList />
+    //     {/* </ErrorBoundary> */}
+    //       </PrivateRoute>
+    //       <PrivateRoute path="/">
+    //         <Game />
+    //       </PrivateRoute>
+    //   </Switch>
+    // </Router>
   )
 }
 

@@ -92,6 +92,22 @@ class Sockets {
             })
 
 
+            socket.on('lose_game', () => {
+                // check that player is leader of the game
+                const { username, game_name } = socket.player
+                console.log(`${username}, LOSE`)
+
+                // generate piece !!
+                // init piece index player at 0
+                // send to all people in the room the first piece
+
+                const game = this.games.getGame(game_name)
+                if (game) {
+                    this.authRoutes.to(game_name).emit('start_game')
+                }
+            })
+
+
             socket.on('piece', (_, callback) => {
 
                 // check that player is leader of the game
