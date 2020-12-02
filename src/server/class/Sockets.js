@@ -15,7 +15,6 @@ class Sockets {
 
     listenToEvents() {
 
-        // login route
         this.io.on('connection', (socket) => {
             socket.on('login', (username, callback) => {
                 if (!username) return
@@ -36,165 +35,153 @@ class Sockets {
             })
         })
 
-        // all others routes
-        // middleware checking user token
         this.authRoutes.use((socket, next) => {
             const token = socket?.handshake?.query?.token
-            console.log(token)
 
             if (!token)
                 return next(new Error('No token provided'))
+
             const player = _.find(this.users, { id: token })
-            // const player = this.players.getPlayer({ id: token })
             if (!player)
                 return next(new Error('Authentication error'))
+
             socket.player = player
             next()
         })
         .on('connection', (socket) => {
-            console.log('Connected on private routes')
+            console.log('Connected on private routes', socket.player)
 
+            // games functions
+            socket.on('create', (game_name, callback) => {
+                if (!game_name)
+                    return callback({ error: 'invalid_game_name '})
 
-            // games CRUD
-
-            socket.on('create_game', (game_name, callback) => {
-
-                const lobbyExists = this.games.getGame(game_name)
-                if (lobbyExists) {
-                    callback({ error: 'game_name taken '})
+                const game = this.games.getGame(game_name)
+                if (game) {
+                    callback({ error: 'game_name_taken '})
                 }
                 else {
+                    socket.player = { ...socket.player, game_name }
                     socket.join(game_name)
                     this.games.createGame(game_name, socket.player)
-                    socket.player.joinGame(game_name)
-                    const url = `#${game_name}[${socket.player.username}]`
-                    callback({ url })
+                    callback({ url: `#${game_name}` })
                 }
-      
             })
 
-            socket.on('join_game', (game_name, callback) => {
-
-                const lobbyExists = this.games.getGame(game_name)
-                if (!lobbyExists)
-                    callback({ error: 'unknown game'})
+            socket.on('join', (game_name, callback) => {
+                const game = this.games.getGame(game_name)
+                if (!game)
+                    return callback({ error: 'game not found'})
+                 
+                if (game.players.length >= game.maxPlayers) {
+                    console.log('sorry game is full')
+                    callback({ error: 'game_full'})
+                }
                 else {
+                    game.addPlayer(socket.player)
+                    socket.player = { ...socket.player, game_name }
                     socket.join(game_name)
-                    this.games.joinGame(game_name, socket.player)
-                    socket.player.joinGame(game_name)
-                    const url = `#${game_name}[${socket.player.username}]`
-                    callback({ url })
+                    callback({ url: `#${game_name}` })
+                    this.authRoutes.to(game_name).emit('information', {
+                        type: 'join',
+                        username: socket.player.username
+                    })
                 }
             })
+            
+            socket.on('leave', () => {
 
-            socket.on('start_game', () => {
-
-                // check that player is leader of the game
-                const { username, game_name } = socket.player
-
-                // generate piece !!
-                // init piece index player at 0
-                // send to all people in the room the first piece
-
+                const { game_name } = socket.player
                 const game = this.games.getGame(game_name)
-                if (game) {
-                    this.authRoutes.to(game_name).emit('start_game')
-                }
+                if (game && game.players.length > 1)
+                    game.removePlayer(socket.player.id)
+                else
+                    this.games.destroyGame(game_name)
+
+                delete socket.player.game_name
+                this.authRoutes.to(game_name).emit('information', {
+                    type: 'leave',
+                    username: socket.player.username
+                })
+                socket.leave(game_name)
             })
 
-
-            socket.on('lose_game', () => {
-                const { username, game_name } = socket.player
-                console.log(`${username}, LOSE`)
-
+            socket.on('is_leader', (_, callback) => {
+                const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
-                if (game) {
-                    this.authRoutes.to(game_name).emit('stop_game', { looser: username })
-                }
+                if (!game)
+                    return
+
+                callback({ isLeader: game.isLeader(id) })
             })
-
-
-            socket.on('piece', (_, callback) => {
-
-                // check that player is leader of the game
-                const { username, game_name } = socket.player
+            
+            socket.on('start', () => {
+                const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
-                const piece = game.givePiece(username)
-                callback({ piece })
-            })
-
-
-            socket.on('is_leader', () => {
-                const { username, game_name } = socket.player
-                const game = this.games.getGame(game_name)
-                const isLeader = game.isLeader(username)
-                socket.emit('is_leader', { isLeader })
-            })
-
-            socket.on('get_players', () => {
-                const { username, game_name } = socket.player
-                const game = this.games.getGame(game_name)
-                const players = game.getPlayers()
-
+                if (!game || !game.isLeader(id))
+                    return
                 
-
-                socket.emit('get_players', { data: players })
+                game.changeStatus('started')
+                this.authRoutes.to(game_name).emit('information', {
+                    type: 'started',
+                })
             })
 
+            socket.on('lose', () => {
+                const { game_name, username } = socket.player
+                const game = this.games.getGame(game_name)
+                if (!game)
+                    return
+                
+                game.changeStatus('terminated')
+                this.authRoutes.to(game_name).emit('information', {
+                    type: 'lose_game',
+                    username: username
+                })
+            })
+            
+
+            // lobbies functions
             socket.on('get_games', (_, callback) => {
                 const games = this.games.getGames()
                 callback({ games })
             })
 
-            socket.on('leave_game', () => {
-                const { username, game_name } = socket.player
+
+
+
+
+
+            socket.on('piece', (_, callback) => {
+                const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
-                const isLeader = game.isLeader(username)
-                let message = ''
+                if (!game)
+                    return
 
-                if (isLeader) {
-                    if (game.player2) {
-                        message = `${username} leave the game, you are now the leader of the game`
-                        game.tranferOwnership()
-                    }
-                    else
-                        this.games.destroyGame(game_name)
-                }
-                else {
-                    game.removePlayer(username)
-                    message = `${username} leave the game`
-                }
-
-                socket.to(game_name).emit('leave_game', { information: message })
-                socket.leave(game_name)
-                socket.player.leaveGame()
+                callback({ piece: game.givePiece(id) })
             })
 
+
             socket.on('disconnect', () => {
-                const { username, game_name } = socket.player
+                console.log('disconnect', socket.player)
+                const { game_name, id } = socket.player
+
+                // game part
                 const game = this.games.getGame(game_name)
-                if (game) {
-                    const isLeader = game.isLeader(username)
-                    let message = ''
-    
-                    if (isLeader) {
-                        if (game.player2) {
-                            message = `${username} leave the game, you are now the leader of the game`
-                            game.tranferOwnership()
-                        }
-                        else
-                            this.games.destroyGame(game_name)
-                    }
-                    else {
-                        game.removePlayer(username)
-                        message = `${username} leave the game`
-                    }
-    
-                    socket.to(game_name).emit('leave_game', { information: message })
-                    socket.leave(game_name)
-                    socket.player.leaveGame()
-                }
-                this.players.removePlayer(username)
+                if (game && game.players.length > 1)
+                    game.removePlayer(socket.player.id)
+                else
+                    this.games.destroyGame(game_name)
+
+                this.authRoutes.to(game_name).emit('information', {
+                    type: 'leave',
+                    username: socket.player.username
+                })
+                socket.leave(game_name)
+
+
+                const userIndex = _.findIndex(this.users, { id })
+                this.users.splice(userIndex, 1)
             })
         })
     }

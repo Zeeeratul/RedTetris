@@ -19,13 +19,13 @@ const GamesList = () => {
             emitToEvent('get_games', '', ({ games }) => {
                 setGames(games)
             })
-        }, 2000)
+        }, 5000)
 
         return () => clearInterval(timeoutRef)
     }, [])
 
     const createGame = () => {
-        emitToEvent('create_game', gameName, ({ error, url }) => {
+        emitToEvent('create', gameName, ({ error, url }) => {
             if (error) {
                 console.log(error)
             }
@@ -37,7 +37,7 @@ const GamesList = () => {
     }
 
     const joinGame = (gameName) => {
-        emitToEvent('join_game', gameName, ({ error, url }) => {
+        emitToEvent('join', gameName, ({ error, url }) => {
             if (error) {
                 console.log(error)
             }

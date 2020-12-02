@@ -1,80 +1,60 @@
 const _ = require('lodash')
 const { Piece } = require('./Piece')
+const { Player } = require('./Player')
 
 class Game {
     constructor(name, leader) {
         this.name = name
-        this.leader = leader
-        this.player2 = null
-        this.started = false
+        this.status = 'idle'
+        this.maxPlayers = 2
+        this.players = [new Player(leader)]
+        this.leaderId = leader.id
         this.pieces = this.generatePieces()
     }
 
+    addPlayer(playerData) {
+        const player = new Player(playerData)
+        this.players.push(player)
+    }
+
+    changeStatus(status) {
+        this.status = status
+    }
+
+    isLeader(userId) {
+        return this.leaderId === userId
+    }
+
+    removePlayer(playerId) {
+        const index = _.findIndex(this.players, { id: playerId })
+        this.players.splice(index, 1)
+
+        // if the leader leave give leader to another
+        if (playerId === this.leaderId) {
+            this.leaderId = this.players[0].id
+        }
+    }
+    
+    getPlayer(userId) {
+        const player = _.find(this.players, { id: userId })
+        return player
+    }
+
+    // pieces handling
     generatePieces() {
         const pieces = []
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 100; i++) {
             const piece = new Piece()
             pieces.push(piece)
         }
         return pieces
     }
 
-    isLeader(username) {
-        return username === this.leader.username
-    }
-
-    addPlayer(player) {
-        this.player2 = player
-    }
-
-    removePlayer() {
-        this.player2 = null
-    }
-
-    tranferOwnership() {
-        this.leader = this.player2
-        this.player2 = null
-    }
-
-    getPlayer(username) {
-        if (this.leader.username === username) {
-            return this.leader
-        }
-        else if (this.player2.username === username) {
-            return this.player2
-        }
-    }
-
-    getPlayers() {
-        return { leader: this.leader, player2: this.player2 }
-    }
-
-    givePiece(username) {
-        const player = this.getPlayer(username)
-        
+    givePiece(userId) {
+        const player = this.getPlayer(userId)
+        const currentPieceIndex = player.currentPieceIndex
         player.incrementCurrentPieceIndex()
-        console.log(player)
-
-        console.log(this.pieces)
-        
-        // console.log(this.pieces, 'new tab \n')
-        // let pieceIndex = 0
-        // if (this.leader.username === username) {
-        //     pieceIndex = this.leader.currentPieceIndex
-        //     this.leader.incrementCurrentPieceIndex()
-        //     // console.log('leader get new piece', pieceIndex)
-        // }
-        // else if (this.player2.username === username) {
-        //     pieceIndex = this.leader.currentPieceIndex
-        //     this.player2.incrementCurrentPieceIndex()
-        //     // console.log('player2 get new piece', pieceIndex)
-        // }
-        // else console.log('should be impossible to have username not equal to one of the two player')
-    
-        // console.log(`${username} with piece index: ${pieceIndex}`)
-        // return this.pieces[pieceIndex]
-
-        return new Piece()
+        return this.pieces[currentPieceIndex]
     }
 
 }

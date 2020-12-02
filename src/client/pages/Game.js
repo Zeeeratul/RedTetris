@@ -3,75 +3,84 @@ import { useLocation, useHistory } from "react-router-dom"
 import { initiateSocket, disconnectSocket, disconnectUser, checkConnection, subscribeToEvent, emitToEvent } from '../middlewares/socket'
 import GameGrid from './game/Grid';
 
-const regex = new RegExp('^#[a-zA-Z0-9]*[[a-zA-Z0-9]*]$')
+// const regex = new RegExp('^#[a-zA-Z0-9]*[[a-zA-Z0-9]*]$')
 
 function Game() {
 
     const location = useLocation()
     const history = useHistory()
     const [leader, setLeader] = useState(false)
-    const [gameStatus, setGameStatus] = useState('waiting for start')
+    const [gameStatus, setGameStatus] = useState('idle')
+
+    // useEffect(() => {
+    //     let hashUrl = location.hash
+    //     if (!regex.test(hashUrl))  {
+    //         history.push('/landing')
+    //     }
+    // }, [location, history])
 
     useEffect(() => {
-        let hashUrl = location.hash
-        if (!regex.test(hashUrl))
-            history.push('/landing')
-    }, [location, history])
-
-    useEffect(() => {
-        emitToEvent('is_leader')
-
-        subscribeToEvent('is_leader', ({ isLeader }) => {
+        emitToEvent('is_leader', '', ({ isLeader }) => {
             setLeader(isLeader)
         })
 
-        subscribeToEvent('stop_game', ({ looser }) => {
-            setGameStatus(`${looser} lose the game`)
+        subscribeToEvent('information', ({ type, username }) => {
+            console.log(type)
+            if (type === 'leave') {
+                emitToEvent('is_leader', '', ({ isLeader }) => {
+                    setLeader(isLeader)
+                })
+            }
+            else if (type === 'started') {
+                setGameStatus(type)
+            }
+            else if (type === 'lose_game') {
+                console.log(`${username} lose game`)
+                setGameStatus('terminated')
+            }
         })
 
-        subscribeToEvent('start_game', () => {
-            setGameStatus('started')
-        })
-
-        subscribeToEvent('leave_game', ({ information }) => {
-            emitToEvent('is_leader')
-        })
     }, [])
 
     const leaveGame = () => {
-        emitToEvent('leave_game')
+        emitToEvent('leave')
         history.push('/games-list')
     }
 
     const startGame = () => {
-        emitToEvent('start_game')
+        emitToEvent('start')
     }
+
 
     if (gameStatus === 'started') {
         return (
             <div>
-                <button onClick={() => disconnectUser()}>Disconnect</button>
-                <button onClick={() => leaveGame()}>leaveGame</button>
-   
                 <GameGrid />
-           
             </div>
         )
     }
-    else {
-        return (
-            <div>
-                <button onClick={() => disconnectUser()}>Disconnect</button>
-                <button onClick={() => leaveGame()}>leaveGame</button>
-    
-                {leader ? 
-                    <button onClick={() => startGame()}>startGame</button>
-                : null}
-    
-                <p>{gameStatus}</p>
-            </div>
-        )       
-    }
+
+    return (
+        <div>
+            <button onClick={() => disconnectUser()}>Disconnect</button>
+            <button onClick={() => leaveGame()}>Leave the Game</button>
+
+            {leader ? 
+                <button onClick={() => startGame()}>Start the Game</button>
+            : 
+            null}
+
+            {gameStatus === 'started' ?
+                <div>
+                    GAME GRID !
+                </div>
+            :
+            <p>{gameStatus}</p>
+            }
+  
+
+        </div>
+    )
 
   
 }

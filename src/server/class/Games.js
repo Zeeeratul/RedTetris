@@ -13,16 +13,12 @@ class Games {
 
     destroyGame(game_name) {
         const index = _.findIndex(this.games, { name: game_name })
-        this.games.splice(index, 1)
+        if (index !== -1) 
+            this.games.splice(index, 1)
     }
 
-    joinGame(game_name, player) {
-        const game = _.find(this.games, { name: game_name })
-        game.addPlayer(player)
-    }
-
-    getGame(lobby_name) {
-        return _.find(this.games, { name: lobby_name }) || null
+    getGame(game_name) {
+        return _.find(this.games, { name: game_name }) || null
     }
 
     getGames() {

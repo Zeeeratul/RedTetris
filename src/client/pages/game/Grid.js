@@ -265,25 +265,23 @@ function Game() {
     useEffect(() => {
         if (lineCellsCounter(grid[1]) > 0) {
             console.log('you lose')
-            emitToEvent('lose_game')
+            emitToEvent('lose')
         }
     }, [grid])
 
     useEventListener('keydown', ({ key }) => dispatch({ type: key }))
 
 
+    if (currentPiece) {
 
-
-    return (
-        <div>
-            {nextPiece ? 
+        return (
+            <div>
+                {nextPiece ? 
                 <p>Next piece is {nextPiece.type}</p>
-            :
+                :
                 <p>Next piece</p>
-            }
+                }
 
-
-            {currentPiece ?
                 <div className="grid" >
                     {grid.map((data, lineNumber) => {
                         return (
@@ -299,12 +297,12 @@ function Game() {
                     }
                     )}
                 </div>
-                : 
-                <p>wait for game to start</p>
-            }
-            
-        </div>
-    )
+            </div>
+        )
+    }
+    else 
+    return <p>IDK WHAT</p>
+
 }
 
 export default Game
