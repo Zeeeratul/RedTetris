@@ -2,10 +2,13 @@ const socketIO = require('socket.io')
 const { Games } = require('./Games')
 const { Players } = require('./Players')
 
+const _ = require('lodash')
+
 class Sockets {
     constructor(http) {
         this.games = new Games()
         this.players = new Players()
+        this.users = []
         this.io = socketIO(http)
         this.authRoutes = this.io.of('/auth')
     }
@@ -15,13 +18,20 @@ class Sockets {
         // login route
         this.io.on('connection', (socket) => {
             socket.on('login', (username, callback) => {
-                const findUser = this.players.getPlayer({ username })
+                if (!username) return
+
+                const findUser = _.find(this.users, { username })
+                // const findUser = this.players.getPlayer({ username })
                 if (findUser) {
                     callback({ error: 'username_taken' })
                 }
                 else {
+                    this.users.push({
+                        id: socket.id,
+                        username
+                    })
+                    // this.players.addPlayer(username, socket.id)
                     callback({ token: socket.id })
-                    this.players.addPlayer(username, socket.id)
                 }
             })
         })
@@ -34,7 +44,8 @@ class Sockets {
 
             if (!token)
                 return next(new Error('No token provided'))
-            const player = this.players.getPlayer({ id: token })
+            const player = _.find(this.users, { id: token })
+            // const player = this.players.getPlayer({ id: token })
             if (!player)
                 return next(new Error('Authentication error'))
             socket.player = player
@@ -108,7 +119,7 @@ class Sockets {
                 // check that player is leader of the game
                 const { username, game_name } = socket.player
                 const game = this.games.getGame(game_name)
-                const piece = game.givePiece()
+                const piece = game.givePiece(username)
                 callback({ piece })
             })
 

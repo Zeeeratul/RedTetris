@@ -21,7 +21,6 @@ class Server {
     }
 }
 
-console.log(process.versions)
 const server = new Server(app, http)
 
 server.listen()

@@ -12,7 +12,7 @@ class Game {
 
     generatePieces() {
         const pieces = []
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 10; i++) {
             const piece = new Piece()
             pieces.push(piece)
         }
@@ -36,13 +36,45 @@ class Game {
         this.player2 = null
     }
 
+    getPlayer(username) {
+        if (this.leader.username === username) {
+            return this.leader
+        }
+        else if (this.player2.username === username) {
+            return this.player2
+        }
+    }
+
     getPlayers() {
         return { leader: this.leader, player2: this.player2 }
     }
 
-    givePiece() {
-        const piece = new Piece()
-        return piece
+    givePiece(username) {
+        const player = this.getPlayer(username)
+        
+        player.incrementCurrentPieceIndex()
+        console.log(player)
+
+        console.log(this.pieces)
+        
+        // console.log(this.pieces, 'new tab \n')
+        // let pieceIndex = 0
+        // if (this.leader.username === username) {
+        //     pieceIndex = this.leader.currentPieceIndex
+        //     this.leader.incrementCurrentPieceIndex()
+        //     // console.log('leader get new piece', pieceIndex)
+        // }
+        // else if (this.player2.username === username) {
+        //     pieceIndex = this.leader.currentPieceIndex
+        //     this.player2.incrementCurrentPieceIndex()
+        //     // console.log('player2 get new piece', pieceIndex)
+        // }
+        // else console.log('should be impossible to have username not equal to one of the two player')
+    
+        // console.log(`${username} with piece index: ${pieceIndex}`)
+        // return this.pieces[pieceIndex]
+
+        return new Piece()
     }
 
 }

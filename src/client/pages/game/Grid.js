@@ -244,14 +244,14 @@ function Game() {
             dispatch({ type: 'piece', payload: piece })
         })
 
-        const intervalId = setInterval(() => {
-            dispatch({ type: 'ArrowDown' })
-        }, 1000)
+        // const intervalId = setInterval(() => {
+        //     dispatch({ type: 'ArrowDown' })
+        // }, 1000)
 
-        return () => {
-            clearInterval(intervalId)
-            // dispatch({ type: 'reset' })
-        }
+        // return () => {
+        //     clearInterval(intervalId)
+        //     // dispatch({ type: 'reset' })
+        // }
     }, [])
 
     useEffect(() => {
@@ -271,8 +271,18 @@ function Game() {
 
     useEventListener('keydown', ({ key }) => dispatch({ type: key }))
 
+
+
+
     return (
         <div>
+            {nextPiece ? 
+                <p>Next piece is {nextPiece.type}</p>
+            :
+                <p>Next piece</p>
+            }
+
+
             {currentPiece ?
                 <div className="grid" >
                     {grid.map((data, lineNumber) => {

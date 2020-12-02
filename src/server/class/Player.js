@@ -5,7 +5,11 @@ class Player {
         this.username = username
         this.id = id
         this.game_name = null
-        this.currentPiece = 0
+        this.currentPieceIndex = 0
+    }
+
+    incrementCurrentPieceIndex() {
+        this.currentPieceIndex = this.currentPieceIndex + 1
     }
 
     joinGame(game_name) {
