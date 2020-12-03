@@ -8,21 +8,6 @@ import Line from './Line'
 const initGrid = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -30,6 +15,21 @@ const initGrid = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
 ]
@@ -89,11 +89,14 @@ const checkHorizontalPosition = (positions, grid) => {
     return true
 }
 
-const movePiece = (piece, xDirection, yDirection) => ({
-    ...piece,
-    positions: piece.positions.map((part) => [part[0] + xDirection, part[1] + yDirection]),
-    position: [piece.position[0] + xDirection, piece.position[1] + yDirection]
-})
+const movePiece = (piece, xDirection, yDirection) => {
+    const newPiece = {
+        ...piece,
+        positions: piece.positions.map((part) => [part[0] + xDirection, part[1] + yDirection]),
+        position: [piece.position[0] + xDirection, piece.position[1] + yDirection]
+    }
+    return newPiece
+}
 
 // grid functions
 const fillLineWithEmpty = () => new Array(10).fill(0)
@@ -134,6 +137,19 @@ const addPieceToTheGrid = (piece, grid) => {
     })
 
     return clearFullLine(newGrid)
+}
+
+const getGridSpectrum = (grid, start = 0, end = 10) => {
+    const spectrum = []
+    for (let j = start; j < end; j++) {
+        for (let i = 0; i < 22; i++) {
+            if (grid[i][j] !== 0) {
+                spectrum.push(i)
+                break
+            }
+        }
+    }
+    return spectrum
 }
 
 const initialState = {
@@ -195,22 +211,16 @@ function reducer(state, action) {
     }
     // space bar
     else if (action.type === ' ') {
-        // let countDown = 0
+        let updatedPiece = movePiece(currentPiece, 0, 1)
+        updatedPiece = movePiece(updatedPiece, 0, 1)
+        updatedPiece = movePiece(updatedPiece, 0, 1)
 
- 
-        // while (true) {
-        //     const piece = handleMoveBottom(countDown, grid, currentPiece)
-        //     if (!piece)
-        //         break
-        //     countDown++
-        // }
-        // const finalPiece = handleMoveBottom(countDown, grid, currentPiece)
-        // console.log(finalPiece)
-        // return {
-        //     grid: addPieceToTheGrid(finalPiece, grid),
-        //     currentPiece: nextPiece,
-        //     nextPiece: null
-        // }
+        return {
+            grid: addPieceToTheGrid(updatedPiece, grid),
+            currentPiece: nextPiece,
+            nextPiece: null
+        }
+
     }
     else if (action.type === 'piece') {
         const currentPiece = { ...action.payload, positions: convertCoords(action.payload) }
@@ -262,11 +272,14 @@ function Game() {
         }
     }, [nextPiece])
 
+
     useEffect(() => {
         if (lineCellsCounter(grid[1]) > 0) {
             console.log('you lose')
             emitToEvent('lose')
         }
+
+
     }, [grid])
 
     useEventListener('keydown', ({ key }) => dispatch({ type: key }))
@@ -276,6 +289,7 @@ function Game() {
 
         return (
             <div>
+            <button onClick={() => getGridSpectrum(grid)}>Check grid spectrum</button>
                 {nextPiece ? 
                 <p>Next piece is {nextPiece.type}</p>
                 :

@@ -57,6 +57,13 @@ class Game {
         return this.pieces[currentPieceIndex]
     }
 
+    get gameInfo() {
+        return {
+            name: this.name,
+            players: this.players.length
+        }
+    }
+
 }
 
 exports.Game = Game

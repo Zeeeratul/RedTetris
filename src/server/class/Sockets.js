@@ -15,23 +15,28 @@ class Sockets {
 
     listenToEvents() {
 
+        /*
+            To do:
+
+            GAME
+            SPACE BAR KEY HANDLING
+            SEND GAMES INFO NICELY
+
+        */
+
         this.io.on('connection', (socket) => {
             socket.on('login', (username, callback) => {
                 if (!username) return
 
                 const findUser = _.find(this.users, { username })
-                // const findUser = this.players.getPlayer({ username })
-                if (findUser) {
-                    callback({ error: 'username_taken' })
-                }
-                else {
-                    this.users.push({
-                        id: socket.id,
-                        username
-                    })
-                    // this.players.addPlayer(username, socket.id)
-                    callback({ token: socket.id })
-                }
+                if (findUser)
+                    return callback({ error: 'username_taken' })
+
+                this.users.push({
+                    id: socket.id,
+                    username
+                })
+                callback({ token: socket.id })
             })
         })
 
@@ -76,6 +81,10 @@ class Sockets {
                 if (game.players.length >= game.maxPlayers) {
                     console.log('sorry game is full')
                     callback({ error: 'game_full'})
+                }
+                else if (game.status === 'started') {
+                    console.log('game has started wait for it to end')
+                    callback({ error: 'game_started'})
                 }
                 else {
                     game.addPlayer(socket.player)
@@ -139,12 +148,54 @@ class Sockets {
                     username: username
                 })
             })
+
+
+            socket.on('message', (content) => {
+                const { game_name, username } = socket.player
+                const game = this.games.getGame(game_name)
+                if (!game)
+                    return
+
+                const data = {
+                    content,
+                    username,
+                    date: new Date()
+                }
+
+                this.authRoutes.to(game_name).emit('information', {
+                    type: 'message',
+                    data
+                })
+            })
+
+
+            socket.on('spectrum', (spectrumArray) => {
+                const { game_name } = socket.player
+                const game = this.games.getGame(game_name)
+                if (!game)
+                    return
+
+                socket.to(game_name).emit('information', {
+                    type: 'spectrum',
+                    data: spectrumArray
+                })
+            })
             
+            socket.on('lines', (linesNumbers) => {
+                const { game_name } = socket.player
+                const game = this.games.getGame(game_name)
+                if (!game)
+                    return
+
+                socket.to(game_name).emit('information', {
+                    type: 'penalty',
+                    data: linesNumbers
+                })
+            })
 
             // lobbies functions
             socket.on('get_games', (_, callback) => {
-                const games = this.games.getGames()
-                callback({ games })
+                callback({ games: this.games.getGames() })
             })
 
 

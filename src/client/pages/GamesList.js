@@ -12,11 +12,13 @@ const GamesList = () => {
         initiateSocket()
 
         emitToEvent('get_games', '', ({ games }) => {
+            console.log('games', games)
             setGames(games)
         })
 
         const timeoutRef = setInterval(() => {
             emitToEvent('get_games', '', ({ games }) => {
+                console.log('games', games)
                 setGames(games)
             })
         }, 5000)

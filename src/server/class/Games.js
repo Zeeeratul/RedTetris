@@ -22,7 +22,9 @@ class Games {
     }
 
     getGames() {
-        return this.games
+        const games = _.filter(this.games, { status: 'idle' }) || []
+        const gamesInfo = games.map((game) => game.gameInfo)
+        return gamesInfo
     }
 
 

@@ -65,4 +65,27 @@ const piecesArray = [
     },
 ]
 
+
+// all actions
+
+// const ACTIONS = {
+//     LOGIN,
+//     DISCONNECT,
+//     CREATE,
+//     JOIN,
+//     LEAVE,
+//     START_GAME,
+//     END_GAME,
+//     LOSE_GAME,
+//     PIECE,
+//     LINES_PENALTY,
+//     SPECTRUM,
+//     CHAT,
+//     GET_GAMES,
+//     GET_PLAYERS,
+//     CHECK_LEADER,
+//     AUTH_ERROR
+
+// }
+
 exports.piecesArray = piecesArray
