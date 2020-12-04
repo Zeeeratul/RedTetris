@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import {
   BrowserRouter as Router,
   Switch,
@@ -9,47 +9,50 @@ import {
 import Landing from './pages/Landing'
 import GamesList from './pages/GamesList'
 import Game from './pages/Game'
-import { ErrorBoundary } from 'react-error-boundary'
+// import { ErrorBoundary } from 'react-error-boundary'
+
+type PrivateRouteProps = { children: React.ReactNode, path: string }
 
 // Route accessible only with a token
-function PrivateRoute({ children, ...props }) {
+function PrivateRoute({ children, path }: PrivateRouteProps) {
   const token = localStorage.getItem('red_tetris_token')
 
   return (
     <Route
-      {...props}
-      render={({ location }) =>
-        token ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-              pathname: "/landing",
-              state: { from: location }
-            }}
-          />
-        )
-      }
+        path={path}
+        render={({ location }) =>
+            token ? (
+            children
+            ) : (
+            <Redirect
+                to={{
+                pathname: "/landing",
+                state: { from: location }
+                }}
+            />
+            )
+        }
     />
   )
 }
 
-function ErrorFallback({error, resetErrorBoundary}) {
-  return (
-    <div role="alert">
-      <p>Something went wrong:</p>
-      <pre>{error.message}</pre>
-      <button onClick={resetErrorBoundary}>Try again</button>
-    </div>
-  )
-}
+// function ErrorFallback({error, resetErrorBoundary}) {
+//   return (
+//     <div role="alert">
+//       <p>Something went wrong:</p>
+//       <pre>{error.message}</pre>
+//       <button onClick={resetErrorBoundary}>Try again</button>
+//     </div>
+//   )
+// }
 
 function App() {
 
   const history = useHistory()
 
   return (
-    <Router history={history}>
+    // <Router history={history}>
+    <Router >
       <Switch>
         <Route exact path="/landing">
           <Landing />

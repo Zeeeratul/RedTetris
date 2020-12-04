@@ -14,7 +14,7 @@ export default function Landing() {
 
     const handleSubmit = () => {
         setError(null)
-        emitToEvent('login', username, ({ error, token }) => {
+        emitToEvent('login', username, ({ error, token }: any) => {
             if (error)
                 setError(error)
             else {

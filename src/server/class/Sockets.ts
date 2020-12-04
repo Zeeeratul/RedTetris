@@ -1,15 +1,25 @@
-const socketIO = require('socket.io')
-const { Games } = require('./Games')
-const { Players } = require('./Players')
+import _ from 'lodash'
+import Games from './Games'
+const SocketIO = require('socket.io')
 
-const _ = require('lodash')
+type User = {
+    id: string
+    username: string
+    game_name?: string
+}
 
 class Sockets {
-    constructor(http) {
+    games: any;
+    players: any;
+    users: User[];
+    // io: SocketIO.Socket;
+    io: any;
+    authRoutes: any;
+
+    constructor(http: any) {
         this.games = new Games()
-        this.players = new Players()
         this.users = []
-        this.io = socketIO(http)
+        this.io = SocketIO(http)
         this.authRoutes = this.io.of('/auth')
     }
 
@@ -24,23 +34,24 @@ class Sockets {
 
         */
 
-        this.io.on('connection', (socket) => {
-            socket.on('login', (username, callback) => {
+        this.io.on('connection', (socket: SocketIO.Socket) => {
+            socket.on('login', (username: string, callback: (data: {}) => void ) => {
                 if (!username) return
 
                 const findUser = _.find(this.users, { username })
                 if (findUser)
                     return callback({ error: 'username_taken' })
 
-                this.users.push({
+                const user: User = {
                     id: socket.id,
-                    username
-                })
+                    username,
+                }
+                this.users.push(user)
                 callback({ token: socket.id })
             })
         })
 
-        this.authRoutes.use((socket, next) => {
+        this.authRoutes.use((socket: any, next: any) => {
             const token = socket?.handshake?.query?.token
 
             if (!token)
@@ -53,11 +64,11 @@ class Sockets {
             socket.player = player
             next()
         })
-        .on('connection', (socket) => {
+        .on('connection', (socket: any) => {
             console.log('Connected on private routes', socket.player)
 
             // games functions
-            socket.on('create', (game_name, callback) => {
+            socket.on('create', (game_name: string, callback: any) => {
                 if (!game_name)
                     return callback({ error: 'invalid_game_name '})
 
@@ -73,7 +84,7 @@ class Sockets {
                 }
             })
 
-            socket.on('join', (game_name, callback) => {
+            socket.on('join', (game_name: string, callback: any) => {
                 const game = this.games.getGame(game_name)
                 if (!game)
                     return callback({ error: 'game not found'})
@@ -115,7 +126,7 @@ class Sockets {
                 socket.leave(game_name)
             })
 
-            socket.on('is_leader', (_, callback) => {
+            socket.on('is_leader', (_: any, callback: any) => {
                 const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
@@ -150,7 +161,7 @@ class Sockets {
             })
 
 
-            socket.on('message', (content) => {
+            socket.on('message', (content: string) => {
                 const { game_name, username } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
@@ -169,7 +180,7 @@ class Sockets {
             })
 
 
-            socket.on('spectrum', (spectrumArray) => {
+            socket.on('spectrum', (spectrumArray: []) => {
                 const { game_name } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
@@ -181,7 +192,7 @@ class Sockets {
                 })
             })
             
-            socket.on('lines', (linesNumbers) => {
+            socket.on('lines', (linesNumbers: number) => {
                 const { game_name } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
@@ -194,16 +205,12 @@ class Sockets {
             })
 
             // lobbies functions
-            socket.on('get_games', (_, callback) => {
+            socket.on('get_games', (_: any, callback: any) => {
                 callback({ games: this.games.getGames() })
             })
 
 
-
-
-
-
-            socket.on('piece', (_, callback) => {
+            socket.on('piece', (_: any, callback: any) => {
                 const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
@@ -211,7 +218,6 @@ class Sockets {
 
                 callback({ piece: game.givePiece(id) })
             })
-
 
             socket.on('disconnect', () => {
                 console.log('disconnect', socket.player)
@@ -230,7 +236,6 @@ class Sockets {
                 })
                 socket.leave(game_name)
 
-
                 const userIndex = _.findIndex(this.users, { id })
                 this.users.splice(userIndex, 1)
             })
@@ -238,4 +243,4 @@ class Sockets {
     }
 }
 
-exports.Sockets = Sockets
+export default Sockets
