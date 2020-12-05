@@ -5,8 +5,6 @@ import Sockets from './class/Sockets'
 require('dotenv').config()
 const port = process.env.PORT || 4000
 
-
-
 class Server {
     app: express.Application;
     http: any;

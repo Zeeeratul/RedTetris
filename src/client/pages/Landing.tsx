@@ -1,43 +1,49 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import {
     useHistory
 } from "react-router-dom"
-import { initiateSocket, disconnectSocket, emitToEvent } from '../middlewares/socket'
-import { login } from '../services/token'
+import { initiateSocket, emitToEvent } from '../middlewares/socket'
 
-export default function Landing() {
+import '../styles/LoginForm.css'
+import { ThemeContext } from '../utils/useTheme'
+
+function Landing() {
 
     const history = useHistory()
-
+    const { theme, changeTheme } = useContext(ThemeContext)
     const [username, setUsername] = useState('')
-    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        initiateSocket()
+    }, [])
 
     const handleSubmit = () => {
-        setError(null)
-        emitToEvent('login', username, ({ error, token }: any) => {
-            if (error)
-                setError(error)
+        emitToEvent('login', username, ({ username, error }: any) => {
+            if (error) {
+                console.log(error)
+            }
             else {
-                login(token)
-                history.push('/games-list')
+                console.log(username)
             }
         })
     }
 
-    useEffect(() => {
-        localStorage.removeItem('red_tetris_token')
-        initiateSocket()
-        return () => disconnectSocket()
-    }, [history])
-
-
     return (
-        <div className="pages">
+        <div className={`page ${theme}`}>
+            <button onClick={() => changeTheme()}>
+                Change theme
+            </button>
 
-            <input placeholder="username" name="username" value={username} onChange={(ev) => setUsername(ev.target.value)} />
-            {error ? <p>{error}</p> : null}
-            <button onClick={handleSubmit}>Log</button>
+            <h3>What's your username?</h3>
+            <input
+                className="usernameInput"
+                name="username"
+                maxLength={15}
+                onChange={(ev) => setUsername(ev.target.value)}
+                onKeyDown={({ code }) => code === "Enter" ? handleSubmit() : null}
+            />
         </div>
     )
-
 }
+
+export default Landing

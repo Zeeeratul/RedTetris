@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { initiateSocket, disconnectUser, subscribeToEvent, emitToEvent } from '../middlewares/socket'
+import { initiateSocket, subscribeToEvent, emitToEvent } from '../middlewares/socket'
 import { useHistory } from "react-router-dom"
 
 const GamesList = () => {
@@ -51,7 +51,7 @@ const GamesList = () => {
     
     return (
         <div style={{display: "flex", justifyContent: "space-between"}}>
-            <button onClick={() => disconnectUser()}>Disconnect</button>
+            {/* <button onClick={() => disconnectUser()}>Disconnect</button> */}
             <div className="games_list">
                 {games.map((game) => (
                     <p key={`game_${game.name}`} onClick={() => joinGame(game.name)}>Join this game: {game.name}</p>

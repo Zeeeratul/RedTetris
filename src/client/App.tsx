@@ -4,12 +4,13 @@ import {
   Switch,
   Route,
   Redirect,
-  useHistory
 } from "react-router-dom"
 import Landing from './pages/Landing'
 import GamesList from './pages/GamesList'
 import Game from './pages/Game'
-// import { ErrorBoundary } from 'react-error-boundary'
+
+import { useTheme, ThemeContext } from './utils/useTheme'
+import './styles/App.css'
 
 type PrivateRouteProps = { children: React.ReactNode, path: string }
 
@@ -36,44 +37,68 @@ function PrivateRoute({ children, path }: PrivateRouteProps) {
   )
 }
 
-// function ErrorFallback({error, resetErrorBoundary}) {
-//   return (
-//     <div role="alert">
-//       <p>Something went wrong:</p>
-//       <pre>{error.message}</pre>
-//       <button onClick={resetErrorBoundary}>Try again</button>
-//     </div>
-//   )
-// }
+
+const useSocket = () => {
+  const socket = io('/', {
+    // reconnection: false
+  })
+
+  React.useEffect(() => {
+    socket.on('connect', () => {
+      console.log('connected')
+    })
+    socket.on('disconnect', () => {
+      console.log('disconnect')
+    })
+  }, [socket])
+
+  const subscribeToEvent = (eventName: string, cb: (response: any) => any) => {
+    if (socket)
+      socket.on(eventName, (response: any) => {
+        console.log(`Websocket event: '${eventName}' received!`)
+        return cb(response)
+      })
+  }
+  const emitToEvent = (eventName: string, data = {}, cb = null) => {
+    if (socket) {
+      if (cb) {
+        socket.emit(eventName, data, cb)
+      }
+      else {
+        socket.emit(eventName, data)
+      }
+    }
+  }
+
+  return {
+    subscribeToEvent,
+    emitToEvent
+  }
+}
 
 function App() {
 
-  const history = useHistory()
+  const value = useTheme()
 
   return (
-    // <Router history={history}>
-    <Router >
-      <Switch>
-        <Route exact path="/landing">
-          <Landing />
-        </Route>
+    <ThemeContext.Provider value={value}>
+      <Router >
+        <Switch>
+          <Route exact path="/landing">
+            <Landing />
+          </Route>
+          <Route exact path="/test">
+            <p>test</p>
+          </Route>
           <PrivateRoute path="/games-list">
-        {/* <ErrorBoundary
-          FallbackComponent={ErrorFallback}
-          onReset={() => {
-            // reset the state of your app so the error doesn't happen again
-            localStorage.removeItem('red_tetris_token')
-            window.location = '/landing'
-          }}
-        > */}
             <GamesList />
-        {/* </ErrorBoundary> */}
           </PrivateRoute>
           <PrivateRoute path="/">
             <Game />
           </PrivateRoute>
-      </Switch>
-    </Router>
+        </Switch>
+      </Router>
+    </ThemeContext.Provider>
   )
 }
 

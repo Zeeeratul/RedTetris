@@ -1,0 +1,29 @@
+@import './root.css';
+
+.page {
+    background-color: var(--bg, black);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: background 500ms ease-in-out, color 1000ms ease-in-out;
+}
+
+.page h3 {
+    color: var(--text, white);
+    font-size: 30px;
+}
+
+.page input {
+    width: 400px;
+    background-color: transparent;
+    color: var(--text, white);
+    outline: none;
+    border: none;
+    border-bottom: 2px solid var(--text, white);
+    text-align: center;
+    padding-bottom: 15px;
+    letter-spacing: 3px;
+    font-size: 24px;
+}

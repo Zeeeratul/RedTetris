@@ -35,7 +35,9 @@ class Sockets {
         */
 
         this.io.on('connection', (socket: SocketIO.Socket) => {
+            console.log('login connection')
             socket.on('login', (username: string, callback: (data: {}) => void ) => {
+                console.log(username)
                 if (!username) return
 
                 const findUser = _.find(this.users, { username })
@@ -47,12 +49,40 @@ class Sockets {
                     username,
                 }
                 this.users.push(user)
-                callback({ token: socket.id })
+                callback({ token: socket.id, username })
+            })
+
+            socket.on('test', (_: any, callback: any) => {
+                console.log('???')
+                socket.emit('coucou', {message: 'coucou'})
+                
+            })
+            socket.on('coucou', (data) => {
+                console.log(data)
+                socket.emit('coucou', { message: 'oui et toi ?'})
+                
             })
         })
+        // this.io.on('connection', (socket: SocketIO.Socket) => {
+        //     socket.on('login', (username: string, callback: (data: {}) => void ) => {
+        //         if (!username) return
+
+        //         const findUser = _.find(this.users, { username })
+        //         if (findUser)
+        //             return callback({ error: 'username_taken' })
+
+        //         const user: User = {
+        //             id: socket.id,
+        //             username,
+        //         }
+        //         this.users.push(user)
+        //         callback({ token: socket.id })
+        //     })
+        // })
 
         this.authRoutes.use((socket: any, next: any) => {
             const token = socket?.handshake?.query?.token
+            console.log(token + '?')
 
             if (!token)
                 return next(new Error('No token provided'))

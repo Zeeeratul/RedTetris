@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useHistory } from "react-router-dom"
-import { initiateSocket, disconnectSocket, disconnectUser, checkConnection, subscribeToEvent, emitToEvent } from '../middlewares/socket'
+import { initiateSocket, disconnectSocket, checkConnection, subscribeToEvent, emitToEvent } from '../middlewares/socket'
 import GameGrid from './game/Grid';
 
 // const regex = new RegExp('^#[a-zA-Z0-9]*[[a-zA-Z0-9]*]$')
@@ -62,7 +62,7 @@ function Game() {
 
     return (
         <div>
-            <button onClick={() => disconnectUser()}>Disconnect</button>
+            {/* <button onClick={() => disconnectUser()}>Disconnect</button> */}
             <button onClick={() => leaveGame()}>Leave the Game</button>
 
             {leader ? 
