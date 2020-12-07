@@ -1,3 +1,7 @@
+html, body {
+    margin: 0;
+}
+
 :root {
     --gray0: #f8f8f8;
     --gray1: #dbe1e8;
@@ -26,4 +30,11 @@
     --bg-dropdown: var(--gray6);
     --text: var(--gray0);
     --border-color: var(--purple);
+}
+
+.page {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--bg);
+    height: 100vh;
+    transition: background 500ms ease-in-out, color 1000ms ease-in-out;
 }

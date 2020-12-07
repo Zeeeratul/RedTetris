@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
-import {
-    useHistory
-} from "react-router-dom"
+import '../styles/Landing.css'
+import { useHistory } from "react-router-dom"
 import { initiateSocket, emitToEvent } from '../middlewares/socket'
-
-import '../styles/LoginForm.css'
 import { ThemeContext } from '../utils/useTheme'
 
 function Landing() {
@@ -23,6 +20,7 @@ function Landing() {
                 console.log(error)
             }
             else {
+                history.push('/games')
                 console.log(username)
             }
         })
@@ -30,18 +28,19 @@ function Landing() {
 
     return (
         <div className={`page ${theme}`}>
-            <button onClick={() => changeTheme()}>
-                Change theme
-            </button>
+            <div className="landing_container">
+                {/* <button onClick={() => changeTheme()}>
+                    Change theme
+                </button> */}
 
-            <h3>What's your username?</h3>
-            <input
-                className="usernameInput"
-                name="username"
-                maxLength={15}
-                onChange={(ev) => setUsername(ev.target.value)}
-                onKeyDown={({ code }) => code === "Enter" ? handleSubmit() : null}
-            />
+                <h3>What's your username?</h3>
+                <input
+                    name="username"
+                    maxLength={15}
+                    onChange={(ev) => setUsername(ev.target.value)}
+                    onKeyDown={({ code }) => code === "Enter" ? handleSubmit() : null}
+                />
+            </div>
         </div>
     )
 }

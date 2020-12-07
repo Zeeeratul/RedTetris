@@ -12,7 +12,6 @@ class Sockets {
     games: any;
     players: any;
     users: User[];
-    // io: SocketIO.Socket;
     io: any;
     authRoutes: any;
 
@@ -34,8 +33,10 @@ class Sockets {
 
         */
 
-        this.io.on('connection', (socket: SocketIO.Socket) => {
-            console.log('login connection')
+        this.io.on('connection', (socket: any) => {
+            console.log('connecting', socket.id)
+
+
             socket.on('login', (username: string, callback: (data: {}) => void ) => {
                 console.log(username)
                 if (!username) return
@@ -49,56 +50,15 @@ class Sockets {
                     username,
                 }
                 this.users.push(user)
+                socket.player = user
                 callback({ token: socket.id, username })
             })
 
-            socket.on('test', (_: any, callback: any) => {
-                console.log('???')
-                socket.emit('coucou', {message: 'coucou'})
-                
-            })
-            socket.on('coucou', (data) => {
-                console.log(data)
-                socket.emit('coucou', { message: 'oui et toi ?'})
-                
-            })
-        })
-        // this.io.on('connection', (socket: SocketIO.Socket) => {
-        //     socket.on('login', (username: string, callback: (data: {}) => void ) => {
-        //         if (!username) return
-
-        //         const findUser = _.find(this.users, { username })
-        //         if (findUser)
-        //             return callback({ error: 'username_taken' })
-
-        //         const user: User = {
-        //             id: socket.id,
-        //             username,
-        //         }
-        //         this.users.push(user)
-        //         callback({ token: socket.id })
-        //     })
-        // })
-
-        this.authRoutes.use((socket: any, next: any) => {
-            const token = socket?.handshake?.query?.token
-            console.log(token + '?')
-
-            if (!token)
-                return next(new Error('No token provided'))
-
-            const player = _.find(this.users, { id: token })
-            if (!player)
-                return next(new Error('Authentication error'))
-
-            socket.player = player
-            next()
-        })
-        .on('connection', (socket: any) => {
-            console.log('Connected on private routes', socket.player)
-
             // games functions
             socket.on('create', (game_name: string, callback: any) => {
+                if (!socket.player) 
+                    return callback({ error: 'user_not_connected' })
+
                 if (!game_name)
                     return callback({ error: 'invalid_game_name '})
 
@@ -115,6 +75,9 @@ class Sockets {
             })
 
             socket.on('join', (game_name: string, callback: any) => {
+                if (!socket.player) 
+                    return callback({ error: 'user_not_connected' })
+
                 const game = this.games.getGame(game_name)
                 if (!game)
                     return callback({ error: 'game not found'})
@@ -140,6 +103,8 @@ class Sockets {
             })
             
             socket.on('leave', () => {
+                // if (!socket.player) 
+                //     return callback({ error: 'user_not_connected' })
 
                 const { game_name } = socket.player
                 const game = this.games.getGame(game_name)
@@ -234,8 +199,10 @@ class Sockets {
                 })
             })
 
-            // lobbies functions
+            // games functions
             socket.on('get_games', (_: any, callback: any) => {
+                if (!socket.player) 
+                    return callback({ error: 'user_not_connected' })
                 callback({ games: this.games.getGames() })
             })
 
@@ -250,24 +217,25 @@ class Sockets {
             })
 
             socket.on('disconnect', () => {
-                console.log('disconnect', socket.player)
-                const { game_name, id } = socket.player
+                console.log('disconnect', socket.id)
+                // console.log('disconnect', socket.player)
+                // const { game_name, id } = socket.player
 
-                // game part
-                const game = this.games.getGame(game_name)
-                if (game && game.players.length > 1)
-                    game.removePlayer(socket.player.id)
-                else
-                    this.games.destroyGame(game_name)
+                // // game part
+                // const game = this.games.getGame(game_name)
+                // if (game && game.players.length > 1)
+                //     game.removePlayer(socket.player.id)
+                // else
+                //     this.games.destroyGame(game_name)
 
-                this.authRoutes.to(game_name).emit('information', {
-                    type: 'leave',
-                    username: socket.player.username
-                })
-                socket.leave(game_name)
+                // this.authRoutes.to(game_name).emit('information', {
+                //     type: 'leave',
+                //     username: socket.player.username
+                // })
+                // socket.leave(game_name)
 
-                const userIndex = _.findIndex(this.users, { id })
-                this.users.splice(userIndex, 1)
+                // const userIndex = _.findIndex(this.users, { id })
+                // this.users.splice(userIndex, 1)
             })
         })
     }
