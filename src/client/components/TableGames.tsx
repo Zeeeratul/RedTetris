@@ -33,8 +33,8 @@ const TableGames = () => {
     }
 
     return (
-        <div className="table_container">
-            <CustomInput />
+        <div className="center_container">
+            {/* <CustomInput /> */}
             <table>
                 <thead>
                     <tr>

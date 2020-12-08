@@ -13,32 +13,20 @@ class Sockets {
     players: any;
     users: User[];
     io: any;
-    authRoutes: any;
 
     constructor(http: any) {
         this.games = new Games()
         this.users = []
         this.io = SocketIO(http)
-        this.authRoutes = this.io.of('/auth')
     }
 
     listenToEvents() {
-
-        /*
-            To do:
-
-            GAME
-            SPACE BAR KEY HANDLING
-            SEND GAMES INFO NICELY
-
-        */
 
         this.io.on('connection', (socket: any) => {
             console.log('connecting', socket.id)
 
 
             socket.on('login', (username: string, callback: (data: {}) => void ) => {
-                console.log(username)
                 if (!username) return
 
                 const findUser = _.find(this.users, { username })
@@ -95,7 +83,7 @@ class Sockets {
                     socket.player = { ...socket.player, game_name }
                     socket.join(game_name)
                     callback({ url: `#${game_name}` })
-                    this.authRoutes.to(game_name).emit('information', {
+                    this.io.to(game_name).emit('information', {
                         type: 'join',
                         username: socket.player.username
                     })
@@ -103,6 +91,8 @@ class Sockets {
             })
             
             socket.on('leave', () => {
+                if (!socket.player) 
+                    return
                 // if (!socket.player) 
                 //     return callback({ error: 'user_not_connected' })
 
@@ -114,7 +104,7 @@ class Sockets {
                     this.games.destroyGame(game_name)
 
                 delete socket.player.game_name
-                this.authRoutes.to(game_name).emit('information', {
+                this.io.to(game_name).emit('information', {
                     type: 'leave',
                     username: socket.player.username
                 })
@@ -122,60 +112,76 @@ class Sockets {
             })
 
             socket.on('is_leader', (_: any, callback: any) => {
+                if (!socket.player) 
+                    return callback({ error: 'user_not_connected' })
+                    
                 const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
-                    return
+                    return callback({ error: 'unknown_game' })
 
                 callback({ isLeader: game.isLeader(id) })
             })
             
             socket.on('start', () => {
+                if (!socket.player) 
+                    return 
+
+
                 const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game || !game.isLeader(id))
                     return
                 
                 game.changeStatus('started')
-                this.authRoutes.to(game_name).emit('information', {
+                this.io.to(game_name).emit('information', {
                     type: 'started',
                 })
             })
 
             socket.on('lose', () => {
+                if (!socket.player) 
+                    return 
+
                 const { game_name, username } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
                     return
                 
                 game.changeStatus('terminated')
-                this.authRoutes.to(game_name).emit('information', {
+                this.io.to(game_name).emit('information', {
                     type: 'lose_game',
                     username: username
                 })
             })
 
 
-            socket.on('message', (content: string) => {
-                const { game_name, username } = socket.player
-                const game = this.games.getGame(game_name)
-                if (!game)
-                    return
+            // socket.on('message', (content: string) => {
+            //     if (!socket.player) 
+            //         return 
+                
+            //     const { game_name, username } = socket.player
+            //     const game = this.games.getGame(game_name)
+            //     if (!game)
+            //         return
 
-                const data = {
-                    content,
-                    username,
-                    date: new Date()
-                }
+            //     const data = {
+            //         content,
+            //         username,
+            //         date: new Date()
+            //     }
 
-                this.authRoutes.to(game_name).emit('information', {
-                    type: 'message',
-                    data
-                })
-            })
+            //     this.io.to(game_name).emit('information', {
+            //         type: 'message',
+            //         data
+            //     })
+            // })
 
 
             socket.on('spectrum', (spectrumArray: []) => {
+                if (!socket.player) 
+                    return 
+                
                 const { game_name } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
@@ -188,6 +194,9 @@ class Sockets {
             })
             
             socket.on('lines', (linesNumbers: number) => {
+                if (!socket.player) 
+                    return 
+                
                 const { game_name } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
@@ -208,6 +217,9 @@ class Sockets {
 
 
             socket.on('piece', (_: any, callback: any) => {
+                if (!socket.player) 
+                    return callback({ error: 'user_not_connected' })
+
                 const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
@@ -217,25 +229,27 @@ class Sockets {
             })
 
             socket.on('disconnect', () => {
-                console.log('disconnect', socket.id)
-                // console.log('disconnect', socket.player)
-                // const { game_name, id } = socket.player
+                console.log('Disconnect', socket?.player)
 
-                // // game part
-                // const game = this.games.getGame(game_name)
-                // if (game && game.players.length > 1)
-                //     game.removePlayer(socket.player.id)
-                // else
-                //     this.games.destroyGame(game_name)
+                if (socket.player) {
+                    const { game_name, username, id } = socket.player
+                    const game = this.games.getGame(game_name)
 
-                // this.authRoutes.to(game_name).emit('information', {
-                //     type: 'leave',
-                //     username: socket.player.username
-                // })
-                // socket.leave(game_name)
+                    if (game && game.players.length > 1)
+                        game.removePlayer(socket.player.id)
+                    else
+                        this.games.destroyGame(game_name)
 
-                // const userIndex = _.findIndex(this.users, { id })
-                // this.users.splice(userIndex, 1)
+                    this.io.to(game_name).emit('information', {
+                        type: 'leave',
+                        username
+                    })
+                    socket.leave(game_name)
+
+                    const index = _.findIndex(this.users, { id })
+                    if (index !== -1)
+                        this.users.splice(index, 1)
+                }
             })
         })
     }

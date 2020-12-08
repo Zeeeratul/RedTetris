@@ -52,9 +52,9 @@ function App() {
             <GamesList />
           {/* </PrivateRoute> */}
           </Route>
-          <PrivateRoute path="/">
+          <Route path="/">
             <Game />
-          </PrivateRoute>
+          </Route>
         </Switch>
       </Router>
     </ThemeContext.Provider>
