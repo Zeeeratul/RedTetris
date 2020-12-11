@@ -1,5 +1,6 @@
 html, body {
     margin: 0;
+    font-family: 'Montserrat', sans-serif;
 }
 
 :root {
@@ -33,7 +34,6 @@ html, body {
 }
 
 .page {
-    font-family: 'Montserrat', sans-serif;
     background-color: var(--bg);
     height: 100vh;
     transition: background 500ms ease-in-out, color 1000ms ease-in-out;

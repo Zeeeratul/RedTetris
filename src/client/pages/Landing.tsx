@@ -1,46 +1,122 @@
-import React, { useState, useEffect, useContext } from 'react'
-import '../styles/Landing.css'
+/** @jsx jsx */
+import { jsx } from '@emotion/react'
+
+import { useEffect } from 'react'
+import '../styles/root.css'
 import { useHistory } from "react-router-dom"
 import { initiateSocket, emitToEvent } from '../middlewares/socket'
-import { ThemeContext } from '../utils/useTheme'
+import ArrowForwardIcon from '@material-ui/icons/ArrowForward'
 
 function Landing() {
 
     const history = useHistory()
-    const { theme, changeTheme } = useContext(ThemeContext)
-    const [username, setUsername] = useState('')
-
     useEffect(() => {
         initiateSocket()
     }, [])
 
-    const handleSubmit = () => {
-        emitToEvent('login', username, ({ username, error }: any) => {
-            if (error) {
-                console.log(error)
-            }
-            else {
-                history.push('/games')
-                console.log(username)
-            }
-        })
+    const handleSubmit = (ev: any) => {
+        ev.preventDefault()
+        const { username } = ev.target.elements
+        if (username.value)
+            emitToEvent('login', username, ({ username, error }: any) => {
+                if (error) {
+                    console.log(error)
+                }
+                else {
+                    // history.push('/games')
+                    console.log(username)
+                }
+            })
     }
 
     return (
-        <div className={`page ${theme}`}>
-            <div className="landing_container">
-                {/* <button onClick={() => changeTheme()}>
-                    Change theme
-                </button> */}
-
-                <h3>What's your username?</h3>
-                <input
-                    name="username"
-                    maxLength={15}
-                    onChange={(ev) => setUsername(ev.target.value)}
-                    onKeyDown={({ code }) => code === "Enter" ? handleSubmit() : null}
-                />
-            </div>
+        <div className="landing_container" 
+            css={{
+                height: '100vh',
+                background: 'black',
+                color: 'white',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+            }}
+        >
+            <form
+                onSubmit={handleSubmit}
+                css={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column'
+                }}
+            >
+                <label
+                    css={{
+                        fontSize: '34px',
+                        marginBottom: '20px',
+                        '@media (max-width: 550px)': {
+                            fontSize: '28px',
+                        }
+                    }}
+                    htmlFor="username"
+                >
+                    What's your username ?
+                </label>
+                <div
+                    css={{
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}
+                >
+                    <input
+                        id="username"
+                        name="username"
+                        maxLength={15}
+                        css={{
+                            width: '400px',
+                            background: 'transparent',
+                            border: 'none',
+                            outline: 'none',
+                            borderBottom: '2px solid white',
+                            textAlign: 'center',
+                            paddingBottom: '15px',
+                            letterSpacing: '3px',
+                            fontSize: '24px',
+                            color: 'white',
+                            fontFamily: 'Montserrat, sans-serif',
+                            '@media (max-width: 550px)': {
+                                fontSize: '18px',
+                                width: '250px'
+                            }
+                        }}
+                    />
+                    <button type="submit"
+                        css={{
+                            background: 'transparent',
+                            border: 'none',
+                            outline: 'none'
+                        }}
+                    >
+                        <ArrowForwardIcon
+                            fontSize="large"
+                            css={{
+                                color: "white",
+                                cursor: 'pointer',
+                                marginTop: '25px',
+                                marginLeft: '10px',
+                                '&:hover': {
+                                    color: 'lightgrey',
+                                    transform: 'translateX(5px)',
+                                    transition: '400ms ease'
+                                },
+                                '&:active': {
+                                    color: 'grey'
+                                }
+                            }}
+                        />
+                    </button>
+                </div>
+            </form>
         </div>
     )
 }

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { ThemeContext } from '../utils/useTheme'
 import '../styles/Game.css'
+import Grid from '../components/game/Grid'
 
 // const regex = new RegExp('^#[a-zA-Z0-9]*[[a-zA-Z0-9]*]$')
 
@@ -12,20 +13,16 @@ function Game() {
   
     return (
         <div className="full_page">
-            <div className="game_container">
-                <div className="grid">
-                    grid card
-                </div>
+            <div className="card">
+                <Grid />
             </div>
+            <div className="card little">
 
-            <div className="little_grids_container">
-                Grid other players
             </div>
+            <div className="card">
 
-            <div>
-                New piece +
-                Leave game
             </div>
+      
 
         </div>
     )
