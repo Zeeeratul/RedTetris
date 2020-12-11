@@ -11,20 +11,20 @@ const TableGames = () => {
     const [games, setGames] = useState([])
     const history = useHistory()
 
-    useEffect(() => {
-        emitToEvent('get_games', {}, (res: any) => {
-            console.log(res)
-            setGames(res.games || [])
-        })
+    // useEffect(() => {
+    //     emitToEvent('get_games', {}, (res: any) => {
+    //         console.log(res)
+    //         setGames(res.games || [])
+    //     })
 
-        const intervalId = setInterval(() => {
-            emitToEvent('get_games', {}, (res: any) => {
-                setGames(res.games || [])
-            })
-        }, 5000)
+    //     const intervalId = setInterval(() => {
+    //         emitToEvent('get_games', {}, (res: any) => {
+    //             setGames(res.games || [])
+    //         })
+    //     }, 5000)
 
-        return () => clearInterval(intervalId)
-    }, [])
+    //     return () => clearInterval(intervalId)
+    // }, [])
 
     const joinGame = (game_name: string) => {
         emitToEvent('join', game_name, (res) => {

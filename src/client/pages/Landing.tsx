@@ -52,7 +52,7 @@ function Landing() {
             >
                 <label
                     css={{
-                        fontSize: '34px',
+                        fontSize: '38px',
                         marginBottom: '20px',
                         '@media (max-width: 550px)': {
                             fontSize: '28px',
@@ -65,13 +65,14 @@ function Landing() {
                 <div
                     css={{
                         display: 'flex',
-                        alignItems: 'center'
+                        alignItems: 'center',
                     }}
                 >
                     <input
                         id="username"
                         name="username"
                         maxLength={15}
+                        autoFocus
                         css={{
                             width: '400px',
                             background: 'transparent',
@@ -94,18 +95,20 @@ function Landing() {
                         css={{
                             background: 'transparent',
                             border: 'none',
-                            outline: 'none'
+                            outline: 'none',
+                            cursor: 'pointer',
+
                         }}
                     >
                         <ArrowForwardIcon
                             fontSize="large"
                             css={{
                                 color: "white",
-                                cursor: 'pointer',
+                                opacity: '0.75',
                                 marginTop: '25px',
                                 marginLeft: '10px',
                                 '&:hover': {
-                                    color: 'lightgrey',
+                                    opacity: '1',
                                     transform: 'translateX(5px)',
                                     transition: '400ms ease'
                                 },
