@@ -4,19 +4,23 @@ import { piecesArray } from '../config/constants.json'
 interface PieceInterface {
     structure: any,
     type: string,
-    position: any
+    leftTopPosition: any,
+    positions: any,
+
 }
 
 class Piece {
     structure: any;
     type: string;
-    position: any
+    leftTopPosition: any;
+    positions: any;
 
     constructor() {
         const piece = piecesArray[_.random(6)]
         this.structure = piece.structure
         this.type = piece.type
-        this.position = piece.position
+        this.leftTopPosition = piece.leftTopPosition
+        this.positions = piece.positions
     }
 }
 

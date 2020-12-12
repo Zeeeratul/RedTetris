@@ -1,8 +1,12 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
-import ExitToAppIcon from '@material-ui/icons/ExitToApp'
-import { Navbar, Footer, Main, PageContainer } from '../components/Template'
+import { useState } from 'react'
+import { initiateSocket, emitToEvent } from '../middlewares/socket'
+import { useHistory } from "react-router-dom"
+import { Navbar, Footer, Main, PageContainer, Columm } from '../components/Template'
 import { ButtonWithIcon } from '../components/Buttons'
+
+import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import SearchIcon from '@material-ui/icons/Search'
 import CreateIcon from '@material-ui/icons/Create'
 import SoloIcon from '@material-ui/icons/Person'
@@ -32,51 +36,31 @@ const Tr = styled.tr({
 
 const GamesList = () => {
 
+    const history = useHistory()
+    const [gameName, setGameName] = useState('')
+
+
+    const createGame = () => {
+        if (!gameName) return 
+        emitToEvent('create', gameName, ({ url, error }: any) => {
+            if (error) {
+                console.error(error)
+            }
+            else {
+                history.push(`/${url}`)
+            }
+        })
+    }
 
     return (
         <PageContainer>
-            <Navbar>
-                <button
-                    title="Logout"
-                    css={{
-                        background: 'transparent',
-                        border: 'none',
-                        outline: 'none',
-                        cursor: 'pointer',
-                    }}
-                >
-                    <ExitToAppIcon 
-                        fontSize='large'
-                        css={{
-                            color: 'white',
-                            opacity: '0.75',
-                            '&:hover': {
-                                opacity: '1',
-                                transition: '150ms ease-in-out'
-                            }
-                        }}
-                    />
-
-                </button>
-            </Navbar>
+            <Navbar />
                 
             <Main>
-                <div
-                    css={{
-                        width: '50%',
-                        minWidth: '350px',
-                        maxHeight: '700px',
-                        height: '80%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}
-                >
+{/* 
+                <Columm>
 
                     <h1>Games List</h1>
-
-
 
                     <div
                         id='input-search-container'
@@ -129,7 +113,6 @@ const GamesList = () => {
                         </button>
                     </div>
 
-
                     <div
                         id="table-container"
                         css={{
@@ -141,8 +124,6 @@ const GamesList = () => {
                 
                         }}
                     >
-
-
                         <table
                             css={{
                                 borderCollapse: 'collapse',
@@ -171,7 +152,6 @@ const GamesList = () => {
                                 </Tr>
                             </thead>
 
-                            {/* BODY */}
                             <tbody>
                                 <Tr>
                                     <Td>
@@ -188,22 +168,10 @@ const GamesList = () => {
         
 
                     </div>
-                </div>
+                </Columm>
+ */}
 
-
-                <div
-                    css={{
-                        width: '50%',
-                        minWidth: '350px',
-                        maxHeight: '700px',
-                        display: 'flex',
-                        height: '80%',
-
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}
-                >
+                <Columm>
                     <h1>Create game</h1>
 
                     <div
@@ -215,7 +183,7 @@ const GamesList = () => {
                     >
                         <input
                             id="search-game"
-                            name="username"
+                            name="game_name"
                             placeholder="Create your game..."
                             maxLength={15}
                             css={{
@@ -228,6 +196,8 @@ const GamesList = () => {
                                 fontSize: '18px',
                                 color: 'white',
                             }}
+                            onChange={(ev) => setGameName(ev.target.value)}
+                            value={gameName}
                         />
                         <button
                             css={{
@@ -236,6 +206,7 @@ const GamesList = () => {
                                 outline: 'none',
                                 cursor: 'pointer',
                             }}
+                            onClick={createGame}
                         >
                             <CreateIcon
                                 fontSize="large"
@@ -255,22 +226,17 @@ const GamesList = () => {
                         </button>
                     </div>
                     
-                    
-                    
-                    
                     <ButtonWithIcon>
                         Play Solo
                         <SoloIcon
                             fontSize="large"
                         />
                     </ButtonWithIcon>
-                </div>
+                </Columm>
 
             </Main>
 
-            <Footer>
-                @cdelahay @frrobert
-            </Footer>
+            <Footer />
             
         </PageContainer>
     )

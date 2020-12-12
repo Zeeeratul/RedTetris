@@ -17,16 +17,18 @@ function Landing() {
     const handleSubmit = (ev: any) => {
         ev.preventDefault()
         const { username } = ev.target.elements
-        if (username.value)
-            emitToEvent('login', username, ({ username, error }: any) => {
+        if (username.value) {
+            emitToEvent('login', username.value, ({ username, error }: any) => {
                 if (error) {
                     console.log(error)
                 }
                 else {
-                    // history.push('/games')
+                    history.push('/games')
                     console.log(username)
                 }
             })
+
+        }
     }
 
     return (
