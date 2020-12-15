@@ -22,7 +22,7 @@ class Sockets {
     }
     
     loginUser(username: string, socket: any, callback: any) {
-        if (!username || typeof username !== 'string' ) 
+        if (!username) 
             return callback({ error: SOCKET.AUTH.ERROR.INVALID_USERNAME })
 
         const findUser = _.find(this.users, { username })
@@ -39,8 +39,6 @@ class Sockets {
     }
 
     disconnectUser(socket: any) {
-        console.log('Disconnect socket with id: ', socket.id)
-
         if (socket.player) {
             const { game_name, username, id } = socket.player
             this.games.leaveGame(game_name, socket.player)
@@ -60,7 +58,6 @@ class Sockets {
     listenToEvents() {
 
         this.io.on('connection', (socket: any) => {
-            console.log('connecting with socketId: ', socket.id)
 
             // AUTH ROUTES
             socket.on(SOCKET.AUTH.LOGIN, (username: string, callback: (data: {}) => void ) => this.loginUser(username, socket, callback))
@@ -101,7 +98,7 @@ class Sockets {
             })
             
             socket.on(SOCKET.GAMES.LEAVE, (game_name: string) => {
-                if (!socket.player) 
+                if (!socket.player)
                     return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
                 this.games.leaveGame(game_name, socket.player)
@@ -114,11 +111,11 @@ class Sockets {
                 socket.leave(game_name)
             })
 
-            socket.on(SOCKET.GAMES.CHECK_LEADER, (_: any, callback: any) => {
+            socket.on(SOCKET.GAMES.CHECK_LEADER, (game_name: string, callback: any) => {
                 if (!socket.player) 
                     return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
                     
-                const { game_name, id } = socket.player
+                const { id } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
                     return callback({ error: SOCKET.GAMES.ERROR.NOT_FOUND })
