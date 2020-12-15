@@ -1,41 +1,40 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { useState, useEffect, useContext } from 'react'
+import useEventListener from '@use-it/event-listener'
+import { emitToEvent } from '../../middlewares/socket'
 import Line from './Line'
 
-const gridArray = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+function Grid({ piece, grid, dispatch }: any) {
     
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    const handleKeyboard = (key: string) => {
+        switch (key) {
+            case 'ArrowRight':
+                dispatch({ type: 'move_horizontal', xDirection: 1 })
+                break;
+            case 'ArrowLeft':
+                dispatch({ type: 'move_horizontal', xDirection: -1 })
+                break;
+            case 'ArrowDown':
+                dispatch({ type: 'move_vertical' })
+                break;
+        
+            default:
+                console.info(`Unbinded key: ${key}`)
+                break;
+        }
+    }
 
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // const { grid, nextPiece } = state
+    // const [currentPiece, setCurrentPiece] = useState(piece)
+    // console.log('render?')
+    // useEffect(() => {
+    //     // on piece changing change state but it rerender two times ?
+    //     // setCurrentPiece(piece)
+    // }, [piece])
 
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-]
+    const getPiece = () => emitToEvent('piece')
 
-function Grid() {
-
-    const [grid, setGrid] = useState(gridArray)
-
+    useEventListener('keydown', ({ key }: { key: string }) => handleKeyboard(key))
 
     return (
         <div 
@@ -50,12 +49,20 @@ function Grid() {
                 backgroundColor: 'black',
             }}
         >
-            {grid.map((line, index) => (
+            {grid.map((line: any, index: number) => (
                 <Line
                     key={`line_${index}`} 
+                    piecePositions={piece.positions}
+                    pieceType={piece.type}
+                    cells={line}
+                    yCoord={index}
 
                 />
             ))}
+{/* 
+            <button onClick={getPiece}>
+                Piece
+            </button> */}
         </div>
     )
 }

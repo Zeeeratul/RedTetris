@@ -8,7 +8,10 @@
                 ["", "", "", ""]
             ],
             "type": "I",
-            "leftTopPosition": [3, 0],
+            "leftTopPosition": {
+                "x": 3,
+                "y": 0
+            },
             "positions": [
                 {
                     "x": 3,
@@ -34,7 +37,10 @@
                 ["#", "#"]
             ],
             "type": "O",
-            "leftTopPosition": [4, 0],
+            "leftTopPosition": {
+                "x": 4,
+                "y": 0
+            },
             "positions": [
                 {
                     "x": 4,
@@ -61,7 +67,10 @@
                 ["", "", ""]
             ],
             "type": "J",
-            "leftTopPosition": [3, 0],
+            "leftTopPosition": {
+                "x": 3,
+                "y": 0
+            },
             "positions": [
                 {
                     "x": 3,
@@ -88,7 +97,10 @@
                 ["", "", ""]
             ],
             "type": "L",
-            "leftTopPosition": [3, 0],
+            "leftTopPosition": {
+                "x": 3,
+                "y": 0
+            },
             "positions": [
                 {
                     "x": 5,
@@ -115,7 +127,10 @@
                 ["", "", ""]
             ],
             "type": "S",
-            "leftTopPosition": [3, 0],
+            "leftTopPosition": {
+                "x": 3,
+                "y": 0
+            },
             "positions": [
                 {
                     "x": 4,
@@ -142,7 +157,10 @@
                 ["", "", ""]
             ],
             "type": "Z",
-            "leftTopPosition": [3, 0],
+            "leftTopPosition": {
+                "x": 3,
+                "y": 0
+            },
             "positions": [
                 {
                     "x": 3,
@@ -169,7 +187,10 @@
                 ["", "", ""]
             ],
             "type": "T",
-            "leftTopPosition": [3, 0],
+            "leftTopPosition": {
+                "x": 3,
+                "y": 0
+            },
             "positions": [
                 {
                     "x": 4,
@@ -189,5 +210,45 @@
                 }
             ]
         }
-    ]
+    ],
+
+    "SOCKET": {
+        "AUTH": {
+            "LOGIN": "login",
+            "DISCONNECT": "disconnect",
+            "ERROR": {
+                "USERNAME_TAKEN": "username_taken",
+                "INVALID_USERNAME": "invalid_username"
+            }
+        },
+        "GAMES": {
+            "CREATE": "create_game",
+            "JOIN": "join_game",
+            "LEAVE": "leave_game",
+            "DESTROY": "destroy_game",
+            "GET_GAMES": "get_games",
+            "GET_PLAYERS": "get_players",
+            "CHECK_LEADER": "check_leader",
+            "START": "start_game",
+            "END": "end_game",
+            "GET_PIECE": "get_piece",
+            "GET_LINE_PENALTY": "get_line_penalty",
+            "SEND_LINE_PENALTY": "send_line_penalty",
+            "GET_SPECTRUM": "get_spectrum",
+            "SEND_SPECTRUM": "send_spectrum",
+            "ERROR": {
+                "INVALID_NAME": "invalid_game_name",
+                "NAME_TAKEN": "game_name_taken",
+                "NOT_FOUND": "game_not_found",
+                "NOT_LEADER": "not_leader",
+                "FULL": "game_full",
+                "STARTED": "game_started"
+
+            }
+        },
+        "SERVER_ERROR": {
+            "USER_NOT_CONNECTED": "user_not_connected",
+            "SERVER_DOWN": "server_down"
+        }
+    }
 }

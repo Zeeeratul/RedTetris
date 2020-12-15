@@ -7,7 +7,6 @@ export const initiateSocket = () => {
 }
 
 export const subscribeToEvent = (eventName: string, cb: (res: {}) => any) => {
-    console.log('subscribeToEvent', socket)
     if (socket)
         socket.on(eventName, (response: {}) => {
             console.log(`Websocket event: '${eventName}' received!`)
@@ -15,7 +14,7 @@ export const subscribeToEvent = (eventName: string, cb: (res: {}) => any) => {
         })
 }
 
-export const emitToEvent = (eventName: string, data: {}, cb: (res: {}) => any) => {
+export const emitToEvent = (eventName: string, data?: {} | string, cb?: (res: any) => any) => {
     if (socket) {
         if (cb) {
             socket.emit(eventName, data, cb)

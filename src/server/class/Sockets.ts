@@ -1,5 +1,7 @@
 import _ from 'lodash'
 import Games from './Games'
+import { SOCKET } from '../../client/config/constants.json'
+import { Player } from './Player'
 const SocketIO = require('socket.io')
 
 type User = {
@@ -9,99 +11,100 @@ type User = {
 }
 
 class Sockets {
-    games: any;
-    players: any;
-    users: User[];
     io: any;
+    games: Games;
+    users: User[];
 
     constructor(http: any) {
+        this.io = SocketIO(http)
         this.games = new Games()
         this.users = []
-        this.io = SocketIO(http)
+    }
+    
+    loginUser(username: string, socket: any, callback: any) {
+        if (!username || typeof username !== 'string' ) 
+            return callback({ error: SOCKET.AUTH.ERROR.INVALID_USERNAME })
+
+        const findUser = _.find(this.users, { username })
+        if (findUser)
+            return callback({ error: SOCKET.AUTH.ERROR.USERNAME_TAKEN })
+
+        const user: User = {
+            id: socket.id,
+            username,
+        }
+        this.users.push(user)
+        socket.player = user
+        callback({ token: socket.id, username })
+    }
+
+    disconnectUser(socket: any) {
+        console.log('Disconnect socket with id: ', socket.id)
+
+        if (socket.player) {
+            const { game_name, username, id } = socket.player
+            this.games.leaveGame(game_name, socket.player)
+ 
+            this.io.to(game_name).emit('information', {
+                type: 'leave',
+                username
+            })
+            socket.leave(game_name)
+
+            const index = _.findIndex(this.users, { id })
+            if (index !== -1)
+                this.users.splice(index, 1)
+        }
     }
 
     listenToEvents() {
 
         this.io.on('connection', (socket: any) => {
-            console.log('connecting', socket.id)
+            console.log('connecting with socketId: ', socket.id)
 
+            // AUTH ROUTES
+            socket.on(SOCKET.AUTH.LOGIN, (username: string, callback: (data: {}) => void ) => this.loginUser(username, socket, callback))
+     
+            socket.on(SOCKET.AUTH.DISCONNECT, () => this.disconnectUser(socket))
 
-            socket.on('login', (username: string, callback: (data: {}) => void ) => {
-                if (!username) return
+            // GAMES ROUTES
+            socket.on(SOCKET.GAMES.CREATE, (game_name: string, callback: any) => {
+                if (!socket.player) 
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
-                const findUser = _.find(this.users, { username })
-                if (findUser)
-                    return callback({ error: 'username_taken' })
+                const { error, url } = this.games.createGame(game_name, socket.player)
 
-                const user: User = {
-                    id: socket.id,
-                    username,
-                }
-                this.users.push(user)
-                socket.player = user
-                callback({ token: socket.id, username })
+                if (error) 
+                    return callback({ error })
+
+                socket.player = { ...socket.player, game_name }
+                socket.join(game_name)
+                callback({ url })
             })
 
-            // games functions
-            socket.on('create', (game_name: string, callback: any) => {
+            socket.on(SOCKET.GAMES.JOIN, (game_name: string, callback: any) => {
                 if (!socket.player) 
-                    return callback({ error: 'user_not_connected' })
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
-                if (!game_name)
-                    return callback({ error: 'invalid_game_name '})
+                const { error, url } = this.games.joinGame(game_name, socket.player)
 
-                const game = this.games.getGame(game_name)
-                if (game) {
-                    callback({ error: 'game_name_taken '})
-                }
-                else {
-                    socket.player = { ...socket.player, game_name }
-                    socket.join(game_name)
-                    this.games.createGame(game_name, socket.player)
-                    callback({ url: `#${game_name}` })
-                }
-            })
+                if (error)
+                    return callback({ error })
 
-            socket.on('join', (game_name: string, callback: any) => {
-                if (!socket.player) 
-                    return callback({ error: 'user_not_connected' })
-
-                const game = this.games.getGame(game_name)
-                if (!game)
-                    return callback({ error: 'game not found'})
-                 
-                if (game.players.length >= game.maxPlayers) {
-                    console.log('sorry game is full')
-                    callback({ error: 'game_full'})
-                }
-                else if (game.status === 'started') {
-                    console.log('game has started wait for it to end')
-                    callback({ error: 'game_started'})
-                }
-                else {
-                    game.addPlayer(socket.player)
-                    socket.player = { ...socket.player, game_name }
-                    socket.join(game_name)
-                    callback({ url: `#${game_name}` })
-                    this.io.to(game_name).emit('information', {
-                        type: 'join',
-                        username: socket.player.username
-                    })
-                }
+                socket.player = { ...socket.player, game_name }
+                socket.join(game_name)
+                callback({ url })
+                this.io.to(game_name).emit('information', {
+                    type: 'join',
+                    username: socket.player.username
+                })
             })
             
-            socket.on('leave', () => {
+            socket.on(SOCKET.GAMES.LEAVE, (game_name: string) => {
                 if (!socket.player) 
-                    return
-                // if (!socket.player) 
-                //     return callback({ error: 'user_not_connected' })
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
-                const { game_name } = socket.player
-                const game = this.games.getGame(game_name)
-                if (game && game.players.length > 1)
-                    game.removePlayer(socket.player.id)
-                else
-                    this.games.destroyGame(game_name)
+                this.games.leaveGame(game_name, socket.player)
 
                 delete socket.player.game_name
                 this.io.to(game_name).emit('information', {
@@ -111,146 +114,91 @@ class Sockets {
                 socket.leave(game_name)
             })
 
-            socket.on('is_leader', (_: any, callback: any) => {
+            socket.on(SOCKET.GAMES.CHECK_LEADER, (_: any, callback: any) => {
                 if (!socket.player) 
-                    return callback({ error: 'user_not_connected' })
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
                     
                 const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
-                    return callback({ error: 'unknown_game' })
+                    return callback({ error: SOCKET.GAMES.ERROR.NOT_FOUND })
 
                 callback({ isLeader: game.isLeader(id) })
             })
             
-            socket.on('start', () => {
+            socket.on(SOCKET.GAMES.START, (game_name: string) => {
                 if (!socket.player) 
-                    return 
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
+                const { payload, error } = this.games.startGame(game_name, socket.player.id)
 
-                const { game_name, id } = socket.player
-                const game = this.games.getGame(game_name)
-                if (!game || !game.isLeader(id))
-                    return
-                
-                game.changeStatus('started')
-                this.io.to(game_name).emit('information', {
-                    type: 'started',
-                })
+                if (error)
+                    socket.emit('error', error)
+                else 
+                    this.io.to(game_name).emit(SOCKET.GAMES.START, payload)
             })
 
-            socket.on('lose', () => {
+            socket.on(SOCKET.GAMES.END, (game_name: string) => {
                 if (!socket.player) 
-                    return 
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
-                const { game_name, username } = socket.player
-                const game = this.games.getGame(game_name)
-                if (!game)
-                    return
-                
-                game.changeStatus('terminated')
-                this.io.to(game_name).emit('information', {
-                    type: 'lose_game',
-                    username: username
-                })
+                const { payload, error } = this.games.endGame(game_name, socket.player)
+
+                if (error)
+                    socket.emit('error', error)
+                else 
+                    this.io.to(game_name).emit(SOCKET.GAMES.END, payload)
             })
 
-
-            // socket.on('message', (content: string) => {
-            //     if (!socket.player) 
-            //         return 
-                
-            //     const { game_name, username } = socket.player
-            //     const game = this.games.getGame(game_name)
-            //     if (!game)
-            //         return
-
-            //     const data = {
-            //         content,
-            //         username,
-            //         date: new Date()
-            //     }
-
-            //     this.io.to(game_name).emit('information', {
-            //         type: 'message',
-            //         data
-            //     })
-            // })
-
-
-            socket.on('spectrum', (spectrumArray: []) => {
+            socket.on(SOCKET.GAMES.SEND_SPECTRUM, (spectrumArray: []) => {
                 if (!socket.player) 
-                    return 
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
                 
                 const { game_name } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
                     return
 
-                socket.to(game_name).emit('information', {
+                socket.to(game_name).emit(SOCKET.GAMES.GET_SPECTRUM, {
                     type: 'spectrum',
                     data: spectrumArray
                 })
             })
             
-            socket.on('lines', (linesNumbers: number) => {
+            socket.on(SOCKET.GAMES.SEND_LINE_PENALTY, (linesNumbers: number) => {
                 if (!socket.player) 
-                    return 
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
                 
                 const { game_name } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
                     return
 
-                socket.to(game_name).emit('information', {
+                socket.to(game_name).emit(SOCKET.GAMES.GET_LINE_PENALTY, {
                     type: 'penalty',
                     data: linesNumbers
                 })
             })
 
-            // games functions
-            socket.on('get_games', (_: any, callback: any) => {
+            socket.on(SOCKET.GAMES.GET_GAMES, (_: any, callback: any) => {
                 if (!socket.player) 
-                    return callback({ error: 'user_not_connected' })
-                callback({ games: this.games.getGames() })
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
+
+                callback({ games: this.games.getUnstartedGamesList() })
             })
 
-
-            socket.on('piece', (_: any, callback: any) => {
+            socket.on(SOCKET.GAMES.GET_PIECE, () => {
                 if (!socket.player) 
-                    return callback({ error: 'user_not_connected' })
+                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
                 const { game_name, id } = socket.player
                 const game = this.games.getGame(game_name)
                 if (!game)
                     return
 
-                callback({ piece: game.givePiece(id) })
+                socket.emit('new_piece', { piece: game.givePiece(id) })
             })
 
-            socket.on('disconnect', () => {
-                console.log('Disconnect', socket?.player)
-
-                if (socket.player) {
-                    const { game_name, username, id } = socket.player
-                    const game = this.games.getGame(game_name)
-
-                    if (game && game.players.length > 1)
-                        game.removePlayer(socket.player.id)
-                    else
-                        this.games.destroyGame(game_name)
-
-                    this.io.to(game_name).emit('information', {
-                        type: 'leave',
-                        username
-                    })
-                    socket.leave(game_name)
-
-                    const index = _.findIndex(this.users, { id })
-                    if (index !== -1)
-                        this.users.splice(index, 1)
-                }
-            })
         })
     }
 }

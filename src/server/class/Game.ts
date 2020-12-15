@@ -1,70 +1,47 @@
 import _ from 'lodash'
-import { Player, PlayerInterface } from './Player'
-import { Piece, PieceInterface } from './Piece'
+import { Player } from './Player'
+import { Piece } from './Piece'
 
-interface GameInterface {
-    name: string,
-    status: 'idle' | 'started' | 'terminated',
-    maxPlayers: number,
-    players: PlayerInterface[],
-    leaderId: string,
-    pieces: PieceInterface[],
-    gameInfo(): {}
-}
+type gameStatusType = 'idle' | 'started' | 'terminated';
 
 class Game {
-    name: string;
-    status: 'idle' | 'started' | 'terminated';
-    maxPlayers: number;
-    players: PlayerInterface[];
+    status: gameStatusType = 'idle';
     leaderId: string;
-    pieces: PieceInterface[]
+    maxPlayers: number;
+    players: Player[];
+    pieces: Piece[]
 
-    constructor(name: string, leader: PlayerInterface) {
-        this.name = name
-        this.status = 'idle'
+    constructor(public name: string, player: Player) {
         this.maxPlayers = 2
-        this.players = [new Player(leader)]
-        this.leaderId = leader.id
-        this.pieces = this.generatePieces()
+        this.players = [player]
+        this.leaderId = player.id
+        this.pieces = Piece.generatingPiecesPool()
     }
 
-    addPlayer(playerData: { username: string, id: string }) {
-        const player = new Player(playerData)
+    addPlayer(player: Player) {
         this.players.push(player)
     }
 
-    changeStatus(status: 'idle' | 'started' | 'terminated') {
+    removePlayer(playerId: string) {
+        const index = _.findIndex(this.players, { id: playerId })
+        this.players.splice(index, 1)
+    }
+
+    transferOwnership() {
+        this.leaderId = this.players[0].id
+    }
+
+    changeStatus(status: gameStatusType) {
         this.status = status
     }
 
     isLeader(playerId: string) {
         return this.leaderId === playerId
     }
-
-    removePlayer(playerId: string) {
-        const index = _.findIndex(this.players, { id: playerId })
-        this.players.splice(index, 1)
-
-        // if the leader leave give leader to another
-        if (playerId === this.leaderId) {
-            this.leaderId = this.players[0].id
-        }
-    }
     
-    getPlayer(playerId: string): PlayerInterface | null {
+    getPlayer(playerId: string): Player | null {
         const player = _.find(this.players, { id: playerId }) || null
         return player
-    }
-
-    // pieces handling
-    generatePieces() {
-        const pieces = []
-        for (let i = 0; i < 100; i++) {
-            const piece = new Piece()
-            pieces.push(piece)
-        }
-        return pieces
     }
 
     givePiece(playerId: string) {
@@ -74,6 +51,8 @@ class Game {
             player.incrementCurrentPieceIndex()
             return this.pieces[currentPieceIndex]
         }
+        else 
+            return null
     }
 
     gameInfo() {
@@ -85,4 +64,5 @@ class Game {
 
 }
 
-export { GameInterface, Game }
+
+export { Game }

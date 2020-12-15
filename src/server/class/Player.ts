@@ -1,25 +1,11 @@
-
-interface PlayerInterface {
-    id: string,
-    username: string,
-    currentPieceIndex: number,
-    incrementCurrentPieceIndex(): void;
-}
-
 class Player {
-    username: string;
-    id: string;
-    currentPieceIndex: number;
+    currentPieceIndex: number = 0;
 
-    constructor(playerData: { username: string, id: string }) {
-        this.username = playerData.username
-        this.id = playerData.id
-        this.currentPieceIndex = 0
-    }
+    constructor(public username: string, public id: string) { }
 
     incrementCurrentPieceIndex(): void{
         this.currentPieceIndex = this.currentPieceIndex + 1
     }
 }
 
-export { Player, PlayerInterface }
+export { Player }

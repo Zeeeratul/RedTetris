@@ -6,6 +6,7 @@ import '../styles/root.css'
 import { useHistory } from "react-router-dom"
 import { initiateSocket, emitToEvent } from '../middlewares/socket'
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward'
+import { SOCKET } from '../config/constants.json'
 
 function Landing() {
 
@@ -18,7 +19,7 @@ function Landing() {
         ev.preventDefault()
         const { username } = ev.target.elements
         if (username.value) {
-            emitToEvent('login', username.value, ({ username, error }: any) => {
+            emitToEvent(SOCKET.AUTH.LOGIN, username.value, ({ username, error }) => {
                 if (error) {
                     console.log(error)
                 }

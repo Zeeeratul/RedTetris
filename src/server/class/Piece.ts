@@ -1,19 +1,16 @@
 import _ from 'lodash'
-import { piecesArray } from '../config/constants.json'
+import { piecesArray } from '../../client/config/constants.json'
 
-interface PieceInterface {
-    structure: any,
-    type: string,
-    leftTopPosition: any,
-    positions: any,
-
+type Coords = {
+    x: number;
+    y: number;
 }
 
 class Piece {
-    structure: any;
+    structure: string[][];
     type: string;
-    leftTopPosition: any;
-    positions: any;
+    leftTopPosition: Coords;
+    positions: Coords[];
 
     constructor() {
         const piece = piecesArray[_.random(6)]
@@ -22,6 +19,15 @@ class Piece {
         this.leftTopPosition = piece.leftTopPosition
         this.positions = piece.positions
     }
+
+    static generatingPiecesPool() {
+        const pieces : Piece[] = []
+        for (let i = 0; i < 100; i++) {
+            const piece = new Piece()
+            pieces.push(piece)
+        }
+        return pieces
+    }
 }
 
-export { Piece, PieceInterface }
+export { Piece }

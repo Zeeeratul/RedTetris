@@ -2,6 +2,7 @@
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled/macro'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
+import { disconnectSocket } from '../../client/middlewares/socket'
 
 
 
@@ -36,7 +37,8 @@ export const Columm = styled.div({
 export const Navbar = () => {
 
     const logout = () => {
-        window.location.href = '/landing'
+        disconnectSocket()
+        // window.location.href = '/landing'
     }
 
     return (

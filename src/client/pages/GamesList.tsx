@@ -5,6 +5,7 @@ import { initiateSocket, emitToEvent } from '../middlewares/socket'
 import { useHistory } from "react-router-dom"
 import { Navbar, Footer, Main, PageContainer, Columm } from '../components/Template'
 import { ButtonWithIcon } from '../components/Buttons'
+import { SOCKET } from '../config/constants.json'
 
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import SearchIcon from '@material-ui/icons/Search'
@@ -42,7 +43,7 @@ const GamesList = () => {
 
     const createGame = () => {
         if (!gameName) return 
-        emitToEvent('create', gameName, ({ url, error }: any) => {
+        emitToEvent(SOCKET.GAMES.CREATE, gameName, ({ url, error }: any) => {
             if (error) {
                 console.error(error)
             }
