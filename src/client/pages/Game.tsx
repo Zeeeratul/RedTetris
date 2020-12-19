@@ -1,258 +1,183 @@
 import React, { useReducer, useState, useEffect } from 'react'
-import '../styles/Game.css'
+import _ from 'lodash'
 import Grid from '../components/game/Grid'
+import GameStarted from '../components/game/GameStarted'
 import { Navbar, Footer, Main, PageContainer, Columm } from '../components/Template'
-import { emitToEvent, subscribeToEvent } from '../middlewares/socket'
+import { emitToEvent, emitToEventWithAcknowledgement, subscribeToEvent } from '../middlewares/socket'
 import { ButtonWithIcon } from '../components/Buttons'
-import { movePiece, addPieceToTheGrid } from '../utils/movePiece'
-import { checkHorizontalPosition, checkVerticalPosition } from '../utils/checkPiece'
+import { useHistory } from "react-router-dom"
 import { SOCKET } from '../config/constants.json'
 
 
-// const regex = new RegExp('^#[a-zA-Z0-9]*[[a-zA-Z0-9]*]$')
+const regex = new RegExp('^#[a-zA-Z0-9]*$')
 
-
-const gridArray = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-]
+interface GameInfo {
+    name: string;
+    status: string;
+    players: any[];
+    maxPlayers: number;
+    mode: string;
+    speed: number;
+    isLeader: boolean;
+}
 
 const initialState = {
-    grid: gridArray,
-    currentPiece: null,
-    nextPiece: null,
-    gameStatus: 'idle'
+    name: '',
+    players: [],
+    maxPlayers: 2,
+    mode: 'classic',
+    speed: 1,
+    isLeader: false,
+    // status: 'idle'
+    status: 'started'
 }
 
-function reducer(state: any, action: any) {
-    const { grid, currentPiece, nextPiece } = state
+const reducer = (gameInfo: GameInfo, action: any) => {
 
     switch (action.type) {
-        case 'game_started':
+        case SOCKET.GAMES.INFO: 
             return {
-                grid,
-                ...action.payload,
-                gameStatus: 'started'
+                ...gameInfo,
+                ...action.payload
             }
-        case 'game_losed':
+        case SOCKET.GAMES.START:
             return {
-                ...initialState,
-                gameStatus: 'losed'
+                ...gameInfo,
+                status: 'started'
             }
-        case 'new_piece':
+        case SOCKET.GAMES.END:
             return {
-                ...state,
-                currentPiece: nextPiece,
-                nextPiece: action.piece
+                ...gameInfo,
+                status: 'end'
             }
-        case 'move_horizontal': 
-            const xDirection = action.xDirection
-            const updatedPiece = movePiece(currentPiece, xDirection, 0)
-
-            if (checkHorizontalPosition(updatedPiece.positions, grid))
-                return {
-                    ...state,
-                    currentPiece: updatedPiece
-                }
-            else
-                return state
-        case 'move_vertical': 
-            const updatedPiece2 = movePiece(currentPiece, 0, 1)
-
-            if (checkVerticalPosition(updatedPiece2.positions, grid))
-                return {
-                    ...state,
-                    currentPiece: updatedPiece2
-                }
-            else
-                return {
-                    ...state,
-                    grid: addPieceToTheGrid(currentPiece, grid),
-                    currentPiece: nextPiece,
-                    nextPiece: null
-                }
         default:
-            return state
+            return gameInfo
     }
-
-    // if (action.type === 'ArrowRight' || action.type === 'ArrowLeft') {
-    //     const xDirection = action.type === 'ArrowRight' ? 1 : -1 
-    //     const updatedPiece = movePiece(currentPiece, xDirection, 0)
-
-    //     if (checkHorizontalPosition(updatedPiece.positions, grid))
-    //         return {
-    //             ...state,
-    //             currentPiece: updatedPiece
-    //         }
-    //     else
-    //         return state
-    // }
-    // else if (action.type === 'ArrowDown') {
-    //     const updatedPiece = movePiece(currentPiece, 0, 1)
-
-    //     if (checkVerticalPosition(updatedPiece.positions, grid))
-    //         return {
-    //             ...state,
-    //             currentPiece: updatedPiece
-    //         }
-    //     else
-    //         return {
-    //             grid: addPieceToTheGrid(currentPiece, grid),
-    //             currentPiece: nextPiece,
-    //             nextPiece: null
-    //         }
-    // } 
-    // else if (action.type === 'ArrowUp') {
-
-    //     const rotatedStructure = rotatePiece(currentPiece.structure)
-    //     const newPositions = convertCoords({
-    //         position: currentPiece.position,
-    //         structure: rotatedStructure
-    //     })
-        
-    //     if (checkVerticalPosition(newPositions, grid) && checkHorizontalPosition(newPositions, grid)) {
-    //         return {
-    //             ...state,
-    //             currentPiece: {
-    //                 ...currentPiece,
-    //                 structure: rotatedStructure,
-    //                 positions: newPositions
-    //             }
-    //         }
-    //     }
-    //     else
-    //         return state
-    // }
-    // // space bar
-    // else if (action.type === ' ') {
-    //     let updatedPiece = movePiece(currentPiece, 0, 1)
-    //     updatedPiece = movePiece(updatedPiece, 0, 1)
-    //     updatedPiece = movePiece(updatedPiece, 0, 1)
-
-    //     return {
-    //         grid: addPieceToTheGrid(updatedPiece, grid),
-    //         currentPiece: nextPiece,
-    //         nextPiece: null
-    //     }
-
-    // }
-    // else if (action.type === 'piece') {
-    //     const currentPiece = { ...action.payload, positions: convertCoords(action.payload) }
-    //     return {
-    //         ...state,
-    //         currentPiece
-    //     }
-    // }
-    // else if (action.type === 'next_piece') {
-    //     const nextPiece = { ...action.payload, positions: convertCoords(action.payload) }
-    //     return {
-    //         ...state,
-    //         nextPiece
-    //     }
-    // }
-    // else if (action.type === 'reset') {
-    //     return initialState
-    // }
-    // else {
-    //     console.log('This key isn\'t supported: ', action.type)
-    //     return state
-    // }
 }
+
 
 function Game() {
 
+    const history = useHistory()
     const [state, dispatch] = useReducer(reducer, initialState)
-    const { currentPiece, nextPiece, grid, gameStatus } = state
+    const { status, isLeader, players } = state
 
     useEffect(() => {
-
-        subscribeToEvent(SOCKET.GAMES.START, ({ currentPiece, nextPiece, error }: any) => {
-            if (error)
-                console.error(error)
-            else {
-                dispatch({ type: 'game_started', payload: {
-                    currentPiece,
-                    nextPiece
-                }})
-            }
+        // get game when landing on this page
+        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_INFO, {}, (error, data) => {
+            if (data)
+                dispatch({ type: SOCKET.GAMES.INFO, payload: data })
         })
-        
-        subscribeToEvent(SOCKET.GAMES.GET_PIECE, ({ piece, error }: any) => {
-            if (error)
-                console.error(error)
-            else {
-                dispatch({ type: 'new_piece', piece })
+
+        // when player join or leave, ask the server for the new game info
+        subscribeToEvent(SOCKET.GAMES.INFO, (error, { type, content }) => {
+            
+            if (type === SOCKET.GAMES.JOIN || type === SOCKET.GAMES.LEAVE) {
+                emitToEventWithAcknowledgement(SOCKET.GAMES.GET_INFO, {}, (error, data) => {
+                    if (data)
+                        dispatch({ type: SOCKET.GAMES.INFO, payload: data })
+                })
             }
         })
 
+        subscribeToEvent(SOCKET.GAMES.START, () => {
+            dispatch({ type: SOCKET.GAMES.START })
+        })
+
+        return () => emitToEvent(SOCKET.GAMES.LEAVE)
     }, [])
 
     const startGame = () => {
         emitToEvent(SOCKET.GAMES.START)
     }
-  
-    return (
-        <PageContainer>
-            <Navbar />
 
-            <Main>
-                {gameStatus === 'started' && currentPiece ? 
-                    <Grid
-                        piece={currentPiece}
-                        dispatch={dispatch}
-                        grid={grid}
-                    />
-                :
-                    <p>Wait for game to start</p>
-                }
+    const leaveGame = () => {
+        history.push('/games')
+    }
 
-                <Columm>
+    if (status === 'idle') {
+        return (
+            <PageContainer>
+                <Navbar />
+
+                <Main>
                     <div>
-                        <p>
-                            Next Piece: {nextPiece && nextPiece.type}
-                        </p>
-                        
+                        {players.map((player: any) => {
+                            return <p key={`player_${player.username}`}>{player.username}</p>
+                        })}
                     </div>
-                    <div>
+                    {isLeader &&
                         <ButtonWithIcon
                             onClick={startGame}
                         >
                             Start
                         </ButtonWithIcon>
-                        <ButtonWithIcon>
-                            Leave
-                        </ButtonWithIcon>
-                    </div>
-                </Columm>
-            </Main>
+                    }
+                    <ButtonWithIcon
+                        onClick={leaveGame}
+                    >
+                        Leave
+                    </ButtonWithIcon>
+                </Main>
 
-            <Footer />
-        </PageContainer>
+                <Footer />
+            </PageContainer>
+        )
+    }
+    else if (status === 'started') {
+        return (
+            <GameStarted
+                otherPlayers={_.filter(players, { 'yourself': false })}
+            >
+                {/* 4 little grid 
+                + one grid */}
+
+            </GameStarted>
+        )
+    }
+
+    return (
+        <div>test</div>
     )
+  
+    // return (
+        // <PageContainer>
+        //     <Navbar />
+
+        //     <Main>
+        //         {/* {gameStatus === 'started' && currentPiece ? 
+        //             <Grid
+        //                 piece={currentPiece}
+        //                 dispatch={dispatch}
+        //                 grid={grid}
+        //             />
+        //         :
+        //             <p>Wait for game to start</p>
+        //         } */}
+
+        //         <Columm>
+        //             <div>
+        //                 <p>
+        //                     Next Piece: {nextPiece && nextPiece.type}
+        //                 </p>
+                        
+        //             </div>
+        //             <div>
+        //                 <ButtonWithIcon
+        //                     onClick={startGame}
+        //                 >
+        //                     Start
+        //                 </ButtonWithIcon>
+        //                 <ButtonWithIcon>
+        //                     Leave
+        //                 </ButtonWithIcon>
+        //             </div>
+        //         </Columm>
+        //     </Main>
+
+        //     <Footer />
+        // </PageContainer>
+    // )
 }
 
 export default Game

@@ -1,10 +1,8 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-
 import { useEffect } from 'react'
-import '../styles/root.css'
 import { useHistory } from "react-router-dom"
-import { initiateSocket, emitToEvent } from '../middlewares/socket'
+import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward'
 import { SOCKET } from '../config/constants.json'
 
@@ -19,13 +17,13 @@ function Landing() {
         ev.preventDefault()
         const { username } = ev.target.elements
         if (username.value) {
-            emitToEvent(SOCKET.AUTH.LOGIN, username.value, ({ username, error }) => {
+            emitToEventWithAcknowledgement(SOCKET.AUTH.LOGIN, username.value, (error, data) => {
                 if (error) {
                     console.log(error)
                 }
                 else {
                     history.push('/games')
-                    console.log(username)
+                    console.log(data.username)
                 }
             })
 

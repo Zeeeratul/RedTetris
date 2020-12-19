@@ -35,29 +35,14 @@ function Cell({ value }: any) {
 
 function Line({ piecePositions, pieceType, cells, yCoord }: any) {
 
-    const positionsInLine = _.filter(piecePositions, { 'y': yCoord })
-
     return (
         <React.Fragment>
             {cells.map((cell: any, index: number) => {
-                if (positionsInLine.length > 0) {
-                    const pieceHere = _.find(positionsInLine, { x: index })
-                    return (
-                        <Cell
-                            key={`cell_${index}`}
-                            value={pieceHere ? pieceType : cells[index]}
-                        />
-                    )
-                }
-                else {
-                    return (
-                        <Cell
-                            key={`cell_${index}`}
-                            // value={true ? pieceType : cells[index]}
-                            value={cells[index]}
-                        />
-                    )
-                }
+                const pieceHere = piecePositions.some((item: any) => _.isEqual(item, { x: index, y: yCoord }))
+                return <Cell
+                    key={`cell_${index}`}
+                    value={pieceHere ? pieceType : cell}
+                />
             })}
         </React.Fragment>
     )

@@ -12,6 +12,7 @@ export const PageContainer = styled.div({
     color: 'white',
     display: 'flex',
     flexDirection: 'column',
+    margin: 0,
 })
 
 export const Main = styled.div({
@@ -20,7 +21,7 @@ export const Main = styled.div({
     alignItems: 'center',
     flexGrow: 1,
     flexWrap: 'wrap',
-    backgroundColor: '#12181b'
+    backgroundColor: 'black'
 })
 
 export const Columm = styled.div({
@@ -47,7 +48,6 @@ export const Navbar = () => {
                 width: '100%',
                 height: '60px',
                 background: 'black',
-                borderBottom: '1px solid lightgrey',
                 display: 'flex',
                 justifyContent: 'flex-end',
                 alignItems: 'center'
@@ -85,7 +85,6 @@ export const Footer = () => {
         <footer
             css={{
                 display: 'flex',
-                borderTop: '1px solid lightgrey',
                 height: '30px',
                 justifyContent: 'flex-end',
                 paddingRight: '10px',

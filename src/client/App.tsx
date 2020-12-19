@@ -10,6 +10,7 @@ import GamesList from './pages/GamesList'
 import Game from './pages/Game'
 import { checkSocketConnection } from './middlewares/socket'
 import { useTheme, ThemeContext } from './utils/useTheme'
+import './App.css'
 
 type PrivateRouteProps = { children: React.ReactNode, path: string }
 
@@ -25,7 +26,7 @@ function PrivateRoute({ children, path }: PrivateRouteProps) {
         ) : (
           <Redirect
             to={{
-            pathname: "/landing",
+            pathname: "/",
             state: { from: location }
             }}
           />
@@ -43,17 +44,22 @@ function App() {
     <ThemeContext.Provider value={value}>
       <Router >
         <Switch>
-          <Route exact path="/landing">
-            <Landing />
-          </Route>
+      
+          {/* <PrivateRoute path="/games"> */}
 
           <Route exact path="/games">
-          {/* <PrivateRoute path="/games"> */}
             <GamesList />
-          {/* </PrivateRoute> */}
           </Route>
-          <Route path="/">
+          {/* </PrivateRoute> */}
+
+          {/* <PrivateRoute path="/game"> */}
+          <Route path="/game">
             <Game />
+          </Route>
+          {/* </PrivateRoute> */}
+          
+          <Route path="/">
+            <Landing />
           </Route>
         </Switch>
       </Router>

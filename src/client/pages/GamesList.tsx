@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
-import { useState } from 'react'
-import { initiateSocket, emitToEvent } from '../middlewares/socket'
+import { useState, useEffect } from 'react'
+import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { useHistory } from "react-router-dom"
 import { Navbar, Footer, Main, PageContainer, Columm } from '../components/Template'
 import { ButtonWithIcon } from '../components/Buttons'
@@ -14,6 +14,18 @@ import SoloIcon from '@material-ui/icons/Person'
 
 import styled from '@emotion/styled'
 
+
+/* 
+ALL actions to be done
+
+    create a game
+
+    join a game
+
+    have the games list
+
+
+*/
 
 const Td = styled.td({
     padding: '12px 15px'
@@ -38,26 +50,70 @@ const Tr = styled.tr({
 const GamesList = () => {
 
     const history = useHistory()
-    const [gameName, setGameName] = useState('')
+    const [games, setGames] = useState([])
 
+    const [gameCreation, setGameCreation] = useState({
+        error: '',
+        name: ''
+    })
 
     const createGame = () => {
-        if (!gameName) return 
-        emitToEvent(SOCKET.GAMES.CREATE, gameName, ({ url, error }: any) => {
+        if (!gameCreation.name) return 
+        emitToEventWithAcknowledgement(SOCKET.GAMES.CREATE, { name: gameCreation.name }, (error: any, gameName: string) => {
+            if (error)
+                setGameCreation({
+                    error,
+                    name: ''
+                })
+            else {
+                history.push(`/game/${gameName}`)
+            }
+        })
+    }
+
+    const joinGame = (gameNameJoin: string) => {
+        if (!gameNameJoin) return 
+        emitToEventWithAcknowledgement(SOCKET.GAMES.JOIN, gameNameJoin, (error: any, gameName: string) => {
             if (error) {
                 console.error(error)
             }
             else {
-                history.push(`/${url}`)
+                history.push(`/game/${gameName}`)
             }
         })
     }
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            emitToEventWithAcknowledgement(SOCKET.GAMES.GET_GAMES, {}, (error, games) => {
+                setGames(games)
+            })
+        }, 3000)
+        
+        return () => {
+            clearInterval(intervalId)
+        }
+    }, [])
 
     return (
         <PageContainer>
             <Navbar />
                 
             <Main>
+                <div id="games_list">
+                    <h1>Games list</h1>
+                    {games.map((game : any) => (
+                        <p
+                            key={game.name}   
+                            onClick={() => joinGame(game.name)}                     
+                        >
+                            {game.name}
+                        </p>
+                    ))}
+                </div>
+
+                
+
 {/* 
                 <Columm>
 
@@ -174,6 +230,9 @@ const GamesList = () => {
 
                 <Columm>
                     <h1>Create game</h1>
+                    <p>
+                        {gameCreation?.error}
+                    </p>
 
                     <div
                         css={{
@@ -197,8 +256,11 @@ const GamesList = () => {
                                 fontSize: '18px',
                                 color: 'white',
                             }}
-                            onChange={(ev) => setGameName(ev.target.value)}
-                            value={gameName}
+                            onChange={(ev) => setGameCreation({
+                                name: ev.target.value,
+                                error: ''
+                            })}
+                            value={gameCreation.name}
                         />
                         <button
                             css={{
@@ -226,13 +288,13 @@ const GamesList = () => {
                             />
                         </button>
                     </div>
-                    
+{/*                     
                     <ButtonWithIcon>
                         Play Solo
                         <SoloIcon
                             fontSize="large"
                         />
-                    </ButtonWithIcon>
+                    </ButtonWithIcon> */}
                 </Columm>
 
             </Main>

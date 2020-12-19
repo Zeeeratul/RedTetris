@@ -1,21 +1,27 @@
 import _ from 'lodash'
-import { Player } from './Player'
-import { Piece } from './Piece'
+import Player from './Player'
+import Piece from './Piece'
+import { GameParameters } from './interfaces'
 
 type gameStatusType = 'idle' | 'started' | 'terminated';
+type gameModeType = 'classic' | 'invisible';
 
 class Game {
-    status: gameStatusType = 'idle';
-    leaderId: string;
-    maxPlayers: number;
     players: Player[];
-    pieces: Piece[]
+    pieces: Piece[];
+    leaderId: string;
+    name: string;
+    status: gameStatusType = 'idle';
+    mode: gameModeType = 'classic';
+    maxPlayers: number = 2;
+    speed: number = 1;
 
-    constructor(public name: string, player: Player) {
-        this.maxPlayers = 2
+    constructor(gameParameters: GameParameters, player: Player) {
+        this.name = gameParameters.name
         this.players = [player]
         this.leaderId = player.id
         this.pieces = Piece.generatingPiecesPool()
+        Object.assign(this, gameParameters)
     }
 
     addPlayer(player: Player) {
@@ -27,7 +33,7 @@ class Game {
         this.players.splice(index, 1)
     }
 
-    transferOwnership() {
+    transferLeadership() {
         this.leaderId = this.players[0].id
     }
 
@@ -35,10 +41,14 @@ class Game {
         this.status = status
     }
 
+    changeGameParameters(gameParameters: GameParameters) {
+        Object.assign(this, gameParameters)
+    }
+
     isLeader(playerId: string) {
         return this.leaderId === playerId
     }
-    
+
     getPlayer(playerId: string): Player | null {
         const player = _.find(this.players, { id: playerId }) || null
         return player
@@ -55,14 +65,35 @@ class Game {
             return null
     }
 
-    gameInfo() {
-        return {
-            name: this.name,
-            players: this.players.length
+    gameInfo(playerId?: string) {
+        if (playerId) {
+            return {
+                name: this.name,
+                players: this.players.map((player) => ({
+                    username: player.username,
+                    score: player.score,
+                    yourself: playerId === player.id
+                })),
+                maxPlayers: this.maxPlayers,
+                mode: this.mode,
+                speed: this.speed,
+                isLeader: this.isLeader(playerId)
+            }
+        }
+        else {
+            return {
+                name: this.name,
+                players: this.players.map((player) => ({
+                    username: player.username,
+                    score: player.score
+                })),
+                maxPlayers: this.maxPlayers,
+                mode: this.mode,
+                speed: this.speed,
+            }
         }
     }
-
 }
 
 
-export { Game }
+export default Game

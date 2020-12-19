@@ -1,11 +1,21 @@
 class Player {
+    username: string;
+    id: string;
     currentPieceIndex: number = 0;
+    score: number = 0;
 
-    constructor(public username: string, public id: string) { }
+    constructor(username: string, id: string) { 
+        this.username = username
+        this.id = id
+    }
 
-    incrementCurrentPieceIndex(): void{
+    incrementCurrentPieceIndex() {
         this.currentPieceIndex = this.currentPieceIndex + 1
+    }
+
+    incrementScore() {
+        this.score = this.score + 10
     }
 }
 
-export { Player }
+export default Player

@@ -1,18 +1,18 @@
-
-
 interface positionInterface {
     x: number,
     y: number
 }
 
+type structureInterface = string[][]
+
 interface pieceInterface {
     leftTopPosition: positionInterface,
     type: string,
-    positions: [positionInterface],
-    structure: [[]]
+    positions: positionInterface[],
+    structure: structureInterface
 }
 
-export const movePiece = (piece: any, xDirection: number, yDirection: number) => {
+export const movePiece = (piece: pieceInterface, xDirection: number, yDirection: number) => {
     const newPiece = {
         ...piece,
         positions: piece.positions.map((part: positionInterface) => ({x: part.x + xDirection, y: part.y + yDirection})),
@@ -21,9 +21,25 @@ export const movePiece = (piece: any, xDirection: number, yDirection: number) =>
     return newPiece
 }
 
-const rotatePiece = (piece: any) => {
-    const N = piece.length
-    const pieceClone = piece.map((arr: any) => arr.slice())
+export const convertStructureToPositions = (pieceStructure: structureInterface, leftTopPosition: positionInterface): any => {
+
+    const newPositions: positionInterface[] = []
+    pieceStructure.forEach((line, yCoord) => {
+        line.forEach((cell, xCoord) => {
+            if (cell === '#')
+                newPositions.push({
+                    x: xCoord + leftTopPosition.x,
+                    y: yCoord + leftTopPosition.y
+                })
+        })
+    })
+    return newPositions
+}
+
+
+export const rotatePiece = (pieceStructure: structureInterface): structureInterface => {
+    const N = pieceStructure.length
+    const pieceClone = pieceStructure.map((arr: string[]) => arr.slice())
 
     for (let i = 0; i < N / 2; i++) {
         for (let j = i; j < N - i - 1; j++) {
@@ -39,7 +55,7 @@ const rotatePiece = (piece: any) => {
 
 
 // const clearFullLine = (grid: [[]]) => {
-//     const lineToDelete = []
+//     const lineToDelete : number[] = []
 //     let newGrid = [...grid]
 
 //     grid.forEach((line, index) => {
@@ -69,5 +85,28 @@ export const addPieceToTheGrid = (piece: pieceInterface, grid: any) => {
     })
 
     // return clearFullLine(newGrid)
-    return newGrid
+    return (newGrid)
 }
+
+export const checkVerticalPosition = (positions: positionInterface[], grid: [[]]) => {
+    for (let i = 0; i < positions.length; i++) {
+        const {x, y} = positions[i]
+        if (y > 21)
+            return false
+        if (grid[y][x])
+            return false
+    }
+    return true
+}
+
+export const checkHorizontalPosition = (positions: positionInterface[], grid: [[]]) => {
+    for (let i = 0; i < positions.length; i++) {
+        const {x, y} = positions[i]
+        if (x < 0 || x > 9)
+            return false
+        if (grid[y][x])
+            return false
+    }
+    return true
+}
+

@@ -30,4 +30,4 @@ class Piece {
     }
 }
 
-export { Piece }
+export default Piece 

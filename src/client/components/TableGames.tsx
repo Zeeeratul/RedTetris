@@ -27,9 +27,9 @@ const TableGames = () => {
     // }, [])
 
     const joinGame = (game_name: string) => {
-        emitToEvent('join', game_name, (res) => {
-            console.log(res)
-        })
+        // emitToEvent('join', game_name, (res) => {
+        //     console.log(res)
+        // })
     }
 
     return (

@@ -1,85 +1,70 @@
 import _ from 'lodash'
-import { Game } from './Game'
-import { Player } from './Player'
-import { Piece } from './Piece'
+import Game from './Game'
+import Player from './Player'
+import Piece from './Piece'
 import { SOCKET } from '../../client/config/constants.json'
-
-interface PlayerData {
-    username: string,
-    id: string,
-}
+import { User, GameParameters } from './interfaces'
 
 class Games {
     games: Game[] = [];
 
-    createGame(game_name: string, playerData: PlayerData) 
-    {
-        try {
-            if (!game_name)
-                throw SOCKET.GAMES.ERROR.INVALID_NAME
+    createGame(gameParameters: GameParameters, playerData: User) {
+        if (!gameParameters.name)
+            throw SOCKET.GAMES.ERROR.INVALID_NAME
 
-            const checkGame = this.getGame(game_name)
-            if (checkGame)
-                throw SOCKET.GAMES.ERROR.NAME_TAKEN
-                
-            const player = new Player(playerData.username, playerData.id)
-            const game = new Game(game_name, player)
-            this.games.push(game)
-            return { url: `#${game_name}` }
-        }
-        catch (error) {
-            return { error }
-        }
+        const checkGame = this.getGame(gameParameters.name)
+        if (checkGame)
+            throw SOCKET.GAMES.ERROR.NAME_TAKEN
+            
+        const player = new Player(playerData.username, playerData.id)
+        const game = new Game(gameParameters, player)
+        this.games.push(game)
+        return game.name
     }
 
-    joinGame(game_name: string, playerData: PlayerData) {
-        try {
-            const game = this.getGame(game_name)
-            if (!game)
-                throw SOCKET.GAMES.ERROR.NOT_FOUND
+    joinGame(gameName: string, playerData: User) {
+        const game = this.getGame(gameName)
 
-            if (game.status === 'started')
-                throw SOCKET.GAMES.ERROR.STARTED
-            else if (game.players.length >= game.maxPlayers)
-                throw SOCKET.GAMES.ERROR.FULL
+        if (!game)
+            throw SOCKET.GAMES.ERROR.NOT_FOUND
+        else if (game.status === 'started')
+            throw SOCKET.GAMES.ERROR.STARTED
+        else if (game.players.length >= game.maxPlayers)
+            throw SOCKET.GAMES.ERROR.FULL
 
-            const player = new Player(playerData.username, playerData.id)
-            game.addPlayer(player)
-            return { url: `#${game_name}` }
-        }
-        catch (error) {
-            return { error }
-        }
+        const player = new Player(playerData.username, playerData.id)
+        game.addPlayer(player)
+        return game.name
     }
 
-    leaveGame(game_name: string, playerData: PlayerData) {
+    leaveGame(gameName: string, playerData: User) {
         try {
-            const game = this.getGame(game_name)
+            const game = this.getGame(gameName)
             if (!game)
                 throw SOCKET.GAMES.ERROR.NOT_FOUND
 
             if (game.players.length > 1) {
                 game.removePlayer(playerData.id)
-                game.transferOwnership()
+                game.transferLeadership()
             }
-            else
-                this.destroyGame(game_name)
-            return { success: 'leave_correctly' }
+            else {
+                this.destroyGame(gameName)
+            }
         }
         catch (error) {
             return { error }
         }
     }
 
-    destroyGame(game_name: string) {
-        const index = _.findIndex(this.games, { name: game_name })
+    destroyGame(gameName: string) {
+        const index = _.findIndex(this.games, { name: gameName })
         if (index !== -1) 
             this.games.splice(index, 1)
     }
 
-    startGame(game_name: string, playerData: PlayerData) {
+    startGame(gameName: string, playerData: User) {
         try {
-            const game = this.getGame(game_name)
+            const game = this.getGame(gameName)
             if (!game)
                 throw SOCKET.GAMES.ERROR.NOT_FOUND
 
@@ -100,9 +85,22 @@ class Games {
         }
     }
 
-    endGame(game_name: string, playerData: PlayerData) {
+    checkLeader(gameName: string, playerData: User) {
         try {
-            const game = this.getGame(game_name)
+            const game = this.getGame(gameName)
+            if (!game)
+                throw SOCKET.GAMES.ERROR.NOT_FOUND
+
+            return { isLeader: game.isLeader(playerData.id) }
+        }
+        catch (error) {
+            return { error }
+        }
+    }
+
+    endGame(gameName: string, playerData: User) {
+        try {
+            const game = this.getGame(gameName)
             if (!game)
                 throw SOCKET.GAMES.ERROR.NOT_FOUND
 
@@ -118,8 +116,8 @@ class Games {
         }
     }
 
-    getGame(game_name: string) {
-        return _.find(this.games, { name: game_name }) || null
+    getGame(gameName: string) {
+        return _.find(this.games, { name: gameName }) || null
     }
 
     getUnstartedGamesList() {

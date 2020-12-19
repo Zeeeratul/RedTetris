@@ -297,19 +297,16 @@ function Game() {
                 }
 
                 <div className="grid" >
-                    {grid.map((data, lineNumber) => {
-                        return (
-                            <Line 
-                                key={`line_${lineNumber}`}
-                                currentPiece={currentPiece.positions}
-                                currentType={currentPiece.type}
-                                cells={data}
-                                lineNumber={lineNumber}
-                                
-                            />
-                        )
-                    }
-                    )}
+                    {grid.map((data, lineNumber) => (
+                        <Line 
+                            key={`line_${lineNumber}`}
+                            currentPiece={currentPiece.positions}
+                            currentType={currentPiece.type}
+                            cells={data}
+                            lineNumber={lineNumber}
+                            
+                        />
+                    ))}
                 </div>
             </div>
         )

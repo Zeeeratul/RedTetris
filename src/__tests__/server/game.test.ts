@@ -56,7 +56,7 @@ test('Game Class, add a second player and remove him', () => {
 test('Game Class, ownership tranfer', () => {
     game.addPlayer(second_player)
     game.removePlayer(leader_player.id)
-    game.transferOwnership()
+    game.transferLeadership()
 
     expect(game.leaderId).toBe(second_player.id)
 })

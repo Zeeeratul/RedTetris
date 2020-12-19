@@ -224,6 +224,8 @@
         "GAMES": {
             "CREATE": "create_game",
             "JOIN": "join_game",
+            "GET_INFO": "get_game_info",
+            "INFO": "game_info",
             "LEAVE": "leave_game",
             "DESTROY": "destroy_game",
             "GET_GAMES": "get_games",
@@ -232,6 +234,8 @@
             "START": "start_game",
             "END": "end_game",
             "GET_PIECE": "get_piece",
+            "SET_PIECE": "set_piece",
+            "SET_NEXT_PIECE": "set_next_piece",
             "GET_LINE_PENALTY": "get_line_penalty",
             "SEND_LINE_PENALTY": "send_line_penalty",
             "GET_SPECTRUM": "get_spectrum",

@@ -6,25 +6,34 @@ export const initiateSocket = () => {
     console.log('Initiating socket...')
 }
 
-export const subscribeToEvent = (eventName: string, cb: (res: {}) => any) => {
+export const subscribeToEvent = (eventName: string, cb: (error: any, data: any) => void) => {
     if (socket)
-        socket.on(eventName, (response: {}) => {
+        socket.on(eventName, (error: any, data: any) => {
             console.log(`Websocket event: '${eventName}' received!`)
-            return cb(response)
+            return cb(error, data)
         })
 }
 
-export const emitToEvent = (eventName: string, data?: {} | string, cb?: (res: any) => any) => {
+export const emitToEvent = (eventName: string, data?: any) => {
     if (socket) {
-        if (cb) {
-            socket.emit(eventName, data, cb)
-        }
-        else {
-            socket.emit(eventName, data)
-        }
+        socket.emit(eventName, data)
     }
     else {
-        window.location.href = '/landing'
+        window.location.href = '/'
+    }
+}
+
+export const emitToEventWithAcknowledgement = (
+        eventName: string,
+        data: any,
+        cb: (error: any, data: any) => void,
+    ) => {
+
+    if (socket) {
+        socket.emit(eventName, data, cb)
+    }
+    else {
+        window.location.href = '/'
     }
 }
 
@@ -42,5 +51,5 @@ export const disconnectSocket = () => {
         console.log('Disconnecting socket...')
         socket.disconnect()
     }
-    window.location.href = '/landing'
+    window.location.href = '/'
 }
