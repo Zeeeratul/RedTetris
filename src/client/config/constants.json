@@ -236,7 +236,7 @@
             "GET_PIECE": "get_piece",
             "SET_PIECE": "set_piece",
             "SET_NEXT_PIECE": "set_next_piece",
-            "GET_LINE_PENALTY": "get_line_penalty",
+            "LINE_PENALTY": "line_penalty",
             "SEND_LINE_PENALTY": "send_line_penalty",
             "GET_SPECTRUM": "get_spectrum",
             "SEND_SPECTRUM": "send_spectrum",

@@ -20,6 +20,10 @@ function Cell({ value }: any) {
         backgroundColor = 'purple'
     else if (value === 'Z')
         backgroundColor = 'red'
+    
+    // penalty line color
+    else if (value === '*')
+        backgroundColor = 'pink'
 
     return (
         <div 

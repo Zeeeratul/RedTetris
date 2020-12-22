@@ -29,7 +29,7 @@ const initialState = {
     speed: 1,
     isLeader: false,
     // status: 'idle'
-    status: 'started'
+    status: 'idle'
 }
 
 const reducer = (gameInfo: GameInfo, action: any) => {
@@ -72,7 +72,7 @@ function Game() {
         // when player join or leave, ask the server for the new game info
         subscribeToEvent(SOCKET.GAMES.INFO, (error, { type, content }) => {
             
-            if (type === SOCKET.GAMES.JOIN || type === SOCKET.GAMES.LEAVE) {
+            if (type && (type === SOCKET.GAMES.JOIN || type === SOCKET.GAMES.LEAVE)) {
                 emitToEventWithAcknowledgement(SOCKET.GAMES.GET_INFO, {}, (error, data) => {
                     if (data)
                         dispatch({ type: SOCKET.GAMES.INFO, payload: data })
@@ -82,6 +82,10 @@ function Game() {
 
         subscribeToEvent(SOCKET.GAMES.START, () => {
             dispatch({ type: SOCKET.GAMES.START })
+        })
+
+        subscribeToEvent(SOCKET.GAMES.END, () => {
+            dispatch({ type: SOCKET.GAMES.END })
         })
 
         return () => emitToEvent(SOCKET.GAMES.LEAVE)
@@ -137,7 +141,7 @@ function Game() {
     }
 
     return (
-        <div>test</div>
+        <div>Game end</div>
     )
   
     // return (

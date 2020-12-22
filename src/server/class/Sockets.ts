@@ -57,7 +57,7 @@ class Sockets {
          
                     socket.leave(gameName)
 
-                    socket.to(gameName).emit(SOCKET.GAMES.INFO, { 
+                    socket.to(gameName).emit(SOCKET.GAMES.INFO, null, { 
                         type: SOCKET.GAMES.LEAVE,
                         content: `${username} leave_game`
                     })
@@ -132,7 +132,7 @@ class Sockets {
                 delete socket.player.gameName
                 socket.leave(gameName)
 
-                socket.to(gameName).emit(SOCKET.GAMES.INFO, { 
+                socket.to(gameName).emit(SOCKET.GAMES.INFO, null, { 
                     type: SOCKET.GAMES.LEAVE,
                     content: `${username} leave_game`
                 })
@@ -147,7 +147,7 @@ class Sockets {
                 
                 if (game) {
                     const gameInfo = game.gameInfo(id)
-                    callback(null, { data: gameInfo })
+                    callback(null, gameInfo)
                 }
                 else
                     callback(SOCKET.GAMES.ERROR.NOT_FOUND)
@@ -164,7 +164,7 @@ class Sockets {
                     
                 const { gameName } = socket.player
                 const { isLeader, error } = this.games.checkLeader(gameName, socket.player)
-                callback(error, { isLeader })
+                callback(error, isLeader)
             })
 
 
@@ -219,19 +219,17 @@ class Sockets {
                 })
             })
             
-            socket.on(SOCKET.GAMES.SEND_LINE_PENALTY, (linesNumbers: number) => {
+            socket.on(SOCKET.GAMES.LINE_PENALTY, (linesCount: number) => {
                 if (!socket.player) 
                     return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
                 
                 const { gameName } = socket.player
                 const game = this.games.getGame(gameName)
+                
                 if (!game)
                     return
-
-                socket.to(gameName).emit(SOCKET.GAMES.GET_LINE_PENALTY, {
-                    type: 'penalty',
-                    data: linesNumbers
-                })
+                
+                socket.to(gameName).emit(SOCKET.GAMES.LINE_PENALTY, null, linesCount)
             })
 
 
@@ -258,7 +256,7 @@ class Sockets {
                 const piece = game.givePiece(id)
                 if (!piece) 
                     return console.error('player not found cant give piece')
-                callback(null, { piece })
+                callback(null, piece)
             })
         })
     }
