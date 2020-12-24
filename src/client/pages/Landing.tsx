@@ -6,7 +6,7 @@ import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/s
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward'
 import { SOCKET } from '../config/constants.json'
 
-function Landing() {
+function Landing({ setUser }: any) {
 
     const history = useHistory()
     useEffect(() => {
@@ -22,8 +22,8 @@ function Landing() {
                     console.log(error)
                 }
                 else {
+                    setUser(data)
                     history.push('/games')
-                    console.log(data.username)
                 }
             })
 

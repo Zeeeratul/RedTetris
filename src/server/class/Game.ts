@@ -54,6 +54,13 @@ class Game {
         return player
     }
 
+    setPlayerKo(playerId: string) {
+        const player = this.getPlayer(playerId)
+        if (player) {
+            player.setStatus('KO')
+        }
+    }
+
     givePiece(playerId: string) {
         const player = this.getPlayer(playerId)
         if (player) {
@@ -65,32 +72,19 @@ class Game {
             return null
     }
 
-    gameInfo(playerId?: string) {
-        if (playerId) {
-            return {
-                name: this.name,
-                players: this.players.map((player) => ({
-                    username: player.username,
-                    score: player.score,
-                    yourself: playerId === player.id
-                })),
-                maxPlayers: this.maxPlayers,
-                mode: this.mode,
-                speed: this.speed,
-                isLeader: this.isLeader(playerId)
-            }
-        }
-        else {
-            return {
-                name: this.name,
-                players: this.players.map((player) => ({
-                    username: player.username,
-                    score: player.score
-                })),
-                maxPlayers: this.maxPlayers,
-                mode: this.mode,
-                speed: this.speed,
-            }
+    gameInfo() {
+        return {
+            name: this.name,
+            players: this.players.map((player) => ({
+                username: player.username,
+                score: player.score,
+                status: player.status
+            })),
+            maxPlayers: this.maxPlayers,
+            mode: this.mode,
+            speed: this.speed,
+            status: this.status,
+            leaderId: this.leaderId
         }
     }
 }

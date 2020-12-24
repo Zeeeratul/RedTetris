@@ -1,13 +1,15 @@
-import React, { useReducer, useState, useEffect } from 'react'
+/** @jsx jsx */
+import { jsx } from '@emotion/react'
+import { useReducer, useEffect, useContext } from 'react'
 import _ from 'lodash'
 import Grid from '../components/game/Grid'
-import GameStarted from '../components/game/GameStarted'
-import { Navbar, Footer, Main, PageContainer, Columm } from '../components/Template'
+import LittleGridSpectrum from '../components/game/LittleGridSpectrum'
+import { Navbar, Footer, Main, PageContainer } from '../components/Template'
 import { emitToEvent, emitToEventWithAcknowledgement, subscribeToEvent } from '../middlewares/socket'
 import { ButtonWithIcon } from '../components/Buttons'
 import { useHistory } from "react-router-dom"
 import { SOCKET } from '../config/constants.json'
-
+import { UserContext } from '../utils/userContext'
 
 const regex = new RegExp('^#[a-zA-Z0-9]*$')
 
@@ -28,8 +30,9 @@ const initialState = {
     mode: 'classic',
     speed: 1,
     isLeader: false,
-    // status: 'idle'
-    status: 'idle'
+    leaderId: '',
+    status: 'idle',
+    winner: ''
 }
 
 const reducer = (gameInfo: GameInfo, action: any) => {
@@ -45,10 +48,11 @@ const reducer = (gameInfo: GameInfo, action: any) => {
                 ...gameInfo,
                 status: 'started'
             }
-        case SOCKET.GAMES.END:
+        case SOCKET.GAMES.GAME_OVER:
+            console.log('gameover game.tsx')
             return {
                 ...gameInfo,
-                status: 'end'
+                status: 'game_over'
             }
         default:
             return gameInfo
@@ -56,36 +60,35 @@ const reducer = (gameInfo: GameInfo, action: any) => {
 }
 
 
+/* send game info on:
+    firstMount  ✔
+    join 
+    leave
+    isKo
+    winner is set
+*/
+
 function Game() {
+
+    const user = useContext(UserContext)
 
     const history = useHistory()
     const [state, dispatch] = useReducer(reducer, initialState)
-    const { status, isLeader, players } = state
+    const { status, leaderId, players } = state
+
+    const isLeader = user.id === leaderId
 
     useEffect(() => {
-        // get game when landing on this page
-        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_INFO, {}, (error, data) => {
-            if (data)
+
+        // on mount get game info
+        emitToEvent(SOCKET.GAMES.GET_INFO)
+
+        subscribeToEvent(SOCKET.GAMES.GET_INFO, (error, data) => {
+            if (!error) {
+                console.log(data)
                 dispatch({ type: SOCKET.GAMES.INFO, payload: data })
-        })
-
-        // when player join or leave, ask the server for the new game info
-        subscribeToEvent(SOCKET.GAMES.INFO, (error, { type, content }) => {
-            
-            if (type && (type === SOCKET.GAMES.JOIN || type === SOCKET.GAMES.LEAVE)) {
-                emitToEventWithAcknowledgement(SOCKET.GAMES.GET_INFO, {}, (error, data) => {
-                    if (data)
-                        dispatch({ type: SOCKET.GAMES.INFO, payload: data })
-                })
             }
-        })
-
-        subscribeToEvent(SOCKET.GAMES.START, () => {
-            dispatch({ type: SOCKET.GAMES.START })
-        })
-
-        subscribeToEvent(SOCKET.GAMES.END, () => {
-            dispatch({ type: SOCKET.GAMES.END })
+            else console.error(error)
         })
 
         return () => emitToEvent(SOCKET.GAMES.LEAVE)
@@ -96,14 +99,14 @@ function Game() {
     }
 
     const leaveGame = () => {
+        emitToEvent(SOCKET.GAMES.LEAVE)
         history.push('/games')
     }
 
-    if (status === 'idle') {
-        return (
-            <PageContainer>
-                <Navbar />
-
+    return (
+        <PageContainer>
+            <Navbar />
+            {status === 'idle' &&
                 <Main>
                     <div>
                         {players.map((player: any) => {
@@ -123,65 +126,36 @@ function Game() {
                         Leave
                     </ButtonWithIcon>
                 </Main>
-
-                <Footer />
-            </PageContainer>
-        )
-    }
-    else if (status === 'started') {
-        return (
-            <GameStarted
-                otherPlayers={_.filter(players, { 'yourself': false })}
-            >
-                {/* 4 little grid 
-                + one grid */}
-
-            </GameStarted>
-        )
-    }
-
-    return (
-        <div>Game end</div>
+            }
+            {/* {status === 'started' &&
+                <p>game is started</p>
+            } */}
+            {status === 'started' &&
+                <Main
+                    css={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 2fr 1fr',
+                        gridTemplateRows: '50% 50%',
+                        gridTemplateAreas: `
+                            "little_grid_1 main_grid little_grid_2"
+                            "little_grid_3 main_grid little_grid_4"
+                        `
+                    }}
+                >
+                    <Grid />
+{/* 
+                    {_.filter(players, { 'yourself' : false }).map((player: any, index: number) => (
+                        <LittleGridSpectrum
+                            key={`${player.id}`}
+                            position={index}
+                            playerId={player.id}
+                        />
+                    ))} */}
+                </Main>
+            }
+            <Footer />
+        </PageContainer>  
     )
-  
-    // return (
-        // <PageContainer>
-        //     <Navbar />
-
-        //     <Main>
-        //         {/* {gameStatus === 'started' && currentPiece ? 
-        //             <Grid
-        //                 piece={currentPiece}
-        //                 dispatch={dispatch}
-        //                 grid={grid}
-        //             />
-        //         :
-        //             <p>Wait for game to start</p>
-        //         } */}
-
-        //         <Columm>
-        //             <div>
-        //                 <p>
-        //                     Next Piece: {nextPiece && nextPiece.type}
-        //                 </p>
-                        
-        //             </div>
-        //             <div>
-        //                 <ButtonWithIcon
-        //                     onClick={startGame}
-        //                 >
-        //                     Start
-        //                 </ButtonWithIcon>
-        //                 <ButtonWithIcon>
-        //                     Leave
-        //                 </ButtonWithIcon>
-        //             </div>
-        //         </Columm>
-        //     </Main>
-
-        //     <Footer />
-        // </PageContainer>
-    // )
 }
 
 export default Game

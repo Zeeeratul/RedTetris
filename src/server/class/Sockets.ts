@@ -42,7 +42,7 @@ class Sockets {
                     this.users.push(user)
                     socket.player = user
             
-                    callback(null, { token: socket.id, username })
+                    callback(null, { id: socket.id, username })
                 }
                 catch (error) {
                     console.error(error)
@@ -52,30 +52,22 @@ class Sockets {
      
             socket.on(SOCKET.AUTH.DISCONNECT, () => {
                 if (socket.player) {
-                    const { gameName, id, username } = socket.player
+                    const { gameName, id } = socket.player
                     this.games.leaveGame(gameName, socket.player)
          
                     socket.leave(gameName)
 
-                    socket.to(gameName).emit(SOCKET.GAMES.INFO, null, { 
-                        type: SOCKET.GAMES.LEAVE,
-                        content: `${username} leave_game`
-                    })
+                    const game = this.games.getGame(gameName)
+                    if (game) {
+                        const gameInfo = game.gameInfo()
+                        socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
+                    }
 
                     const index = _.findIndex(this.users, { id })
                     if (index !== -1)
                         this.users.splice(index, 1)
                 }
             })
-
-
-                // this.games.createGame(gameParameters, socket.player)
-                //     .then((data) => {
-                //         callback(null, data)
-                //     })
-                //     .catch((err) => {
-                //         callback(err)
-                //     })
 
             socket.on(SOCKET.GAMES.CREATE, (gameParameters: GameParameters, callback: CallbackFunction) => {
                 try {
@@ -94,27 +86,19 @@ class Sockets {
                 }
             })
 
-
-            // send to all players of the game the following data: 
-            // game name && mode && speed
             socket.on(SOCKET.GAMES.JOIN, (gameNameToJoin: string, callback: CallbackFunction) => {
                 try {
                     if (!socket.player) 
                         throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
-    
-                    const { username } = socket.player
-                    const gameName = this.games.joinGame(gameNameToJoin, socket.player)
-    
-                    socket.player.gameName = gameName
-                    socket.join(gameName)
-    
-                    callback(null, gameName)
 
-                    // to other player send updated game data
-                    socket.to(gameName).emit(SOCKET.GAMES.INFO, null, { 
-                        type: SOCKET.GAMES.JOIN,
-                        content: `${username} join_game`
-                    })
+                    const gameInfo = this.games.joinGame(gameNameToJoin, socket.player)
+
+                    if (gameInfo) {
+                        socket.player.gameName = gameInfo.name
+                        socket.join(gameInfo.name)
+                        socket.to(gameInfo.name).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
+                        callback(null, gameInfo.name)
+                    }
                 }
                 catch (error) {
                     console.log('error', error)
@@ -123,52 +107,38 @@ class Sockets {
             })
             
             socket.on(SOCKET.GAMES.LEAVE, () => {
-                if (!socket.player)
-                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
+                try {
+                    if (!socket.player) 
+                        throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
 
-                const { gameName, username } = socket.player
-                this.games.leaveGame(gameName, socket.player)
+                    const { gameName } = socket.player
+                    const gameInfo = this.games.leaveGame(gameName, socket.player)
+                    delete socket.player.gameName
+                    socket.leave(gameName)
 
-                delete socket.player.gameName
-                socket.leave(gameName)
-
-                socket.to(gameName).emit(SOCKET.GAMES.INFO, null, { 
-                    type: SOCKET.GAMES.LEAVE,
-                    content: `${username} leave_game`
-                })
+                    if (gameInfo)
+                        socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
+        
+                }
+                catch (error) {
+                    console.log('error', error)
+                }
             })
             
-            socket.on(SOCKET.GAMES.GET_INFO, (_: any, callback: CallbackFunction) => {
+            socket.on(SOCKET.GAMES.GET_INFO, (_: any) => {
                 if (!socket.player) 
                     return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
-                const { gameName, id } = socket.player
+                const { gameName } = socket.player
                 const game = this.games.getGame(gameName)
                 
                 if (game) {
-                    const gameInfo = game.gameInfo(id)
-                    callback(null, gameInfo)
+                    const gameInfo = game.gameInfo()
+                    socket.emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
                 }
                 else
-                    callback(SOCKET.GAMES.ERROR.NOT_FOUND)
+                    socket.emit(SOCKET.GAMES.ERROR.NOT_FOUND)
             })
-
-
-            // useless route ??
-            // useless route ??
-            // useless route ??
-            // useless route ??
-            socket.on(SOCKET.GAMES.CHECK_LEADER, (_: any, callback: CallbackFunction) => {
-                if (!socket.player) 
-                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
-                    
-                const { gameName } = socket.player
-                const { isLeader, error } = this.games.checkLeader(gameName, socket.player)
-                callback(error, isLeader)
-            })
-
-
-
 
             // actions to send to the whole room
             socket.on(SOCKET.GAMES.START, () => {
@@ -176,24 +146,35 @@ class Sockets {
                     return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
                 const { gameName } = socket.player
-                const { payload, error } = this.games.startGame(gameName, socket.player)
-                if (error)
-                    socket.emit('error', error)
-                else 
-                    this.io.in(gameName).emit(SOCKET.GAMES.START, payload)
+                const { error } = this.games.startGame(gameName, socket.player)
+                
+                if (error) 
+                    return console.error(error)
+
+                const game = this.games.getGame(gameName)
+
+                if (game) {
+                    const gameInfo = game.gameInfo()
+                    this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
+                }
             })
 
-            socket.on(SOCKET.GAMES.END, () => {
+
+            // when game over change player status
+            // and check if there is a last player with a status playing
+
+            socket.on(SOCKET.GAMES.GAME_OVER, () => {
                 if (!socket.player) 
                     return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
+                    
+                const { gameName, id } = socket.player
+                const game = this.games.getGame(gameName)
 
-                const { gameName } = socket.player
-                const { payload, error } = this.games.endGame(gameName, socket.player)
-
-                if (error)
-                    socket.emit('error', error)
-                else 
-                    this.io.in(gameName).emit(SOCKET.GAMES.END, payload)
+                if (game) {
+                    game.setPlayerKo(id)
+                    console.log(game.players)
+                    this.io.in(gameName).emit(SOCKET.GAMES.GAME_OVER, null, game.gameInfo())
+                }
             })
 
 
@@ -228,6 +209,8 @@ class Sockets {
                 
                 if (!game)
                     return
+
+                console.log('send linepenalty: ', linesCount)
                 
                 socket.to(gameName).emit(SOCKET.GAMES.LINE_PENALTY, null, linesCount)
             })

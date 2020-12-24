@@ -90,16 +90,16 @@ export const checkHorizontalPosition = (positions: positionInterface[], grid: [[
     return true
 }
 
-export const checkGameOver = (grid: any[][]) => {
+export const checkGameOver = (grid: any[][], lineToCheck: number = 2) => {
+    const gridWidthLength = grid[0].length
 
-    for (let i = 0; i < grid[0].length; i++) {
-        if (grid[0][i] !== '')
-            return true
+    for (let line = 0; line < lineToCheck; line++) {
+        for (let i = 0; i < gridWidthLength; i++) {
+            if (grid[line][i] !== '')
+                return true
+        }
     }
-    for (let i = 0; i < grid[0].length; i++) {
-        if (grid[1][i] !== '')
-            return true
-    }
+
     return false
 }
 
@@ -145,17 +145,20 @@ export const clearFullLineGrid = (grid: any[][]) => {
     })
 
     return {
-        count: lineToDelete.length,
+        lineRemoved: lineToDelete.length,
         newGrid
     }
 }
 
 export const addPenaltyToGrid = (grid: any[][], lineCount: number) => {
-    const newGrid = _.cloneDeep(grid)
+    const newGrid = _.reverse(_.cloneDeep(grid))
 
-
-    
-    for (let index = 0; index < lineCount; index++) {
-        console.log('add line')
+    for (let line = 0; line < lineCount; line++) {
+        newGrid.unshift(fillLine('*'))
     }
+
+    _.reverse(newGrid)
+    newGrid.splice(0, lineCount)
+
+    return newGrid
 }

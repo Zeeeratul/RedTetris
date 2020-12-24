@@ -34,25 +34,22 @@ class Games {
 
         const player = new Player(playerData.username, playerData.id)
         game.addPlayer(player)
-        return game.name
+        return game.gameInfo()
     }
 
     leaveGame(gameName: string, playerData: User) {
-        try {
-            const game = this.getGame(gameName)
-            if (!game)
-                throw SOCKET.GAMES.ERROR.NOT_FOUND
+        const game = this.getGame(gameName)
+        if (!game)
+            throw SOCKET.GAMES.ERROR.NOT_FOUND
 
-            if (game.players.length > 1) {
-                game.removePlayer(playerData.id)
-                game.transferLeadership()
-            }
-            else {
-                this.destroyGame(gameName)
-            }
+        if (game.players.length > 1) {
+            game.removePlayer(playerData.id)
+            game.transferLeadership()
+            return game.gameInfo()
         }
-        catch (error) {
-            return { error }
+        else {
+            this.destroyGame(gameName)
+            return null
         }
     }
 
@@ -72,32 +69,14 @@ class Games {
                 throw SOCKET.GAMES.ERROR.NOT_LEADER
 
             game.changeStatus('started')
-
-            // create the two first piece that will be sended to the players
-            const payload = {
-                currentPiece: new Piece(),
-                nextPiece: new Piece(),
-            }
-            return { payload }
+            return { gameInfo: game.gameInfo() }
         }
         catch (error) {
             return { error }
         }
     }
 
-    checkLeader(gameName: string, playerData: User) {
-        try {
-            const game = this.getGame(gameName)
-            if (!game)
-                throw SOCKET.GAMES.ERROR.NOT_FOUND
-
-            return { isLeader: game.isLeader(playerData.id) }
-        }
-        catch (error) {
-            return { error }
-        }
-    }
-
+    // possibilly useless now
     endGame(gameName: string, playerData: User) {
         try {
             const game = this.getGame(gameName)
@@ -121,9 +100,7 @@ class Games {
     }
 
     getUnstartedGamesList() {
-        const games = _.filter(this.games, { status: 'idle' })
-        const gamesInfo = games.map((game) => game.gameInfo())
-        return gamesInfo
+        return _.filter(this.games, { status: 'idle' })
     }
 }
 

@@ -233,6 +233,7 @@
             "CHECK_LEADER": "check_leader",
             "START": "start_game",
             "END": "end_game",
+            "GAME_OVER": "game_over",
             "GET_PIECE": "get_piece",
             "SET_PIECE": "set_piece",
             "SET_NEXT_PIECE": "set_next_piece",

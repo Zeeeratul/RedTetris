@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import {
   BrowserRouter as Router,
   Switch,
@@ -9,7 +9,7 @@ import Landing from './pages/Landing'
 import GamesList from './pages/GamesList'
 import Game from './pages/Game'
 import { checkSocketConnection } from './middlewares/socket'
-import { useTheme, ThemeContext } from './utils/useTheme'
+import { UserContext } from './utils/userContext'
 import './App.css'
 
 type PrivateRouteProps = { children: React.ReactNode, path: string }
@@ -38,10 +38,13 @@ function PrivateRoute({ children, path }: PrivateRouteProps) {
 
 function App() {
 
-  const value = useTheme()
+  const [user, setUser] = React.useState({
+    username: '',
+    id: ''
+  })
 
   return (
-    <ThemeContext.Provider value={value}>
+    <UserContext.Provider value={user}>
       <Router >
         <Switch>
       
@@ -59,11 +62,11 @@ function App() {
           {/* </PrivateRoute> */}
           
           <Route path="/">
-            <Landing />
+            <Landing setUser={setUser} />
           </Route>
         </Switch>
       </Router>
-    </ThemeContext.Provider>
+    </UserContext.Provider>
   )
 }
 

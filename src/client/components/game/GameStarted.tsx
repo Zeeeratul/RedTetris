@@ -20,11 +20,7 @@ function GameStared({ children, otherPlayers }: any) {
                     `
                 }}
             >
-                <Grid
-                    // css={{
-                    //     gridArea: 'main_grid',
-                    // }}
-                />
+                <Grid />
 
                 {otherPlayers.map((player: any, index: number) => (
                     <LittleGridSpectrum

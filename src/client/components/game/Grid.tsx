@@ -2,7 +2,7 @@
 import { jsx } from '@emotion/react'
 import useEventListener from '@use-it/event-listener'
 import { useReducer, useEffect } from 'react'
-import { emitToEvent, emitToEventWithAcknowledgement, subscribeToEvent } from '../../middlewares/socket'
+import { emitToEvent, emitToEventWithAcknowledgement, subscribeToEvent, cancelSubscribtionToEvent } from '../../middlewares/socket'
 import { SOCKET } from '../../config/constants.json'
 import { 
     movePiece,
@@ -14,16 +14,10 @@ import {
     convertStructureToPositions,
     checkGameOver,
     clearFullLineGrid,
-    addPenaltyToGrid
+    addPenaltyToGrid,
 } from '../../utils/gameFunctions'
 import Line from './Line'
 
-
-/*
-    send penalty when clear a full
-
-    send grid spectrum to other
-*/
 
 const initState = {
     grid: [
@@ -50,12 +44,12 @@ const initState = {
     
         ['', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', ''], 
-        ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*'], 
+        ['I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', ''],
+        ['I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', ''],
+        ['I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', ''],
     ],
     piece: null,
-    nextPiece: null
+    nextPiece: null,
 }
 
 const reducer = (state: any, action: any) => {
@@ -63,111 +57,38 @@ const reducer = (state: any, action: any) => {
 
     switch (action.type) {
 
-        case SOCKET.GAMES.SET_PIECE:
+        case SOCKET.GAMES.SET_PIECE: {
             return {
                 ...state,
                 piece: action.payload
             }
-        case SOCKET.GAMES.SET_NEXT_PIECE:
+        }
+        case SOCKET.GAMES.SET_NEXT_PIECE: {
             return {
                 ...state,
                 nextPiece: action.payload
             }
+        }
         case SOCKET.GAMES.LINE_PENALTY: {
-            addPenaltyToGrid(grid, 2)
-            return state
-        }
-        case 'ArrowRight': {
-            const updatedPiece = movePiece(piece, 1, 0)
-            if (checkHorizontalPosition(updatedPiece.positions, grid))
-                return {
-                    ...state,
-                    piece: updatedPiece
-                }
-            return state
-        }
-        case 'ArrowLeft': {
-            const updatedPiece = movePiece(piece, -1, 0)
-            if (checkHorizontalPosition(updatedPiece.positions, grid))
-                return {
-                    ...state,
-                    piece: updatedPiece
-                }
-            return state
-        }
-        case 'ArrowUp': {
-            const updatedStructure = rotatePiece(piece.structure)
-            const updatedPositions = convertStructureToPositions(updatedStructure, piece.leftTopPosition)
-            if (checkVerticalPosition(updatedPositions, grid) && checkHorizontalPosition(updatedPositions, grid)) {
-                const updatedPiece = {
-                    ...piece,
-                    positions: updatedPositions,
-                    structure: updatedStructure
-                }
-                return {
-                    ...state,
-                    piece: updatedPiece
-                }
-            }
-            return state
-        }
-        // Arrow Down
-        case 'ArrowDown': {
-            const updatedPiece = movePiece(piece, 0, 1)
-
-            if (checkVerticalPosition(updatedPiece.positions, grid))
-                return {
-                    ...state,
-                    piece: updatedPiece
-                }
-            else {
-                const updatedGrid = addPieceToTheGrid(piece, grid)
-                const { newGrid, count } = clearFullLineGrid(updatedGrid)
-
-                if (count > 1) {
-                    emitToEvent(SOCKET.GAMES.LINE_PENALTY, count - 1)
-                    console.log('send to SEND_LINE_PENALTY')
-                }
-
-                if (checkGameOver(newGrid)) {
-                    emitToEvent(SOCKET.GAMES.END)
-                    return state
-                }
-                else {
-                    return {
-                        ...state,
-                        grid: newGrid,
-                        piece: nextPiece,
-                        nextPiece: null
-                    }
-                }
+            const newGrid = addPenaltyToGrid(grid, action.payload)
+            return {
+                ...state,
+                grid: newGrid
             }
         }
-
-        // Space Bar
-        case ' ': {
-            const updatedPiece = movePieceToLowerPlace(piece, grid)
-            const updatedGrid = addPieceToTheGrid(updatedPiece, grid)
-            const { newGrid, count } = clearFullLineGrid(updatedGrid)
-
-            if (count > 1) {
-                emitToEvent(SOCKET.GAMES.LINE_PENALTY, count - 1)
-                console.log('send to SEND_LINE_PENALTY')
+        case 'MovePiece': {
+            return {
+                ...state,
+                piece: action.payload
             }
-
-            if (checkGameOver(newGrid)) {
-                emitToEvent(SOCKET.GAMES.END)
-                return state
+        }
+        case 'AddPieceGrid': {
+            return {
+                ...state,
+                grid: action.payload,
+                piece: nextPiece,
+                nextPiece: null
             }
-            else {
-                return {
-                    ...state,
-                    grid: newGrid,
-                    piece: nextPiece, 
-                    nextPiece: null
-                }
-            }
-
         }
         default:
             console.log(action.type, 'not supported')
@@ -176,36 +97,72 @@ const reducer = (state: any, action: any) => {
 }
 
 function Grid() {
-
     const [state, dispatch] = useReducer(reducer, initState)
     const { piece, nextPiece, grid } = state
-    
+
+    const handleKey = (key: string) => {
+        if (key === "ArrowRight") {
+            const updatedPiece = movePiece(piece, 1, 0)
+            if (checkHorizontalPosition(updatedPiece.positions, grid))
+                dispatch({ type: 'MovePiece', payload: updatedPiece })
+        }
+        else if (key === "ArrowLeft") {
+            const updatedPiece = movePiece(piece, -1, 0)
+            if (checkHorizontalPosition(updatedPiece.positions, grid))
+                dispatch({ type: 'MovePiece', payload: updatedPiece })
+        }
+        // key up rotate piece if possible
+        else if (key === "ArrowUp") {
+            const updatedStructure = rotatePiece(piece.structure)
+            const updatedPositions = convertStructureToPositions(updatedStructure, piece.leftTopPosition)
+            if (checkVerticalPosition(updatedPositions, grid) && checkHorizontalPosition(updatedPositions, grid)) {
+                const updatedPiece = {
+                    ...piece,
+                    positions: updatedPositions,
+                    structure: updatedStructure
+                }
+                dispatch({ type: 'MovePiece', payload: updatedPiece })
+            }
+        }
+        else if (key === "ArrowDown") {
+            const updatedPiece = movePiece(piece, 0, 1)
+            if (checkHorizontalPosition(updatedPiece.positions, grid) && checkVerticalPosition(updatedPiece.positions, grid))
+                dispatch({ type: 'MovePiece', payload: updatedPiece })
+            else {
+                const updatedGrid = addPieceToTheGrid(piece, grid)
+                const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
+                if (lineRemoved > 1)
+                    emitToEvent(SOCKET.GAMES.LINE_PENALTY, lineRemoved)
+                if (checkGameOver(newGrid))
+                    emitToEvent(SOCKET.GAMES.GAME_OVER)
+                else
+                    dispatch({ type: 'AddPieceGrid', payload: newGrid })
+            }
+        }
+        // space bar move to the lower point of the grid
+        else if (key === " ") {
+            const updatedPiece = movePieceToLowerPlace(piece, grid)
+            const updatedGrid = addPieceToTheGrid(updatedPiece, grid)
+            const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
+            if (lineRemoved > 1)
+                emitToEvent(SOCKET.GAMES.LINE_PENALTY, lineRemoved)
+            if (checkGameOver(newGrid))
+                emitToEvent(SOCKET.GAMES.GAME_OVER)
+            else
+                dispatch({ type: 'AddPieceGrid', payload: newGrid })
+        }
+    }
+
     useEffect(() => {
         emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece) => {
             dispatch({ type: SOCKET.GAMES.SET_PIECE, payload: piece })
         })
 
-        const intervalId = setInterval(() => {
-            dispatch({ type: 'ArrowDown' })
-        }, 1000)
+        // const intervalId = setInterval(() => {
+        //     dispatch({ type: 'ArrowDown' })
+        // }, 10000)
 
-        return () => clearInterval(intervalId)
-    }, [])
-    
-
-    // subscribe to others players actions
-    useEffect(() => {
-
-        subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount) => {
-            console.log('linesCount', linesCount)
-            dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
-        })
-
-        // subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount) => {
-        //     console.log('linesCount', linesCount)
-        // })
-
-
+        // return () => clearInterval(intervalId)
     }, [])
 
     useEffect(() => {
@@ -214,8 +171,15 @@ function Grid() {
                 dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
             })
     }, [nextPiece])
+    
+    // subscribe to others players actions
+    useEffect(() => {
+        subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount) => {
+            dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
+        })
+    }, [])
 
-    useEventListener('keydown', ({ key }: { key: string }) => dispatch({ type: key }))
+    useEventListener('keydown', ({ key }: { key: string }) => handleKey(key))
 
     return (
         <div
@@ -225,7 +189,6 @@ function Grid() {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'flex-start'
-
             }} 
         >
             <div
@@ -243,21 +206,24 @@ function Grid() {
                     width: '300px',
                     height: '600px',
                     display: 'grid',
-                    gridTemplateRows: 'repeat(22, minmax(0, 1fr))',
+                    gridTemplateRows: 'repeat(20, minmax(0, 1fr))',
                     gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
                     columnGap: '3px',
                     rowGap: '3px',
                 }}
             >
-                {piece && grid.map((line: any, index: number) => (
-                    <Line
-                        key={`line_${index}`} 
-                        piecePositions={piece.positions}
-                        pieceType={piece.type}
-                        cells={line}
-                        yCoord={index}
-                    />
-                ))}
+                {piece && grid.map((line: any, index: number) => {
+                    if (index === 0 || index === 1) 
+                        return null
+                    else
+                        return <Line
+                            key={`line_${index}`} 
+                            piecePositions={piece.positions}
+                            pieceType={piece.type}
+                            cells={line}
+                            yCoord={index}
+                        />
+                })}
             </div>
 
         </div>

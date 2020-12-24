@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { useHistory } from "react-router-dom"
 import { Navbar, Footer, Main, PageContainer, Columm } from '../components/Template'
@@ -11,6 +11,9 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import SearchIcon from '@material-ui/icons/Search'
 import CreateIcon from '@material-ui/icons/Create'
 import SoloIcon from '@material-ui/icons/Person'
+
+import { UserContext } from '../utils/userContext'
+
 
 import styled from '@emotion/styled'
 
@@ -49,6 +52,8 @@ const Tr = styled.tr({
 
 const GamesList = () => {
 
+    const user = useContext(UserContext)
+
     const history = useHistory()
     const [games, setGames] = useState([])
 
@@ -86,6 +91,7 @@ const GamesList = () => {
     useEffect(() => {
         const intervalId = setInterval(() => {
             emitToEventWithAcknowledgement(SOCKET.GAMES.GET_GAMES, {}, (error, games) => {
+                console.log(games)
                 setGames(games)
             })
         }, 3000)
