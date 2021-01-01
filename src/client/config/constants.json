@@ -239,6 +239,7 @@
             "SET_NEXT_PIECE": "set_next_piece",
             "LINE_PENALTY": "line_penalty",
             "SEND_LINE_PENALTY": "send_line_penalty",
+            "SPECTRUM": "spectrum",
             "GET_SPECTRUM": "get_spectrum",
             "SEND_SPECTRUM": "send_spectrum",
             "ERROR": {

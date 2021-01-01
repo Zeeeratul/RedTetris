@@ -88,9 +88,9 @@ test('Game Class, givePiece() wrong user', () => {
 
 })
 
-test('Game Class, gameInfo()', () => {
-    const gameInfo = game.gameInfo()
-    expect(gameInfo).toEqual({
+test('Game Class, info()', () => {
+    const info = game.info()
+    expect(info).toEqual({
         name: game_name,
         players: 1
     })

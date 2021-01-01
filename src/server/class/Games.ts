@@ -1,9 +1,8 @@
 import _ from 'lodash'
-import Game from './Game'
-import Player from './Player'
-import Piece from './Piece'
+import { Game } from './Game'
+import { Player } from './Player'
 import { SOCKET } from '../../client/config/constants.json'
-import { User, GameParameters } from './interfaces'
+import { User, GameParameters } from './types'
 
 class Games {
     games: Game[] = [];
@@ -34,7 +33,7 @@ class Games {
 
         const player = new Player(playerData.username, playerData.id)
         game.addPlayer(player)
-        return game.gameInfo()
+        return game
     }
 
     leaveGame(gameName: string, playerData: User) {
@@ -45,12 +44,10 @@ class Games {
         if (game.players.length > 1) {
             game.removePlayer(playerData.id)
             game.transferLeadership()
-            return game.gameInfo()
+            return game
         }
-        else {
+        else 
             this.destroyGame(gameName)
-            return null
-        }
     }
 
     destroyGame(gameName: string) {
@@ -60,48 +57,24 @@ class Games {
     }
 
     startGame(gameName: string, playerData: User) {
-        try {
-            const game = this.getGame(gameName)
-            if (!game)
-                throw SOCKET.GAMES.ERROR.NOT_FOUND
+        const game = this.getGame(gameName)
+        if (!game)
+            throw SOCKET.GAMES.ERROR.NOT_FOUND
 
-            if (!game.isLeader(playerData.id))
-                throw SOCKET.GAMES.ERROR.NOT_LEADER
+        if (!game.isLeader(playerData.id))
+            throw SOCKET.GAMES.ERROR.NOT_LEADER
 
-            game.changeStatus('started')
-            return { gameInfo: game.gameInfo() }
-        }
-        catch (error) {
-            return { error }
-        }
-    }
-
-    // possibilly useless now
-    endGame(gameName: string, playerData: User) {
-        try {
-            const game = this.getGame(gameName)
-            if (!game)
-                throw SOCKET.GAMES.ERROR.NOT_FOUND
-
-            game.changeStatus('terminated')
-
-            const payload = {
-                message: `${playerData.username} lose the game`
-            }
-            return { payload }
-        }
-        catch (error) {
-            return { error }
-        }
+        game.changeStatus('started')
+        return game
     }
 
     getGame(gameName: string) {
         return _.find(this.games, { name: gameName }) || null
     }
 
-    getUnstartedGamesList() {
-        return _.filter(this.games, { status: 'idle' })
+    getGamesList() {
+        return _.filter(this.games, (game) => game.status === 'idle' || game.status === 'ended')
     }
 }
 
-export default Games
+export { Games }

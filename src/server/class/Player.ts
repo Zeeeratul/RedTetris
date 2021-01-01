@@ -4,6 +4,7 @@ class Player {
     currentPieceIndex: number = 0;
     score: number = 0;
     status: string = 'playing';
+    spectrum: number[] = []
 
     constructor(username: string, id: string) { 
         this.username = username
@@ -21,6 +22,17 @@ class Player {
     setStatus(status: string) {
         this.status = status
     }
+
+    setSpectrum(spectrum: number[]) {
+        this.spectrum = spectrum
+    }
+
+    reset() {
+        this.spectrum = []
+        this.score = 0
+        this.status = 'playing'
+        this.currentPieceIndex = 0
+    }
 }
 
-export default Player
+export { Player }

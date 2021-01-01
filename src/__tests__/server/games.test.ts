@@ -163,11 +163,11 @@ describe('getGame() and getUnstartGamesList()', () => {
     test('send all games with a status idle', () => {
         
         const game = games.getGame(game_name)
-        let gamesList = games.getUnstartedGamesList()
+        let gamesList = games.getGamesList()
         expect(gamesList.length).toBe(1)
 
         game.changeStatus('started')
-        gamesList = games.getUnstartedGamesList()
+        gamesList = games.getGamesList()
         expect(gamesList.length).toBe(0)
     })  
 })

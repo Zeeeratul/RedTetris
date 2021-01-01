@@ -1,19 +1,20 @@
 import express from 'express'
 import http from 'http'
 import path from 'path'
-import Sockets from './class/Sockets'
+import { Sockets } from './class/Sockets'
+
 require('dotenv').config()
 const port = process.env.PORT || 4000
 
 class Server {
     app: express.Application;
-    http: any;
-    sockets: any;
+    http: http.Server;
+    sockets: Sockets;
 
     constructor() {
         this.app = express()
         this.http = http.createServer(this.app)
-        this.sockets = new Sockets(this.http).listenToEvents()
+        this.sockets = new Sockets(this.http)
     }
 
     listen() {
@@ -26,3 +27,4 @@ class Server {
 const server = new Server()
 
 server.listen()
+server.sockets.listenToEvents()

@@ -1,31 +1,25 @@
 import _ from 'lodash'
-import Games from './Games'
+import http from 'http'
+import { Games } from './Games'
 import { SOCKET } from '../../client/config/constants.json'
-import { User, GameParameters } from './interfaces'
-const SocketIO = require('socket.io')
-
-interface CallbackFunction {
-    (error: string | null, data?: any): void;
-}
+import { User, GameParameters, CallbackFunction } from './types'
+import { Server } from 'socket.io'
 
 class Sockets {
-    io: any;
+    io: Server;
     games: Games;
     users: User[];
 
-    constructor(http: any) {
-        this.io = SocketIO(http)
+    constructor(http: http.Server) {
+        this.io = new Server(http)
         this.games = new Games()
         this.users = []
     }
 
-    // callback function send back data to client
-    
     listenToEvents() {
 
-        this.io.on('connection', (socket: any) => {
+        this.io.on('connection', (socket) => {
 
-            // AUTH ROUTES
             socket.on(SOCKET.AUTH.LOGIN, (username: string, callback: CallbackFunction) => {
                 try {
                     if (!username) 
@@ -51,21 +45,25 @@ class Sockets {
             })
      
             socket.on(SOCKET.AUTH.DISCONNECT, () => {
-                if (socket.player) {
-                    const { gameName, id } = socket.player
-                    this.games.leaveGame(gameName, socket.player)
-         
-                    socket.leave(gameName)
+                try {
+                    if (socket.player) {
+                        const { gameName, id } = socket.player
 
-                    const game = this.games.getGame(gameName)
-                    if (game) {
-                        const gameInfo = game.gameInfo()
-                        socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
+                        const index = _.findIndex(this.users, { id })
+                        if (index !== -1)
+                            this.users.splice(index, 1)
+
+                        const game = this.games.leaveGame(gameName, socket.player)
+                        socket.leave(gameName)
+    
+                        if (game) {
+                            const info = game.info()
+                            socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
+                        }
                     }
-
-                    const index = _.findIndex(this.users, { id })
-                    if (index !== -1)
-                        this.users.splice(index, 1)
+                }
+                catch (error) {
+                    console.error(error)
                 }
             })
 
@@ -91,14 +89,13 @@ class Sockets {
                     if (!socket.player) 
                         throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
 
-                    const gameInfo = this.games.joinGame(gameNameToJoin, socket.player)
+                    const game = this.games.joinGame(gameNameToJoin, socket.player)
 
-                    if (gameInfo) {
-                        socket.player.gameName = gameInfo.name
-                        socket.join(gameInfo.name)
-                        socket.to(gameInfo.name).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
-                        callback(null, gameInfo.name)
-                    }
+                    const info = game.info()
+                    socket.player.gameName = info.name
+                    socket.join(info.name)
+                    socket.to(info.name).emit(SOCKET.GAMES.GET_INFO, null, info)
+                    callback(null, info.name)
                 }
                 catch (error) {
                     console.log('error', error)
@@ -112,92 +109,77 @@ class Sockets {
                         throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
 
                     const { gameName } = socket.player
-                    const gameInfo = this.games.leaveGame(gameName, socket.player)
+                    const game = this.games.leaveGame(gameName, socket.player)
                     delete socket.player.gameName
                     socket.leave(gameName)
 
-                    if (gameInfo)
-                        socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
-        
+                    if (game) {
+                        const info = game.info()
+                        socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
+                    }
                 }
                 catch (error) {
                     console.log('error', error)
                 }
             })
-            
-            socket.on(SOCKET.GAMES.GET_INFO, (_: any) => {
-                if (!socket.player) 
-                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
-                const { gameName } = socket.player
-                const game = this.games.getGame(gameName)
-                
-                if (game) {
-                    const gameInfo = game.gameInfo()
-                    socket.emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
-                }
-                else
-                    socket.emit(SOCKET.GAMES.ERROR.NOT_FOUND)
-            })
-
-            // actions to send to the whole room
             socket.on(SOCKET.GAMES.START, () => {
-                if (!socket.player) 
-                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
-
-                const { gameName } = socket.player
-                const { error } = this.games.startGame(gameName, socket.player)
-                
-                if (error) 
-                    return console.error(error)
-
-                const game = this.games.getGame(gameName)
-
-                if (game) {
-                    const gameInfo = game.gameInfo()
-                    this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
+                try {
+                    if (!socket.player) 
+                        throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
+    
+                    const { gameName } = socket.player
+                    const game = this.games.startGame(gameName, socket.player)
+    
+                    game.reset()
+                    const info = game.info()
+                    this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
+                }
+                catch (error) {
+                    console.log('error', error)
+                    // return callback(error)
                 }
             })
-
-
-            // when game over change player status
-            // and check if there is a last player with a status playing
 
             socket.on(SOCKET.GAMES.GAME_OVER, () => {
-                if (!socket.player) 
-                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
-                    
-                const { gameName, id } = socket.player
-                const game = this.games.getGame(gameName)
-
-                if (game) {
+                try {
+                    if (!socket.player) 
+                        throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
+                        
+                    const { gameName, id } = socket.player
+                    const game = this.games.getGame(gameName)
+    
+                    if (!game)
+                        throw SOCKET.GAMES.ERROR.NOT_FOUND
+    
                     game.setPlayerKo(id)
-                    console.log(game.players)
-                    this.io.in(gameName).emit(SOCKET.GAMES.GAME_OVER, null, game.gameInfo())
+                    this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, game.info())
+
+                }
+                catch (error) {
+                    console.log('error', error)
+                    // return callback(error)
                 }
             })
 
-
-
-
-
-
-
-
-            
-            socket.on(SOCKET.GAMES.SEND_SPECTRUM, (spectrumArray: []) => {
-                if (!socket.player) 
-                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
-                
-                const { gameName } = socket.player
-                const game = this.games.getGame(gameName)
-                if (!game)
-                    return
-
-                socket.to(gameName).emit(SOCKET.GAMES.GET_SPECTRUM, {
-                    type: 'spectrum',
-                    data: spectrumArray
-                })
+            socket.on(SOCKET.GAMES.SPECTRUM, (spectrumArray: number[]) => {
+                try {
+                    if (!socket.player) 
+                        throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
+                        
+                    const { gameName } = socket.player
+                    const game = this.games.getGame(gameName)
+    
+                    if (!game)
+                        throw SOCKET.GAMES.ERROR.NOT_FOUND
+    
+                    game.updateSpectrum(spectrumArray, socket.player.id)
+                    socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, game.info())
+                }
+                catch (error) {
+                    console.log('error', error)
+                    // return callback(error)
+                }
             })
             
             socket.on(SOCKET.GAMES.LINE_PENALTY, (linesCount: number) => {
@@ -215,15 +197,11 @@ class Sockets {
                 socket.to(gameName).emit(SOCKET.GAMES.LINE_PENALTY, null, linesCount)
             })
 
-
-
-
-            // games data
             socket.on(SOCKET.GAMES.GET_GAMES, (_: any, callback: CallbackFunction) => {
                 if (!socket.player) 
                     return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
 
-                const games = this.games.getUnstartedGamesList()
+                const games = this.games.getGamesList()
                 callback(null, games)
             })
 
@@ -241,8 +219,29 @@ class Sockets {
                     return console.error('player not found cant give piece')
                 callback(null, piece)
             })
+
+                        
+            socket.on(SOCKET.GAMES.GET_INFO, (_: any) => {
+                try {
+                    if (!socket.player) 
+                        throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
+    
+                    const { gameName } = socket.player
+                    const game = this.games.getGame(gameName)
+                    
+                    if (!game)
+                        throw SOCKET.GAMES.ERROR.NOT_FOUND
+                    else {
+                        const info = game.info()
+                        socket.emit(SOCKET.GAMES.GET_INFO, null, info)
+                    }
+                }
+                catch (error) {
+                    console.log('error', error)
+                }
+            })
         })
     }
 }
 
-export default Sockets
+export { Sockets }

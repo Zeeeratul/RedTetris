@@ -1,12 +1,16 @@
 import io from 'socket.io-client'
 let socket : any
 
+interface CallbackFunction {
+    (error: string | null, data?: any): void
+}
+
 export const initiateSocket = () => {
     socket = io('/')
     console.log('Initiating socket...')
 }
 
-export const subscribeToEvent = (eventName: string, cb: (error: any, data: any) => void) => {
+export const subscribeToEvent = (eventName: string, cb: CallbackFunction) => {
     if (socket)
         socket.on(eventName, (error: any, data: any) => {
             console.log(`Websocket event: '${eventName}' received!`)
@@ -33,7 +37,7 @@ export const emitToEvent = (eventName: string, data?: any) => {
 export const emitToEventWithAcknowledgement = (
         eventName: string,
         data: any,
-        cb: (error: any, data: any) => void,
+        cb: CallbackFunction,
     ) => {
 
     if (socket) {

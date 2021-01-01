@@ -1,11 +1,11 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { useReducer, useEffect, useContext } from 'react'
+import { useReducer, useState, useEffect, useContext } from 'react'
 import _ from 'lodash'
 import Grid from '../components/game/Grid'
 import LittleGridSpectrum from '../components/game/LittleGridSpectrum'
 import { Navbar, Footer, Main, PageContainer } from '../components/Template'
-import { emitToEvent, emitToEventWithAcknowledgement, subscribeToEvent } from '../middlewares/socket'
+import { emitToEvent, subscribeToEvent } from '../middlewares/socket'
 import { ButtonWithIcon } from '../components/Buttons'
 import { useHistory } from "react-router-dom"
 import { SOCKET } from '../config/constants.json'
@@ -43,38 +43,19 @@ const reducer = (gameInfo: GameInfo, action: any) => {
                 ...gameInfo,
                 ...action.payload
             }
-        case SOCKET.GAMES.START:
-            return {
-                ...gameInfo,
-                status: 'started'
-            }
-        case SOCKET.GAMES.GAME_OVER:
-            console.log('gameover game.tsx')
-            return {
-                ...gameInfo,
-                status: 'game_over'
-            }
         default:
             return gameInfo
     }
 }
-
-
-/* send game info on:
-    firstMount  ✔
-    join 
-    leave
-    isKo
-    winner is set
-*/
 
 function Game() {
 
     const user = useContext(UserContext)
 
     const history = useHistory()
-    const [state, dispatch] = useReducer(reducer, initialState)
-    const { status, leaderId, players } = state
+    // const [state, dispatch] = useReducer(reducer, initialState)
+    const [state, setState] = useState(initialState)
+    const { winner, status, leaderId, players } = state
 
     const isLeader = user.id === leaderId
 
@@ -85,8 +66,8 @@ function Game() {
 
         subscribeToEvent(SOCKET.GAMES.GET_INFO, (error, data) => {
             if (!error) {
-                console.log(data)
-                dispatch({ type: SOCKET.GAMES.INFO, payload: data })
+                setState(data)
+                // dispatch({ type: SOCKET.GAMES.INFO, payload: data })
             }
             else console.error(error)
         })
@@ -94,14 +75,19 @@ function Game() {
         return () => emitToEvent(SOCKET.GAMES.LEAVE)
     }, [])
 
+
+
+
     const startGame = () => {
         emitToEvent(SOCKET.GAMES.START)
     }
 
     const leaveGame = () => {
-        emitToEvent(SOCKET.GAMES.LEAVE)
+        // emitToEvent(SOCKET.GAMES.LEAVE)
         history.push('/games')
     }
+
+    console.log(state)
 
     return (
         <PageContainer>
@@ -127,9 +113,6 @@ function Game() {
                     </ButtonWithIcon>
                 </Main>
             }
-            {/* {status === 'started' &&
-                <p>game is started</p>
-            } */}
             {status === 'started' &&
                 <Main
                     css={{
@@ -143,14 +126,34 @@ function Game() {
                     }}
                 >
                     <Grid />
-{/* 
-                    {_.filter(players, { 'yourself' : false }).map((player: any, index: number) => (
+
+                    {_.filter(players, (o: any) => o.id !== user.id).map((player: any, index: number) => (
                         <LittleGridSpectrum
                             key={`${player.id}`}
+                            spectrum={player.spectrum}
                             position={index}
-                            playerId={player.id}
+                            playerStatus={player.status}
                         />
-                    ))} */}
+                    ))}
+                </Main>
+            }
+            {status === 'ended' &&
+                <Main>
+                    <p>{winner} wins the game</p>
+                    {isLeader &&
+                    <div>
+                        <ButtonWithIcon
+                            onClick={startGame}
+                        >
+                            Restart
+                        </ButtonWithIcon>
+                        <ButtonWithIcon
+                            onClick={leaveGame}
+                        >
+                            Leave
+                        </ButtonWithIcon>
+                    </div>
+                    }
                 </Main>
             }
             <Footer />

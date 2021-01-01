@@ -29,7 +29,7 @@ export const movePieceToLowerPlace = (piece: pieceInterface, grid: any): pieceIn
     let i = 1
     while (true) {
         let updatedPiece = movePiece(piece, 0, i)
-        if (!checkVerticalPosition(updatedPiece.positions, grid))
+        if (!checkPosition(updatedPiece.positions, grid))
             break
         i++
     }
@@ -68,10 +68,10 @@ export const convertStructureToPositions = (pieceStructure: structureInterface, 
     return newPositions
 }
 
-export const checkVerticalPosition = (positions: positionInterface[], grid: [[]]) => {
+export const checkPosition = (positions: positionInterface[], grid: any[][]) => {
     for (let i = 0; i < positions.length; i++) {
         const {x, y} = positions[i]
-        if (y > 21)
+        if ((x < 0 || x > 9) || y > 19)
             return false
         if (grid[y][x])
             return false
@@ -79,16 +79,6 @@ export const checkVerticalPosition = (positions: positionInterface[], grid: [[]]
     return true
 }
 
-export const checkHorizontalPosition = (positions: positionInterface[], grid: [[]]) => {
-    for (let i = 0; i < positions.length; i++) {
-        const {x, y} = positions[i]
-        if (x < 0 || x > 9)
-            return false
-        if (grid[y][x])
-            return false
-    }
-    return true
-}
 
 export const checkGameOver = (grid: any[][], lineToCheck: number = 2) => {
     const gridWidthLength = grid[0].length
@@ -161,4 +151,17 @@ export const addPenaltyToGrid = (grid: any[][], lineCount: number) => {
     newGrid.splice(0, lineCount)
 
     return newGrid
+}
+
+export const getGridSpectrum = (grid: any[][], start = 0, end = 10) => {
+    const spectrum = []
+    for (let j = start; j < end; j++) {
+        for (let i = 0; i < 20; i++) {
+            if (grid[i][j] !== '') {
+                spectrum.push(i)
+                break
+            }
+        }
+    }
+    return spectrum
 }

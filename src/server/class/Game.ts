@@ -1,10 +1,11 @@
 import _ from 'lodash'
-import Player from './Player'
-import Piece from './Piece'
-import { GameParameters } from './interfaces'
+import { Player } from './Player'
+import { Piece } from './Piece'
+import { gameModeType, GameParameters, gameStatusType } from './types'
 
-type gameStatusType = 'idle' | 'started' | 'terminated';
-type gameModeType = 'classic' | 'invisible';
+// TO BE DONE
+// FOR Now 100 piece are created at the beginning but need to create more if needed
+
 
 class Game {
     players: Player[];
@@ -15,6 +16,7 @@ class Game {
     mode: gameModeType = 'classic';
     maxPlayers: number = 2;
     speed: number = 1;
+    winner: string = '';
 
     constructor(gameParameters: GameParameters, player: Player) {
         this.name = gameParameters.name
@@ -54,10 +56,23 @@ class Game {
         return player
     }
 
+
     setPlayerKo(playerId: string) {
         const player = this.getPlayer(playerId)
-        if (player) {
+        if (!player)
+            return
+        // if the player is solo in the game
+        if (this.players.length === 1) {
+            this.status = 'ended'
+            this.winner = player.username
+        }
+        else {
             player.setStatus('KO')
+            const playersStillPlaying = _.filter(this.players, { status: 'playing' })
+            if (playersStillPlaying.length === 1) {
+                this.status = 'ended'
+                this.winner = playersStillPlaying[0].username
+            }
         }
     }
 
@@ -72,22 +87,31 @@ class Game {
             return null
     }
 
-    gameInfo() {
+    updateSpectrum(spectrumArray: number[], playerId: string) {
+        const player = this.getPlayer(playerId)
+        if (player)
+            player.setSpectrum(spectrumArray)
+    }
+
+    info() {
         return {
             name: this.name,
-            players: this.players.map((player) => ({
-                username: player.username,
-                score: player.score,
-                status: player.status
-            })),
+            players: this.players.map((player) => player),
             maxPlayers: this.maxPlayers,
-            mode: this.mode,
-            speed: this.speed,
+            // mode: this.mode,
+            // speed: this.speed,
             status: this.status,
-            leaderId: this.leaderId
+            leaderId: this.leaderId,
+            winner: this.winner
         }
+    }
+
+    reset() {
+        this.pieces = Piece.generatingPiecesPool()
+        this.winner = ''
+        this.players.forEach((player) => player.reset())
     }
 }
 
 
-export default Game
+export { Game }

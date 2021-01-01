@@ -1,10 +1,6 @@
 import _ from 'lodash'
 import { piecesArray } from '../../client/config/constants.json'
-
-type Coords = {
-    x: number;
-    y: number;
-}
+import { Coords } from './types'
 
 class Piece {
     structure: string[][];
@@ -30,4 +26,4 @@ class Piece {
     }
 }
 
-export default Piece 
+export { Piece }
