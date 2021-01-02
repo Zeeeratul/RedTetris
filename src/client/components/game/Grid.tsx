@@ -174,12 +174,13 @@ function Grid() {
             dispatch({ type: SOCKET.GAMES.SET_PIECE, payload: piece })
         })
 
-        const intervalId = setInterval(() => {
-            memoHandleKey('ArrowDown')
-        }, 1000)
+        // const intervalId = setInterval(() => {
+        //     memoHandleKey('ArrowDown')
+        // }, 1000)
 
-        return () => clearInterval(intervalId)
-    }, [memoHandleKey])
+        // return () => clearInterval(intervalId)
+    // }, [memoHandleKey])
+    }, [])
 
     useEffect(() => {
         if (!nextPiece)
@@ -204,7 +205,7 @@ function Grid() {
                 gridArea: 'main_grid',
                 display: 'flex',
                 justifyContent: 'center',
-                alignItems: 'flex-start'
+                alignItems: 'flex-start',
             }} 
         >
             <div
@@ -224,8 +225,6 @@ function Grid() {
                     display: 'grid',
                     gridTemplateRows: 'repeat(20, minmax(0, 1fr))',
                     gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
-                    columnGap: '3px',
-                    rowGap: '3px',
                 }}
             >
                 {piece && grid.map((line: any, index: number) => {

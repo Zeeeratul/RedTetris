@@ -96,3 +96,128 @@ export const Footer = () => {
 
     )
 }
+
+const cellsColors: { [index:string] : any } = {
+    "I": {
+        cell: "blue",
+        top: "rgba(238, 229, 229, 0.863)",
+        bottom: "#000099",
+        left: "#0000cc",
+        right: "#0000cc"
+    },
+    "J": {
+        cell: "blue",
+        top: "rgba(238, 229, 229, 0.863)",
+        bottom: "#000099",
+        left: "#0000cc",
+        right: "#0000cc"
+    },
+    "L": {
+        cell: "blue",
+        top: "rgba(238, 229, 229, 0.863)",
+        bottom: "#000099",
+        left: "#0000cc",
+        right: "#0000cc"
+    },
+    "T": {
+        cell: "blue",
+        top: "rgba(238, 229, 229, 0.863)",
+        bottom: "#000099",
+        left: "#0000cc",
+        right: "#0000cc"
+    },
+    "O": {
+        cell: "blue",
+        top: "rgba(238, 229, 229, 0.863)",
+        bottom: "#000099",
+        left: "#0000cc",
+        right: "#0000cc"
+    },
+    "S": {
+        cell: "blue",
+        top: "rgba(238, 229, 229, 0.863)",
+        bottom: "#000099",
+        left: "#0000cc",
+        right: "#0000cc"
+    },
+    "Z": {
+        cell: "blue",
+        top: "rgba(238, 229, 229, 0.863)",
+        bottom: "#000099",
+        left: "#0000cc",
+        right: "#0000cc"
+    },
+    "*": {
+        cell: "blue",
+        top: "rgba(238, 229, 229, 0.863)",
+        bottom: "#000099",
+        left: "#0000cc",
+        right: "#0000cc"
+    },
+    "": {
+        cell: "grey",
+        top: "rgba(238, 229, 229, 0.863)",
+        bottom: "#000099",
+        left: "#0000cc",
+        right: "#0000cc"    
+    }
+
+}
+
+
+export const Cell = ({ value }: { value: string }) => {
+    return (
+        <div className="cell"
+            css={{
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                backgroundColor: cellsColors[value].cell,
+            }}
+        >
+            <div 
+                id="top-shape"
+                css={{
+                                        position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    clipPath: "polygon(0% 0%, 15% 15%, 85% 15%, 100% 0%)",
+                    backgroundColor: cellsColors[value].top,
+                }}
+            />
+
+            <div 
+                id="right-shape"
+                css={{
+                                        position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    clipPath: "polygon(100% 0%, 85% 15%, 85% 85%, 100% 100%)",
+                    backgroundColor: cellsColors[value].right,
+                }}
+                />
+
+            <div 
+                id="bottom-shape"
+                css={{
+                                        position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    clipPath: "polygon(0% 100%, 15% 85%, 85% 85%, 100% 100%)",
+                    backgroundColor: cellsColors[value].bottom,
+                }}
+                />
+
+            <div 
+                id="left-shape"
+                css={{
+                                        position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    clipPath: "polygon(0% 0%, 15% 15%, 15% 85%, 0% 100%)",
+                    backgroundColor: cellsColors[value].left,
+                }}
+            />
+        </div>
+    )
+}
