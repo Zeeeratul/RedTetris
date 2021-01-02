@@ -17,9 +17,7 @@ import {
     getGridSpectrum
 } from '../../utils/gameFunctions'
 import Line from './Line'
-
-// send spectrum to other player
-
+import { NextPiece } from './NextPiece'
 
 const initState = {
     grid: [
@@ -52,7 +50,7 @@ const initState = {
 }
 
 const reducer = (state: any, action: any) => {
-    const { piece, nextPiece, grid } = state
+    const { nextPiece, grid } = state
 
     switch (action.type) {
 
@@ -208,16 +206,7 @@ function Grid() {
                 alignItems: 'flex-start',
             }} 
         >
-            <div
-                id="next_piece_container"
-                css={{
-                    width: '100px',
-                    height: '100px',
-                    border: '1px solid white'
-                }}
-            >
-                Next piece: {nextPiece?.type}
-            </div>
+
             <div 
                 css={{
                     width: '300px',
@@ -225,6 +214,7 @@ function Grid() {
                     display: 'grid',
                     gridTemplateRows: 'repeat(20, minmax(0, 1fr))',
                     gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
+                    border: '10px solid cyan'
                 }}
             >
                 {piece && grid.map((line: any, index: number) => {
@@ -238,6 +228,7 @@ function Grid() {
                 })}
             </div>
 
+            <NextPiece pieceType={nextPiece?.type} />
         </div>
     )
 }
