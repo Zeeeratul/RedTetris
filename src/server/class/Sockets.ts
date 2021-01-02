@@ -220,6 +220,10 @@ class Sockets {
                 callback(null, piece)
             })
 
+            socket.on('test', () => {
+                console.log('test')
+            })
+
                         
             socket.on(SOCKET.GAMES.GET_INFO, (_: any) => {
                 try {

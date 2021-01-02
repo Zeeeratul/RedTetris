@@ -82,9 +82,9 @@ const reducer = (state: any, action: any) => {
         case 'AddPieceGrid': {
             return {
                 ...state,
-                grid: action.payload,
+                grid: action.payload.newGrid,
                 piece: nextPiece,
-                nextPiece: null
+                nextPiece: action.payload.nextPiece
             }
         }
         default:
@@ -97,8 +97,9 @@ function Grid() {
     const [state, dispatch] = useReducer(reducer, initState)
     const { piece, nextPiece, grid } = state
 
+    const handleKey = (key: string) => {
+        if (!piece) return
 
-    const handleKey = (key: string, grid: any, piece: any) => {
         if (key === "ArrowRight") {
             const updatedPiece = movePiece(piece, 1, 0)
             if (checkPosition(updatedPiece.positions, grid))
@@ -131,17 +132,9 @@ function Grid() {
                 const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
                 if (lineRemoved > 1)
                     emitToEvent(SOCKET.GAMES.LINE_PENALTY, lineRemoved)
-                if (checkGameOver(newGrid)) {
-                    emitToEvent(SOCKET.GAMES.GAME_OVER)
-                }
-                else {
-                    dispatch({ type: 'AddPieceGrid', payload: newGrid })
-                    //  send spectrum to server
-                    const spectrum = getGridSpectrum(newGrid)
-                    emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
-
-
-                }
+                emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
+                    dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
+                })
             }
         }
         // space bar move to the lower point of the grid
@@ -151,50 +144,55 @@ function Grid() {
             const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
             if (lineRemoved > 1)
                 emitToEvent(SOCKET.GAMES.LINE_PENALTY, lineRemoved)
-            if (checkGameOver(newGrid)) {
-                emitToEvent(SOCKET.GAMES.GAME_OVER)
-            }
-            else {
-                dispatch({ type: 'AddPieceGrid', payload: newGrid })
-                //  send spectrum to server
-                const spectrum = getGridSpectrum(newGrid)
-                emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
 
-            }
+            emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
+                dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
+            })
         }
     }
 
-    const memoHandleKey = useCallback((key) => handleKey(key, grid, piece), [grid, piece])
+    // const keyDownMemo = useCallback(() => handleKey('ArrowDown'), [handleKey])
+
+    // useEffect(() => {
+    //     console.log('recreate interval')
+
+    //     const intervalRef = setInterval(() => {
+    //         handleKey('ArrowDown')
+    //     }, 1000)
+
+    //     return () => clearInterval(intervalRef)
+    // }, [])
 
 
+    // ask for piece at start
     useEffect(() => {
         emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece) => {
             dispatch({ type: SOCKET.GAMES.SET_PIECE, payload: piece })
         })
 
-        // const intervalId = setInterval(() => {
-        //     memoHandleKey('ArrowDown')
-        // }, 1000)
-
-        // return () => clearInterval(intervalId)
-    // }, [memoHandleKey])
+        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece) => {
+            dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
+        })
     }, [])
 
+    // check grid for gameOver and send the grid to other players
     useEffect(() => {
-        if (!nextPiece)
-            emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece) => {
-                dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
-            })
-    }, [nextPiece])
+        const spectrum = getGridSpectrum(grid)
+        emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
+
+        if (checkGameOver(grid))
+            emitToEvent(SOCKET.GAMES.GAME_OVER)
+    }, [grid])
     
-    // subscribe to others players actions
+    // subscribe to line penalty sended by the players
     useEffect(() => {
         subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount) => {
             dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
         })
     }, [])
 
-    useEventListener('keydown', ({ key }: { key: string }) => handleKey(key, grid, piece))
+    // useEventListener('keydown', ({ key }: { key: string }) => handleKey(key, grid, piece))
+    useEventListener('keydown', ({ key }: { key: string }) => handleKey(key))
 
     return (
         <div
@@ -206,7 +204,6 @@ function Grid() {
                 alignItems: 'flex-start',
             }} 
         >
-
             <div 
                 css={{
                     width: '300px',
@@ -214,18 +211,18 @@ function Grid() {
                     display: 'grid',
                     gridTemplateRows: 'repeat(20, minmax(0, 1fr))',
                     gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
-                    border: '10px solid cyan'
+                    border: '10px solid cyan',
                 }}
             >
-                {piece && grid.map((line: any, index: number) => {
-                    return <Line
+                {piece && grid.map((line: any, index: number) => (
+                    <Line
                         key={`line_${index}`} 
                         piecePositions={piece.positions}
                         pieceType={piece.type}
                         cells={line}
                         yCoord={index}
                     />
-                })}
+                ))}
             </div>
 
             <NextPiece pieceType={nextPiece?.type} />

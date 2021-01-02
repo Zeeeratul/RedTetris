@@ -266,7 +266,6 @@ function createPiece(pieceType: string): any {
                     </div>
                 </React.Fragment>
             )
-    
         default:
             return (
                 <React.Fragment>
@@ -276,7 +275,7 @@ function createPiece(pieceType: string): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell value="" />
                     </div>
                     <div
                         css={{
@@ -284,7 +283,7 @@ function createPiece(pieceType: string): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell value="" />
                     </div>
                     <div
                         css={{
@@ -292,7 +291,7 @@ function createPiece(pieceType: string): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell value="" />
                     </div>
                     <div
                         css={{
@@ -300,7 +299,7 @@ function createPiece(pieceType: string): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell value="" />
                     </div>
                 </React.Fragment>
             )
@@ -318,24 +317,35 @@ export function NextPiece({ pieceType }: { pieceType: string }) {
                 width: '110px',
                 border: '10px solid cyan',
                 borderLeft: 'none',
+                background: 'cyan',
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'space-around'
+                clipPath: "polygon(0% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 0% 100%)"
             }}
-        >
-            <p css={{ margin: 0, background: 'cyan', color: 'black', textAlign: 'center', width: '100%', alignSelf: 'flex-start' }}>Next</p>
-            <div
-                css={{
-                    display: 'grid',
-                    margin: 'auto',
-                    gridTemplateColumns: "20px 20px 20px 20px",
-                    gridTemplateRows: "20px 20px"
-                }}
             >
-                {piece}
-            </div>
+                <p css={{ margin: 0, background: 'cyan', color: 'black', textAlign: 'center', width: '100%', alignSelf: 'flex-start' }}>Next</p>
+                <div
+                    css={{
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'black',
+                        clipPath: "polygon(0% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 0% 100%)",
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <div
+                        css={{
+                            display: 'grid',
+                            gridTemplateColumns: "20px 20px 20px 20px",
+                            gridTemplateRows: "20px 20px",
+                        }}
+                    >
+                        {piece}
 
+                    </div>
+                </div>
         </div>
     )
 }

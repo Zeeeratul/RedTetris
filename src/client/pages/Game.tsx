@@ -87,8 +87,6 @@ function Game() {
         history.push('/games')
     }
 
-    console.log(state)
-
     return (
         <PageContainer>
             <Navbar />
@@ -141,19 +139,17 @@ function Game() {
                 <Main>
                     <p>{winner} wins the game</p>
                     {isLeader &&
-                    <div>
                         <ButtonWithIcon
                             onClick={startGame}
                         >
                             Restart
                         </ButtonWithIcon>
-                        <ButtonWithIcon
-                            onClick={leaveGame}
-                        >
-                            Leave
-                        </ButtonWithIcon>
-                    </div>
                     }
+                    <ButtonWithIcon
+                        onClick={leaveGame}
+                    >
+                        Leave
+                    </ButtonWithIcon>
                 </Main>
             }
             <Footer />

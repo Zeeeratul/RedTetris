@@ -79,7 +79,7 @@ export const checkPosition = (positions: positionInterface[], grid: any[][]) => 
     return true
 }
 
-
+// need to change the way it works
 export const checkGameOver = (grid: any[][], lineToCheck: number = 2) => {
     const gridWidthLength = grid[0].length
 
@@ -154,11 +154,11 @@ export const addPenaltyToGrid = (grid: any[][], lineCount: number) => {
 }
 
 export const getGridSpectrum = (grid: any[][], start = 0, end = 10) => {
-    const spectrum = []
+    const spectrum = Array(10).fill(20)
     for (let j = start; j < end; j++) {
         for (let i = 0; i < 20; i++) {
             if (grid[i][j] !== '') {
-                spectrum.push(i)
+                spectrum[j] = i
                 break
             }
         }
