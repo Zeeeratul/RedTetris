@@ -223,6 +223,9 @@ class Sockets {
             socket.on('test', () => {
                 console.log('test')
             })
+            socket.on('test2', () => {
+                console.log('test2')
+            })
 
                         
             socket.on(SOCKET.GAMES.GET_INFO, (_: any) => {

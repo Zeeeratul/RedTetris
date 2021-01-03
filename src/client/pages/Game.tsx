@@ -11,18 +11,6 @@ import { useHistory } from "react-router-dom"
 import { SOCKET } from '../config/constants.json'
 import { UserContext } from '../utils/userContext'
 
-const regex = new RegExp('^#[a-zA-Z0-9]*$')
-
-interface GameInfo {
-    name: string;
-    status: string;
-    players: any[];
-    maxPlayers: number;
-    mode: string;
-    speed: number;
-    isLeader: boolean;
-}
-
 const initialState = {
     name: '',
     players: [],
@@ -35,25 +23,10 @@ const initialState = {
     winner: ''
 }
 
-const reducer = (gameInfo: GameInfo, action: any) => {
-
-    switch (action.type) {
-        case SOCKET.GAMES.INFO: 
-            return {
-                ...gameInfo,
-                ...action.payload
-            }
-        default:
-            return gameInfo
-    }
-}
-
 function Game() {
 
     const user = useContext(UserContext)
-
     const history = useHistory()
-    // const [state, dispatch] = useReducer(reducer, initialState)
     const [state, setState] = useState(initialState)
     const { winner, status, leaderId, players } = state
 
@@ -75,15 +48,11 @@ function Game() {
         return () => emitToEvent(SOCKET.GAMES.LEAVE)
     }, [])
 
-
-
-
     const startGame = () => {
         emitToEvent(SOCKET.GAMES.START)
     }
 
     const leaveGame = () => {
-        // emitToEvent(SOCKET.GAMES.LEAVE)
         history.push('/games')
     }
 
