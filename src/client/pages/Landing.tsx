@@ -1,14 +1,35 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
-import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward'
+import { ErrorBoundary } from 'react-error-boundary'
+import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { SOCKET } from '../config/constants.json'
+import background from './background.jpg'
+
+function ErrorFallback({error, resetErrorBoundary}: any) {
+    return (
+        <div role="alert">
+            <p>Oups... Something went wrong:</p>
+            <pre style={{color: 'red'}}>{error?.message}</pre>
+            <button onClick={resetErrorBoundary}>Try again</button>
+        </div>
+    )
+}
+
+function LandingWrapper({ setUser }: any) {
+    return (
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <Landing setUser={setUser} />
+        </ErrorBoundary>
+    )
+}
 
 function Landing({ setUser }: any) {
 
     const history = useHistory()
+    const [error, setError] = useState('')
     useEffect(() => {
         initiateSocket()
     }, [])
@@ -20,6 +41,7 @@ function Landing({ setUser }: any) {
             emitToEventWithAcknowledgement(SOCKET.AUTH.LOGIN, username.value, (error, data) => {
                 if (error) {
                     console.log(error)
+                    setError(error)
                 }
                 else {
                     setUser(data)
@@ -30,16 +52,19 @@ function Landing({ setUser }: any) {
         }
     }
 
+    if (error === 'socket_not_connected')
+        throw new Error(error)
+
     return (
         <div className="landing_container" 
             css={{
                 height: '100vh',
-                background: 'black',
                 color: 'white',
+                backgroundColor: 'black',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                flexDirection: 'column'
+                flexDirection: 'column',
             }}
         >
             <form
@@ -119,10 +144,12 @@ function Landing({ setUser }: any) {
                             }}
                         />
                     </button>
+                    {error}
+
                 </div>
             </form>
         </div>
     )
 }
 
-export default Landing
+export default LandingWrapper

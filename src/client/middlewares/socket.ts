@@ -30,7 +30,7 @@ export const emitToEvent = (eventName: string, data?: any) => {
         socket.emit(eventName, data)
     }
     else {
-        window.location.href = '/'
+        throw new Error('Socket not connected')
     }
 }
 
@@ -40,21 +40,10 @@ export const emitToEventWithAcknowledgement = (
         cb: CallbackFunction,
     ) => {
 
-    if (socket) {
+    if (socket)
         socket.emit(eventName, data, cb)
-    }
-    else {
-        window.location.href = '/'
-    }
-}
-
-export const checkSocketConnection = () => {
-    if (!socket || !socket.connected) {
-        disconnectSocket()
-        return false
-    }
-    else 
-        return true
+    else
+        return cb('socket_not_connected')
 }
 
 export const disconnectSocket = () => {

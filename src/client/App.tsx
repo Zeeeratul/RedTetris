@@ -1,44 +1,40 @@
-import React from 'react'
+import React, { useState, useContext } from 'react'
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect,
+  Redirect
 } from "react-router-dom"
+import { UserContext } from './utils/userContext'
 import Landing from './pages/Landing'
 import GamesList from './pages/GamesList'
 import Game from './pages/Game'
-import { checkSocketConnection } from './middlewares/socket'
-import { UserContext } from './utils/userContext'
 import './App.css'
 
-type PrivateRouteProps = { children: React.ReactNode, path: string }
+function PrivateRoute({ children, path, exact }: { children: React.ReactNode, path: string, exact?: boolean }) {
+  const user = useContext(UserContext)
 
-function PrivateRoute({ children, path }: PrivateRouteProps) {
-  const connected = checkSocketConnection()
-
-  return (
-    <Route
-      path={path}
-      render={({ location }) =>
-        connected ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-            pathname: "/",
-            state: { from: location }
-            }}
-          />
-        )
-      }
-    />
-  )
+  if (!user.id)
+    return (
+      <Redirect
+        to={{
+          pathname: "/",
+        }}
+      />
+    )
+  else
+    return (
+      <Route
+        path={path}
+        exact={exact}
+        render={() => children}
+      />
+    )
 }
 
 function App() {
 
-  const [user, setUser] = React.useState({
+  const [user, setUser] = useState({
     username: '',
     id: ''
   })
@@ -47,23 +43,19 @@ function App() {
     <UserContext.Provider value={user}>
       <Router >
         <Switch>
-      
-          {/* <PrivateRoute path="/games"> */}
 
-          <Route exact path="/games">
+          <PrivateRoute exact path="/games">
             <GamesList />
-          </Route>
-          {/* </PrivateRoute> */}
+          </PrivateRoute>
 
-          {/* <PrivateRoute path="/game"> */}
-          <Route path="/game">
+          <PrivateRoute path="/game">
             <Game />
-          </Route>
-          {/* </PrivateRoute> */}
+          </PrivateRoute>
           
           <Route path="/">
             <Landing setUser={setUser} />
           </Route>
+
         </Switch>
       </Router>
     </UserContext.Provider>

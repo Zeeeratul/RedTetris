@@ -1,5 +1,4 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/react'
 
 const cellsColors: { [index: string] : any } = {
     "I": {
