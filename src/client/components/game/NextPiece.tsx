@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import React from 'react'
 import { jsx } from '@emotion/react'
-import { Cell } from './Cell'
+import { Cell } from './Line'
 
 function createPiece(pieceType: string): any {
 

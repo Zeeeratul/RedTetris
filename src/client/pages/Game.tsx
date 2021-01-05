@@ -6,7 +6,7 @@ import Grid from '../components/game/Grid'
 import LittleGridSpectrum from '../components/game/LittleGridSpectrum'
 import { Navbar, Footer, Main, PageContainer } from '../components/Template'
 import { emitToEvent, subscribeToEvent } from '../middlewares/socket'
-import { ButtonWithIcon } from '../components/Buttons'
+// import { ButtonWithIcon } from '../components/Buttons'
 import { useHistory } from "react-router-dom"
 import { SOCKET } from '../config/constants.json'
 import { UserContext } from '../utils/userContext'
@@ -67,17 +67,17 @@ function Game() {
                         })}
                     </div>
                     {isLeader &&
-                        <ButtonWithIcon
+                        <button
                             onClick={startGame}
                         >
                             Start
-                        </ButtonWithIcon>
+                        </button>
                     }
-                    <ButtonWithIcon
+                    <button
                         onClick={leaveGame}
                     >
                         Leave
-                    </ButtonWithIcon>
+                    </button>
                 </Main>
             }
             {status === 'started' &&
@@ -108,17 +108,17 @@ function Game() {
                 <Main>
                     <p>{winner} wins the game</p>
                     {isLeader &&
-                        <ButtonWithIcon
+                        <button
                             onClick={startGame}
                         >
                             Restart
-                        </ButtonWithIcon>
+                        </button>
                     }
-                    <ButtonWithIcon
+                    <button
                         onClick={leaveGame}
                     >
                         Leave
-                    </ButtonWithIcon>
+                    </button>
                 </Main>
             }
             <Footer />

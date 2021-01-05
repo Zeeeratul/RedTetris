@@ -1,58 +1,38 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/react'
+import { jsx } from '@emotion/react'
 import { useState, useEffect, useContext } from 'react'
-import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
+import { emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { useHistory } from "react-router-dom"
-import { Navbar, Footer, Main, PageContainer, Columm } from '../components/Template'
-import { ButtonWithIcon } from '../components/Buttons'
+import { Navbar, Main, PageContainer } from '../components/Template'
+import { Button } from '../components/Button'
 import { SOCKET } from '../config/constants.json'
 
-import ExitToAppIcon from '@material-ui/icons/ExitToApp'
-import SearchIcon from '@material-ui/icons/Search'
-import CreateIcon from '@material-ui/icons/Create'
-import SoloIcon from '@material-ui/icons/Person'
+
+import { CreateGameModal } from '../components/gamesList/CreateGameModal'
 
 import { UserContext } from '../utils/userContext'
 
-
 import styled from '@emotion/styled'
 
-
-/* 
-ALL actions to be done
-
-    create a game
-
-    join a game
-
-    have the games list
+// styling to DO
+// - button CREATE AND SOLO PLAYING
+// - modal of creating a game 
+// - list of join games
 
 
-*/
+// create game (input + button) Or 
+// modal where you have (game name) (game speed) (game mode) (max players)
 
-const Td = styled.td({
-    padding: '12px 15px'
-})
 
-const Th = styled.th({
-    padding: '12px 15px'
-})
+// solo game ??
+// list games and join them
 
-const Tr = styled.tr({
-    borderBottom: '1px solid white',
-    '&:nth-child(even)': {
-        backgroundColor: 'grey'
-    },
-
-    '&:hover': {
-        opacity: '0.75'
-    }
-
-})
 
 const GamesList = () => {
 
     const user = useContext(UserContext)
+
+    const [showModal, setShowModal] = useState(false)
 
     const history = useHistory()
     const [games, setGames] = useState([])
@@ -89,9 +69,12 @@ const GamesList = () => {
     }
 
     useEffect(() => {
+        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_GAMES, {}, (error, games) => {
+            setGames(games)
+        })
+
         const intervalId = setInterval(() => {
             emitToEventWithAcknowledgement(SOCKET.GAMES.GET_GAMES, {}, (error, games) => {
-                console.log(games)
                 setGames(games)
             })
         }, 3000)
@@ -102,12 +85,15 @@ const GamesList = () => {
     }, [])
 
     return (
-        <PageContainer>
+        <PageContainer >
             <Navbar />
                 
             <Main>
-                <div id="games_list">
-                    <h1>Games list</h1>
+                <Button title="Create" action={() => setShowModal(!showModal)} />
+                <CreateGameModal isOpen={showModal} close={() => setShowModal(false)} />
+                {/* <button>Play Solo</button> */}
+                {/* <div id="games_list">
+                    {/* <h1>Games list</h1>
                     {games.map((game : any) => (
                         <p
                             key={game.name}   
@@ -117,122 +103,6 @@ const GamesList = () => {
                         </p>
                     ))}
                 </div>
-
-                
-
-{/* 
-                <Columm>
-
-                    <h1>Games List</h1>
-
-                    <div
-                        id='input-search-container'
-                        css={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            width: '80%',
-                            marginBottom: '30px',
-                        }}
-                    >
-                        <input
-                            id="search-game"
-                            name="username"
-                            placeholder="Find your game..."
-                            maxLength={15}
-                            css={{
-                                minWidth: '250px',
-                                background: 'transparent',
-                                border: 'none',
-                                outline: 'none',
-                                borderBottom: '2px solid white',
-                                paddingBottom: '15px',
-                                fontSize: '18px',
-                                color: 'white',
-                            }}
-                        />
-                        <button
-                            css={{
-                                background: 'transparent',
-                                border: 'none',
-                                outline: 'none',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            <SearchIcon
-                                fontSize="large"
-                                css={{
-                                    color: "white",
-                                    opacity: '0.75',
-                                    marginLeft: '10px',
-                                    '&:hover': {
-                                        opacity: '1',
-                                        transition: '400ms ease'
-                                    },
-                                    '&:active': {
-                                        color: 'grey'
-                                    }
-                                }}
-                            />
-                        </button>
-                    </div>
-
-                    <div
-                        id="table-container"
-                        css={{
-                            width: '80%',
-                            maxHeight: '600px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            overflow: 'scroll'
-                
-                        }}
-                    >
-                        <table
-                            css={{
-                                borderCollapse: 'collapse',
-                                width: '100%',
-                                overflow: 'hidden',
-                                borderRadius: '5px 5px 0 0',
-                            }}
-                            >
-                            <thead>
-                                <Tr
-                                    css={{
-                                        backgroundColor: 'black',
-                                        textAlign: 'left',
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                             
-                                    <Th>
-                                        Game Name
-                                    </Th>
-
-                                    <Th>
-                                        Slots
-                                    </Th>
-                             
-                                </Tr>
-                            </thead>
-
-                            <tbody>
-                                <Tr>
-                                    <Td>
-                                        Zeeratul
-                                    </Td>
-                                    <Td>
-                                        3 / 4
-                                    </Td>
-                                </Tr>
-                       
-                            </tbody>
-
-                        </table>
-        
-
-                    </div>
-                </Columm>
- */}
 
                 <Columm>
                     <h1>Create game</h1>
@@ -294,18 +164,12 @@ const GamesList = () => {
                             />
                         </button>
                     </div>
-{/*                     
-                    <ButtonWithIcon>
-                        Play Solo
-                        <SoloIcon
-                            fontSize="large"
-                        />
-                    </ButtonWithIcon> */}
-                </Columm>
+
+                </Columm> */}
 
             </Main>
 
-            <Footer />
+            {/* <Footer /> */}
             
         </PageContainer>
     )

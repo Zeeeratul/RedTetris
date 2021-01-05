@@ -18,7 +18,7 @@ import {
     getGridSpectrum
 } from '../../utils/gameFunctions'
 import { NextPiece } from './NextPiece'
-import Line from './Line'
+import { Line } from './Line'
 
 const initState = {
     grid: [

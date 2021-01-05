@@ -10,6 +10,7 @@ import Landing from './pages/Landing'
 import GamesList from './pages/GamesList'
 import Game from './pages/Game'
 import './App.css'
+import { createMuiTheme, ThemeProvider } from '@material-ui/core'
 
 function PrivateRoute({ children, path, exact }: { children: React.ReactNode, path: string, exact?: boolean }) {
   const user = useContext(UserContext)
@@ -39,26 +40,35 @@ function App() {
     id: ''
   })
 
+  const theme = createMuiTheme({
+    typography: {
+      fontFamily: 'Audiowide, cursive',
+    },
+  })
+
+
   return (
-    <UserContext.Provider value={user}>
-      <Router >
-        <Switch>
+    <ThemeProvider theme={theme}>
+      <UserContext.Provider value={user}>
+        <Router >
+          <Switch>
 
-          <PrivateRoute exact path="/games">
-            <GamesList />
-          </PrivateRoute>
+            <PrivateRoute exact path="/games">
+              <GamesList />
+            </PrivateRoute>
 
-          <PrivateRoute path="/game">
-            <Game />
-          </PrivateRoute>
-          
-          <Route path="/">
-            <Landing setUser={setUser} />
-          </Route>
+            <PrivateRoute path="/game">
+              <Game />
+            </PrivateRoute>
+            
+            <Route path="/">
+              <Landing setUser={setUser} />
+            </Route>
 
-        </Switch>
-      </Router>
-    </UserContext.Provider>
+          </Switch>
+        </Router>
+      </UserContext.Provider>
+    </ThemeProvider>
   )
 }
 

@@ -2,18 +2,20 @@
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled/macro'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
+import { motion, AnimatePresence } from 'framer-motion'
 import { disconnectSocket } from '../../client/middlewares/socket'
+import CloseIcon from '@material-ui/icons/Close';
+import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 
-
-
-export const PageContainer = styled.div({
-    background: 'black',
+export const PageContainer = styled.div((cssOverride) : any => ({
+    background: 'white',
     minHeight: '100vh',
     color: 'white',
     display: 'flex',
     flexDirection: 'column',
     margin: 0,
-})
+    // ...cssOverride
+}))
 
 export const Main = styled.div({
     display: 'flex',
@@ -21,7 +23,7 @@ export const Main = styled.div({
     alignItems: 'center',
     flexGrow: 1,
     flexWrap: 'wrap',
-    backgroundColor: 'black'
+    backgroundColor: 'white'
 })
 
 export const Columm = styled.div({
@@ -46,36 +48,129 @@ export const Navbar = () => {
         <nav
             css={{
                 width: '100%',
-                height: '60px',
-                background: 'black',
+                height: '64px',
+                background: '#333',
                 display: 'flex',
                 justifyContent: 'flex-end',
                 alignItems: 'center'
-                    
             }}
         >
-            <button
+            <div
+                css={{
+                    position: 'relative'
+                }}
+            >
+                <button
+                    title="LeaveGame"
+                    css={{
+                        background: 'transparent',
+                        border: 'none',
+                        outline: 'none',
+                        cursor: 'pointer',
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '50%',
+                        marginRight: '10px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        '&:hover': {
+                            background: 'grey',
+                            transition: '300ms ease-in-out'
+                        }
+                    }}
+                    // onClick={logout}
+                >
+                    <MeetingRoomIcon 
+                        fontSize='default'
+                        css={{
+                            color: 'white',
+                            opacity: '1',
+                            // opacity: '0.75',
+                            // '&:hover': {
+                            //     opacity: '1',
+                            //     transition: '150ms ease-in-out'
+                            // }
+                        }}
+                    />
+                </button>
+                {/* {false &&
+                    <p
+                        css={{
+                            position: 'absolute',
+                            top: '38px',
+                            padding: '8px 6px',
+                            backgroundColor: 'grey',
+                            textAlign: 'center',
+                            fontSize: '14px',
+                            border: '1px solid grey',
+                            borderRadius: '6px',
+                        }}
+                    >Leave game</p>
+                } */}
+
+            </div>
+
+            <div
+                css={{
+                    position: 'relative'
+                }}
+            >
+                <button
                     title="Logout"
                     css={{
                         background: 'transparent',
                         border: 'none',
                         outline: 'none',
                         cursor: 'pointer',
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '50%',
+                        marginRight: '10px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        '&:hover': {
+                            background: 'grey',
+                            transition: '300ms ease-in-out'
+                        },
+                        // '&:after': {
+                        //     backgroundColor: 'red',
+                        //     width: '100px',
+                        //     height: '100px',
+                        // }
                     }}
                     onClick={logout}
                 >
-                <ExitToAppIcon 
-                    fontSize='large'
-                    css={{
-                        color: 'white',
-                        opacity: '0.75',
-                        '&:hover': {
+                    <ExitToAppIcon 
+                        fontSize='default'
+                        css={{
+                            color: 'white',
                             opacity: '1',
-                            transition: '150ms ease-in-out'
-                        }
+                            // opacity: '0.75',
+                            // '&:hover': {
+                            //     opacity: '1',
+                            //     transition: '150ms ease-in-out'
+                            // }
+                        }}
+                    />
+                </button>
+                {/* <p
+                    css={{
+                        position: 'absolute',
+                        top: '38px',
+                        right: '10px',
+                        padding: '8px 6px',
+                        backgroundColor: 'grey',
+                        textAlign: 'center',
+                        fontSize: '14px',
+                        border: '1px solid grey',
+                        borderRadius: '6px',
                     }}
-                />
-            </button>
+                >Logout</p> */}
+
+            </div>
+
         </nav>
     )
 }
@@ -97,127 +192,100 @@ export const Footer = () => {
     )
 }
 
-const cellsColors: { [index:string] : any } = {
-    "I": {
-        cell: "blue",
-        top: "rgba(238, 229, 229, 0.863)",
-        bottom: "#000099",
-        left: "#0000cc",
-        right: "#0000cc"
-    },
-    "J": {
-        cell: "blue",
-        top: "rgba(238, 229, 229, 0.863)",
-        bottom: "#000099",
-        left: "#0000cc",
-        right: "#0000cc"
-    },
-    "L": {
-        cell: "blue",
-        top: "rgba(238, 229, 229, 0.863)",
-        bottom: "#000099",
-        left: "#0000cc",
-        right: "#0000cc"
-    },
-    "T": {
-        cell: "blue",
-        top: "rgba(238, 229, 229, 0.863)",
-        bottom: "#000099",
-        left: "#0000cc",
-        right: "#0000cc"
-    },
-    "O": {
-        cell: "blue",
-        top: "rgba(238, 229, 229, 0.863)",
-        bottom: "#000099",
-        left: "#0000cc",
-        right: "#0000cc"
-    },
-    "S": {
-        cell: "blue",
-        top: "rgba(238, 229, 229, 0.863)",
-        bottom: "#000099",
-        left: "#0000cc",
-        right: "#0000cc"
-    },
-    "Z": {
-        cell: "blue",
-        top: "rgba(238, 229, 229, 0.863)",
-        bottom: "#000099",
-        left: "#0000cc",
-        right: "#0000cc"
-    },
-    "*": {
-        cell: "blue",
-        top: "rgba(238, 229, 229, 0.863)",
-        bottom: "#000099",
-        left: "#0000cc",
-        right: "#0000cc"
-    },
-    "": {
-        cell: "grey",
-        top: "rgba(238, 229, 229, 0.863)",
-        bottom: "#000099",
-        left: "#0000cc",
-        right: "#0000cc"    
+
+export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: boolean, close: any, children: React.ReactNode, width?: string }) => {
+
+    const backdrop = {
+        visible: {
+            opacity: 1
+        },
+        hidden: {
+            opacity: 0
+        }
     }
 
-}
+    const modal = {
+        hidden: {
+            y: "-100vh",
+            opacity: 0,
+        },
+        visible: {
+            y: "200px",
+            opacity: 1,
+            transition: {
+                delay: 0.5
+            }
+        }
+    }
 
+    const closeWithNoClickPropagation = (ev: any) => {
+        if (ev.target === ev.currentTarget)
+            close()
+    }
 
-export const Cell = ({ value }: { value: string }) => {
     return (
-        <div className="cell"
-            css={{
-                position: 'relative',
-                width: '100%',
-                height: '100%',
-                backgroundColor: cellsColors[value].cell,
-            }}
-        >
-            <div 
-                id="top-shape"
-                css={{
-                                        position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    clipPath: "polygon(0% 0%, 15% 15%, 85% 15%, 100% 0%)",
-                    backgroundColor: cellsColors[value].top,
-                }}
-            />
+        <AnimatePresence exitBeforeEnter>
+            {isOpen && (
+                <motion.div
+                    onClick={closeWithNoClickPropagation}
+                    id="backdrop"
+                    css={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'rgba(0, 0, 0, 0.5)',
+                        zIndex: 1,
 
-            <div 
-                id="right-shape"
-                css={{
-                                        position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    clipPath: "polygon(100% 0%, 85% 15%, 85% 85%, 100% 100%)",
-                    backgroundColor: cellsColors[value].right,
-                }}
-                />
+                    }}
+                    variants={backdrop}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                >
+                    <motion.div
+                        id="modal"
+                        css={{
+                            margin: "0 auto",
+                            padding: "20px 20px",
+                            width,
+                            background: 'white',
+                            borderRadius: '10px',
+                            position: 'relative'
+                        }}
+                        variants={modal}
+                    >
+                        <button
+                            id="close-button"
+                            css={{
+                                position: 'absolute',
+                                top: '10px',
+                                right: '10px',
+                                border: 'none',
+                                outline: 'none',
+                                borderRadius: '50%',
+                                width: '40px',
+                                height: '40px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                background: 'transparent',
+                                '&:hover': {
+                                    background: '#D3D3D3',
+                                    transition: '300ms ease-in-out'
+                                }
+                            }}
+                            onClick={close}
+                        >
+                            <CloseIcon />
+                        </button>
 
-            <div 
-                id="bottom-shape"
-                css={{
-                                        position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    clipPath: "polygon(0% 100%, 15% 85%, 85% 85%, 100% 100%)",
-                    backgroundColor: cellsColors[value].bottom,
-                }}
-                />
-
-            <div 
-                id="left-shape"
-                css={{
-                                        position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    clipPath: "polygon(0% 0%, 15% 15%, 15% 85%, 0% 100%)",
-                    backgroundColor: cellsColors[value].left,
-                }}
-            />
-        </div>
+                    {children}
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     )
 }

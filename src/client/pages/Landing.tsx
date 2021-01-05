@@ -2,11 +2,10 @@
 import { jsx } from '@emotion/react'
 import { useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
-import ArrowForwardIcon from '@material-ui/icons/ArrowForward'
 import { ErrorBoundary } from 'react-error-boundary'
 import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { SOCKET } from '../config/constants.json'
-import background from './background.jpg'
+import background from '../assets/background.jpg'
 
 function ErrorFallback({error, resetErrorBoundary}: any) {
     return (
@@ -65,6 +64,8 @@ function Landing({ setUser }: any) {
                 justifyContent: 'center',
                 alignItems: 'center',
                 flexDirection: 'column',
+                backgroundImage: `url(${background})`,
+                backgroundPosition: 'center'
             }}
         >
             <form
@@ -73,7 +74,10 @@ function Landing({ setUser }: any) {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    borderRadius: '16px',
+                    padding: '40px 40px',
+                    backgroundColor: "rgba(32, 32, 32, 1)"
                 }}
             >
                 <label
@@ -86,7 +90,7 @@ function Landing({ setUser }: any) {
                     }}
                     htmlFor="username"
                 >
-                    What's your username ?
+                    what's your username ?
                 </label>
                 <div
                     css={{
@@ -110,43 +114,26 @@ function Landing({ setUser }: any) {
                             letterSpacing: '3px',
                             fontSize: '24px',
                             color: 'white',
-                            fontFamily: 'Montserrat, sans-serif',
+                            fontFamily: 'Audiowide, cursive',
                             '@media (max-width: 550px)': {
                                 fontSize: '18px',
                                 width: '250px'
                             }
                         }}
                     />
-                    <button type="submit"
+                </div>
+                {error && 
+                    <p
                         css={{
-                            background: 'transparent',
-                            border: 'none',
-                            outline: 'none',
-                            cursor: 'pointer',
-
+                            marginTop: '30px',
+                            marginBottom: '0px',
+                            color: 'red',
+                            fontSize: '22px'
                         }}
                     >
-                        <ArrowForwardIcon
-                            fontSize="large"
-                            css={{
-                                color: "white",
-                                opacity: '0.75',
-                                marginTop: '25px',
-                                marginLeft: '10px',
-                                '&:hover': {
-                                    opacity: '1',
-                                    transform: 'translateX(5px)',
-                                    transition: '400ms ease'
-                                },
-                                '&:active': {
-                                    color: 'grey'
-                                }
-                            }}
-                        />
-                    </button>
-                    {error}
-
-                </div>
+                        {error}
+                    </p>
+                }
             </form>
         </div>
     )
