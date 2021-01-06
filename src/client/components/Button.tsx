@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 
-export function Button({ title, action, disabled = false, cssOverride }: { title: string, action: any, disabled?: boolean, cssOverride?: any }) {
+export function Button({ title, action, disabled = false }: { title: string, action: any, disabled?: boolean }) {
 
     return (
         <button
@@ -16,19 +16,24 @@ export function Button({ title, action, disabled = false, cssOverride }: { title
                 boxShadow: `
                     3px 3px black
                 `,
+                color: 'white',
+                backgroundColor: '#303030',
                 marginTop: '20px',
                 outline: 'none',
                 transition: '100ms ease-out',
                 '&:hover': {
-                    opacity: ''
+                    backgroundColor: '#282828'
                 },
                 '&:active': {
-                    backgroundColor: '#D3D3D3',
+                    backgroundColor: '#202020',
                     transition: '200ms ease-out',
                     boxShadow: 'none',
                     transform: 'translate(3px, 3px)'
+                },
+                '&:disabled': {
+                    opacity: '0.5',
+                    transition: '200ms ease-out',
                 }
-
             }}
             onClick={action}
         >

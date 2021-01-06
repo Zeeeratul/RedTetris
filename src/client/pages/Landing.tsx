@@ -1,11 +1,13 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/react'
+import { jsx, css } from '@emotion/react'
 import { useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
 import { ErrorBoundary } from 'react-error-boundary'
 import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { SOCKET } from '../config/constants.json'
 import background from '../assets/background.jpg'
+import { PageContainer } from '../components/Template'
+import { makeStyles, Paper } from '@material-ui/core'
 
 function ErrorFallback({error, resetErrorBoundary}: any) {
     return (
@@ -25,8 +27,22 @@ function LandingWrapper({ setUser }: any) {
     )
 }
 
+const useStyles = makeStyles({
+    paper: {
+        backgroundColor: '#303030',
+        color: 'white',
+        width: '600px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '60px 10px',
+    }
+})
+
 function Landing({ setUser }: any) {
 
+    const classes = useStyles()
     const history = useHistory()
     const [error, setError] = useState('')
     useEffect(() => {
@@ -55,87 +71,80 @@ function Landing({ setUser }: any) {
         throw new Error(error)
 
     return (
-        <div className="landing_container" 
-            css={{
-                height: '100vh',
-                color: 'white',
-                backgroundColor: 'black',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column',
-                backgroundImage: `url(${background})`,
-                backgroundPosition: 'center'
-            }}
+        <PageContainer
+            backgroundImage={`url(${background})`}
+            backgroundPosition="center"
         >
-            <form
-                onSubmit={handleSubmit}
-                css={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'column',
-                    borderRadius: '16px',
-                    padding: '40px 40px',
-                    backgroundColor: "rgba(32, 32, 32, 1)"
-                }}
-            >
-                <label
-                    css={{
-                        fontSize: '38px',
-                        marginBottom: '20px',
-                        '@media (max-width: 550px)': {
-                            fontSize: '28px',
-                        }
-                    }}
-                    htmlFor="username"
-                >
-                    what's your username ?
-                </label>
-                <div
+            <Paper 
+                elevation={3}
+                className={classes.paper}
+            >   
+                <form
+                    onSubmit={handleSubmit}
                     css={{
                         display: 'flex',
+                        justifyContent: 'center',
                         alignItems: 'center',
+                        flexDirection: 'column',
                     }}
                 >
-                    <input
-                        id="username"
-                        name="username"
-                        maxLength={15}
-                        autoFocus
+                    <label
                         css={{
-                            width: '400px',
-                            background: 'transparent',
-                            border: 'none',
-                            outline: 'none',
-                            borderBottom: '2px solid white',
-                            textAlign: 'center',
-                            paddingBottom: '15px',
-                            letterSpacing: '3px',
-                            fontSize: '24px',
-                            color: 'white',
-                            fontFamily: 'Audiowide, cursive',
+                            fontSize: '38px',
+                            marginBottom: '20px',
                             '@media (max-width: 550px)': {
-                                fontSize: '18px',
-                                width: '250px'
+                                fontSize: '28px',
                             }
                         }}
-                    />
-                </div>
-                {error && 
-                    <p
+                        htmlFor="username"
+                    >
+                        what's your username ?
+                    </label>
+                    <div
                         css={{
-                            marginTop: '30px',
-                            marginBottom: '0px',
-                            color: 'red',
-                            fontSize: '22px'
+                            display: 'flex',
+                            alignItems: 'center',
                         }}
                     >
-                        {error}
-                    </p>
-                }
-            </form>
-        </div>
+                        <input
+                            id="username"
+                            name="username"
+                            maxLength={15}
+                            autoFocus
+                            css={{
+                                width: '400px',
+                                background: 'transparent',
+                                border: 'none',
+                                outline: 'none',
+                                borderBottom: '2px solid white',
+                                textAlign: 'center',
+                                paddingBottom: '15px',
+                                letterSpacing: '3px',
+                                fontSize: '24px',
+                                color: 'white',
+                                fontFamily: 'Audiowide, cursive',
+                                '@media (max-width: 550px)': {
+                                    fontSize: '18px',
+                                    width: '250px'
+                                }
+                            }}
+                        />
+                    </div>
+                    {error && 
+                        <p
+                            css={{
+                                marginTop: '30px',
+                                marginBottom: '0px',
+                                color: 'red',
+                                fontSize: '22px'
+                            }}
+                        >
+                            {error}
+                        </p>
+                    }
+                </form>
+            </Paper>
+        </PageContainer>
     )
 }
 

@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _, { random } from 'lodash'
 import { Game } from './Game'
 import { Player } from './Player'
 import { SOCKET } from '../../client/config/constants.json'
@@ -73,7 +73,11 @@ class Games {
     }
 
     getGamesList() {
-        return _.filter(this.games, (game) => game.status === 'idle' || game.status === 'ended')
+        return _.filter(this.games, (game) => {
+            if ((game.status === 'idle' || game.status === 'ended') && game.maxPlayers > 1)
+                return true
+            return false
+        })
     }
 }
 

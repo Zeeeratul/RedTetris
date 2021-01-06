@@ -6,53 +6,58 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { disconnectSocket } from '../../client/middlewares/socket'
 import CloseIcon from '@material-ui/icons/Close';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
+import { Button } from './Button'
 
-export const PageContainer = styled.div((cssOverride) : any => ({
-    background: 'white',
-    minHeight: '100vh',
-    color: 'white',
-    display: 'flex',
-    flexDirection: 'column',
-    margin: 0,
-    // ...cssOverride
-}))
+type PageContainerProps = {
+    backgroundImage?: string
+    backgroundPosition?: string
+}
+
+export const PageContainer = styled.div({
+        minHeight: '100vh',
+        width: '100%',
+        color: 'white',
+        background: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    (props: PageContainerProps) => ({
+        backgroundImage: props.backgroundImage ? props.backgroundImage : '',
+        backgroundPosition: props.backgroundPosition ? props.backgroundPosition : '',
+    })
+)
 
 export const Main = styled.div({
     display: 'flex',
+    width: '100%',
     justifyContent: 'space-around',
     alignItems: 'center',
     flexGrow: 1,
     flexWrap: 'wrap',
-    backgroundColor: 'white'
-})
-
-export const Columm = styled.div({
-    height: '500px',
-    width: '400px',
-    margin: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center'
- 
+    position: 'relative'
 })
 
 export const Navbar = () => {
 
     const logout = () => {
         disconnectSocket()
-        // window.location.href = '/landing'
     }
 
     return (
         <nav
             css={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 width: '100%',
                 height: '64px',
-                background: '#333',
+                // background: '#303030',
                 display: 'flex',
                 justifyContent: 'flex-end',
-                alignItems: 'center'
+                alignItems: 'center',
+                // borderBottom: '1px solid lightgrey'
             }}
         >
             <div
@@ -61,72 +66,17 @@ export const Navbar = () => {
                 }}
             >
                 <button
-                    title="LeaveGame"
-                    css={{
-                        background: 'transparent',
-                        border: 'none',
-                        outline: 'none',
-                        cursor: 'pointer',
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '50%',
-                        marginRight: '10px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        '&:hover': {
-                            background: 'grey',
-                            transition: '300ms ease-in-out'
-                        }
-                    }}
-                    // onClick={logout}
-                >
-                    <MeetingRoomIcon 
-                        fontSize='default'
-                        css={{
-                            color: 'white',
-                            opacity: '1',
-                            // opacity: '0.75',
-                            // '&:hover': {
-                            //     opacity: '1',
-                            //     transition: '150ms ease-in-out'
-                            // }
-                        }}
-                    />
-                </button>
-                {/* {false &&
-                    <p
-                        css={{
-                            position: 'absolute',
-                            top: '38px',
-                            padding: '8px 6px',
-                            backgroundColor: 'grey',
-                            textAlign: 'center',
-                            fontSize: '14px',
-                            border: '1px solid grey',
-                            borderRadius: '6px',
-                        }}
-                    >Leave game</p>
-                } */}
-
-            </div>
-
-            <div
-                css={{
-                    position: 'relative'
-                }}
-            >
-                <button
                     title="Logout"
                     css={{
-                        background: 'transparent',
+                        background: 'grey',
                         border: 'none',
                         outline: 'none',
                         cursor: 'pointer',
-                        width: '48px',
-                        height: '48px',
+                        width: '52px',
+                        height: '52px',
                         borderRadius: '50%',
                         marginRight: '10px',
+                        marginTop: '10px',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -143,7 +93,7 @@ export const Navbar = () => {
                     onClick={logout}
                 >
                     <ExitToAppIcon 
-                        fontSize='default'
+                        fontSize='large'
                         css={{
                             color: 'white',
                             opacity: '1',
@@ -250,7 +200,8 @@ export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: bo
                             margin: "0 auto",
                             padding: "20px 20px",
                             width,
-                            background: 'white',
+                            color: 'white',
+                            backgroundColor: 'white',
                             borderRadius: '10px',
                             position: 'relative'
                         }}
@@ -272,6 +223,7 @@ export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: bo
                                 alignItems: 'center',
                                 cursor: 'pointer',
                                 background: 'transparent',
+                                color: 'white',
                                 '&:hover': {
                                     background: '#D3D3D3',
                                     transition: '300ms ease-in-out'

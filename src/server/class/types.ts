@@ -8,7 +8,8 @@ export interface GameParameters {
     name: string,
     maxPlayers?: number,
     mode?: string,
-    speed?: number
+    speed?: number,
+    isSolo?: boolean
 }
 
 export interface Coords {

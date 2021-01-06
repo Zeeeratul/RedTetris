@@ -6,10 +6,11 @@ import Grid from '../components/game/Grid'
 import LittleGridSpectrum from '../components/game/LittleGridSpectrum'
 import { Navbar, Footer, Main, PageContainer } from '../components/Template'
 import { emitToEvent, subscribeToEvent } from '../middlewares/socket'
-// import { ButtonWithIcon } from '../components/Buttons'
 import { useHistory } from "react-router-dom"
 import { SOCKET } from '../config/constants.json'
 import { UserContext } from '../utils/userContext'
+import { Button } from '../components/Button'
+import background from '../assets/background.jpg'
 
 const initialState = {
     name: '',
@@ -22,6 +23,22 @@ const initialState = {
     status: 'idle',
     winner: ''
 }
+
+// game status
+// 'idle'
+// - Start / Leave Buttons
+// - List players
+// - Chat maybe
+
+// 'playing'
+// - grid
+// - littlte grid
+// - leave Button
+
+// 'ended' 
+// - score of each player
+// - restart / leave button
+
 
 function Game() {
 
@@ -57,9 +74,45 @@ function Game() {
     }
 
     return (
-        <PageContainer>
+        <PageContainer
+            backgroundImage={`url(${background})`}
+            backgroundPosition="center"
+        >
             <Navbar />
-            {status === 'idle' &&
+            <Main
+                // css={{
+                //     display: 'grid',
+                //     gridTemplateColumns: '1fr 2fr 1fr',
+                //     gridTemplateRows: "1fr 1fr 50px",
+                //     // gridTemplateRows: 'auto auto 50px',
+                //     // gridTemplateAreas: `
+                //     //     "little_grid_1 main_grid little_grid_2"
+                //     //     "little_grid_3 main_grid little_grid_4"
+                //     // `
+                // }}
+            >
+                <div
+                    css={{
+                        background: 'red',
+                        height: '100px',
+                        width: '100%',
+                        flex: 1,
+                        alignSelf: 'stretch'
+                    }}
+                >
+
+                </div>
+ 
+                {/* <Button
+                    title="Start"
+                    action={startGame}
+                />
+                <Button
+                    title="Leave"
+                    action={leaveGame}
+                /> */}
+            </Main>
+            {/* {status === 'idle' &&
                 <Main>
                     <div>
                         {players.map((player: any) => {
@@ -120,8 +173,7 @@ function Game() {
                         Leave
                     </button>
                 </Main>
-            }
-            <Footer />
+            } */}
         </PageContainer>  
     )
 }

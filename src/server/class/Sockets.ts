@@ -4,6 +4,7 @@ import { Games } from './Games'
 import { SOCKET } from '../../client/config/constants.json'
 import { User, GameParameters, CallbackFunction } from './types'
 import { Server } from 'socket.io'
+import { v4 as uuidv4 } from 'uuid'
 
 class Sockets {
     io: Server;
@@ -72,7 +73,16 @@ class Sockets {
                     if (!socket.player) 
                         throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
 
-                    const gameName = this.games.createGame(gameParameters, socket.player)
+                    let gameName : string
+                    if (gameParameters.isSolo) {
+                        gameName = this.games.createGame({
+                            ...gameParameters,
+                            maxPlayers: 1,
+                            name: uuidv4()
+                        }, socket.player)
+                    }
+                    else
+                        gameName = this.games.createGame(gameParameters, socket.player)
 
                     socket.player.gameName = gameName
                     socket.join(gameName)
@@ -219,14 +229,6 @@ class Sockets {
                     return console.error('player not found cant give piece')
                 callback(null, piece)
             })
-
-            socket.on('test', () => {
-                console.log('test')
-            })
-            socket.on('test2', () => {
-                console.log('test2')
-            })
-
                         
             socket.on(SOCKET.GAMES.GET_INFO, (_: any) => {
                 try {

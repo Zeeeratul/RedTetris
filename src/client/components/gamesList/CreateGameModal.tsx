@@ -15,7 +15,7 @@ const initialState = {
     maxPlayers: 2
 }
 
-export function CreateGameModal({ isOpen, close }: { isOpen: boolean, close: any }) {
+export function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isMultiplayer: boolean, close: any }) {
 
     const history = useHistory()
     const [gameParameters, setGameParameters] = useState(initialState)
@@ -23,11 +23,13 @@ export function CreateGameModal({ isOpen, close }: { isOpen: boolean, close: any
     const { mode, speed, maxPlayers, name } = gameParameters
 
     useEffect(() => {
+        setError('')
         setGameParameters(initialState)
-    }, [isOpen])
+    }, [isOpen, isMultiplayer])
 
-    const handleChange = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setGameParameters({ ...gameParameters, name: ev.target.value })
+    const handleChangeName = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const name = ev.target.value.replace(' ', '')
+        setGameParameters({ ...gameParameters, name })
     }
 
     const handleSelect = (ev: React.ChangeEvent<{
@@ -41,10 +43,27 @@ export function CreateGameModal({ isOpen, close }: { isOpen: boolean, close: any
         setGameParameters({ ...gameParameters, [name]: ev.target.value})
     }
     
-    const createGame = () => {
-        setError('')
+    const createMultiplayerGame = () => {
         if (!gameParameters.name) return 
         emitToEventWithAcknowledgement(SOCKET.GAMES.CREATE, gameParameters, (error: any, gameName: string) => {
+            if (error) {
+                console.error(error)
+                setError(error)
+            }
+            else {
+                close()
+                history.push(`/game/${gameName}`)
+            }
+        })
+    }
+    
+    const createSoloGame = () => {
+        const soloGameParameters = {
+            ...gameParameters,
+            isSolo: true
+        }
+        // setError('')
+        emitToEventWithAcknowledgement(SOCKET.GAMES.CREATE, soloGameParameters, (error: any, gameName: string) => {
             if (error) {
                 console.error(error)
                 setError(error)
@@ -77,68 +96,72 @@ export function CreateGameModal({ isOpen, close }: { isOpen: boolean, close: any
                 >
                     Create your game
                 </h2>
-                <div
-                    css={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        height: '100px'
-                    }}
-                >
-                    {/* Game Name */}
+                {isMultiplayer ?
                     <div
                         css={{
-                            flex: 1,
                             display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            height: '100px'
                         }}
                     >
-                        <TextField 
-                            css={css({
-                                width: "260px",
-                            })}
-                            autoFocus
-                            inputProps={{ maxLength: 15 }}
-                            label="Name" 
-                            value={name}
-                            variant="outlined"
-                            onChange={handleChange}
-                        />
-                    </div>
-                    
-                    {/* Max Players */}
-                    <div
-                        css={{
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexDirection: 'column',
-                        }}
-                    >
-                        <FormControl variant="outlined">
-                            <InputLabel id="max-players">
-                                Players Number
-                            </InputLabel>
-                            <Select
+                        {/* Game Name */}
+                        <div
+                            css={{
+                                flex: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexDirection: 'column',
+                            }}
+                        >
+                            <TextField 
                                 css={css({
-                                    minWidth: "260px",
+                                    width: "260px",
                                 })}
-                                labelId="max-players"
-                                name="maxPlayers"
-                                label="Players Number"
-                                value={maxPlayers}
-                                onChange={handleSelect}
-                            >
-                                <MenuItem value={2}>2</MenuItem>
-                                <MenuItem value={3}>3</MenuItem>
-                                <MenuItem value={4}>4</MenuItem>
-                                <MenuItem value={5}>5</MenuItem>
-                            </Select>
-                        </FormControl>
+                                autoFocus
+                                inputProps={{ maxLength: 15 }}
+                                label="Name" 
+                                value={name}
+                                variant="outlined"
+                                onChange={handleChangeName}
+                            />
+                        </div>
+                        
+                        {/* Max Players */}
+                        <div
+                            css={{
+                                flex: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexDirection: 'column',
+                            }}
+                        >
+                            <FormControl variant="outlined">
+                                <InputLabel id="max-players">
+                                    Players Number
+                                </InputLabel>
+                                <Select
+                                    css={css({
+                                        minWidth: "260px",
+                                    })}
+                                    labelId="max-players"
+                                    name="maxPlayers"
+                                    label="Players Number"
+                                    value={maxPlayers}
+                                    onChange={handleSelect}
+                                >
+                                    <MenuItem value={2}>2</MenuItem>
+                                    <MenuItem value={3}>3</MenuItem>
+                                    <MenuItem value={4}>4</MenuItem>
+                                    <MenuItem value={5}>5</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </div>
                     </div>
-                </div>
+                    :
+                    null
+                }
 
                 <div
                     css={{
@@ -227,11 +250,18 @@ export function CreateGameModal({ isOpen, close }: { isOpen: boolean, close: any
                     >
                         {error}
                     </p> */}
-                    <Button
-                        disabled={gameParameters.name.length < 4}
-                        title="Create" 
-                        action={createGame} 
-                    />
+                    {isMultiplayer ? 
+                        <Button
+                            disabled={gameParameters.name.length < 4}
+                            title="Create" 
+                            action={createMultiplayerGame} 
+                        />
+                        :
+                        <Button
+                            title="Play Solo" 
+                            action={createSoloGame} 
+                        />
+                    }
                 </div>
             
             </div>

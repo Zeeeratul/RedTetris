@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react'
+// import { css } from '@emotion/react'
 import {
   BrowserRouter as Router,
   Switch,
@@ -11,6 +12,7 @@ import GamesList from './pages/GamesList'
 import Game from './pages/Game'
 import './App.css'
 import { createMuiTheme, ThemeProvider } from '@material-ui/core'
+// import { Global } from '@emotion/react'
 
 function PrivateRoute({ children, path, exact }: { children: React.ReactNode, path: string, exact?: boolean }) {
   const user = useContext(UserContext)
@@ -45,7 +47,6 @@ function App() {
       fontFamily: 'Audiowide, cursive',
     },
   })
-
 
   return (
     <ThemeProvider theme={theme}>
