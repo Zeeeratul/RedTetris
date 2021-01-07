@@ -1,12 +1,14 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
+import { Fragment } from 'react'
 import styled from '@emotion/styled/macro'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import { motion, AnimatePresence } from 'framer-motion'
 import { disconnectSocket } from '../../client/middlewares/socket'
 import CloseIcon from '@material-ui/icons/Close';
+import MusicNoteIcon from '@material-ui/icons/MusicNote'
+import MusicOffIcon from '@material-ui/icons/MusicOff';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
-import { Button } from './Button'
 
 type PageContainerProps = {
     backgroundImage?: string
@@ -14,14 +16,16 @@ type PageContainerProps = {
 }
 
 export const PageContainer = styled.div({
-        minHeight: '100vh',
+        height: '100vh',
         width: '100%',
-        color: 'white',
-        background: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: 'grid',
+        gridTemplateColumns: "1fr",
+        gridTemplateRows: '70px auto 100px',
+        gridTemplateAreas: `
+            "header"
+            "main"
+            "footer"
+        `
     },
     (props: PageContainerProps) => ({
         backgroundImage: props.backgroundImage ? props.backgroundImage : '',
@@ -29,98 +33,92 @@ export const PageContainer = styled.div({
     })
 )
 
-export const Main = styled.div({
+const RoundButton = styled.button((props: any) => ({
+    background: props.theme.colors.light,
+    border: 'none',
+    outline: 'none',
+    cursor: 'pointer',
+    width: '52px',
+    height: '52px',
+    borderRadius: '50%',
     display: 'flex',
-    width: '100%',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     alignItems: 'center',
-    flexGrow: 1,
-    flexWrap: 'wrap',
-    position: 'relative'
-})
+    margin: '0px 5px',
+    '&:hover': {
+        background: props.theme.colors.lightGrey,
+        transition: '300ms ease-in-out'
+    },
+}))
 
-export const Navbar = () => {
+export const Navbar = ({ userConnected = false, userInGame = false }: { userConnected?: boolean, userInGame?: boolean }) => {
 
-    const logout = () => {
-        disconnectSocket()
-    }
+    const logout = () => disconnectSocket()
 
     return (
         <nav
             css={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '64px',
-                // background: '#303030',
+                gridArea: 'header',
                 display: 'flex',
-                justifyContent: 'flex-end',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                // borderBottom: '1px solid lightgrey'
             }}
         >
-            <div
+            <h1 
                 css={{
-                    position: 'relative'
+                    color: 'red',
+                    fontSize: '40px',
+                    marginLeft: '10px'
                 }}
             >
-                <button
-                    title="Logout"
+                Red Tetris
+            </h1>
+            {userConnected &&
+                <div    
                     css={{
-                        background: 'grey',
-                        border: 'none',
-                        outline: 'none',
-                        cursor: 'pointer',
-                        width: '52px',
-                        height: '52px',
-                        borderRadius: '50%',
-                        marginRight: '10px',
-                        marginTop: '10px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        '&:hover': {
-                            background: 'grey',
-                            transition: '300ms ease-in-out'
-                        },
-                        // '&:after': {
-                        //     backgroundColor: 'red',
-                        //     width: '100px',
-                        //     height: '100px',
-                        // }
+                        display: 'flex'
                     }}
-                    onClick={logout}
                 >
-                    <ExitToAppIcon 
-                        fontSize='large'
-                        css={{
-                            color: 'white',
-                            opacity: '1',
-                            // opacity: '0.75',
-                            // '&:hover': {
-                            //     opacity: '1',
-                            //     transition: '150ms ease-in-out'
-                            // }
-                        }}
-                    />
-                </button>
-                {/* <p
-                    css={{
-                        position: 'absolute',
-                        top: '38px',
-                        right: '10px',
-                        padding: '8px 6px',
-                        backgroundColor: 'grey',
-                        textAlign: 'center',
-                        fontSize: '14px',
-                        border: '1px solid grey',
-                        borderRadius: '6px',
-                    }}
-                >Logout</p> */}
-
-            </div>
-
+                    {userInGame &&
+                    <Fragment>
+                        <RoundButton
+                            title="Logout"
+                            onClick={logout}
+                            >
+                            <MusicNoteIcon 
+                                fontSize='large'
+                                css={(theme: any) => ({
+                                    color: theme.colors.text2,
+                                    opacity: '1',
+                                    // opacity: '0.75',
+                                    // '&:hover': {
+                                        //     opacity: '1',
+                                        //     transition: '150ms ease-in-out'
+                                        // }
+                                })}
+                            />
+                        </RoundButton>
+                    </Fragment>
+                    }
+                    <RoundButton
+                        title="Logout"
+                        onClick={logout}
+                    >
+                        <ExitToAppIcon 
+                            fontSize='large'
+                            css={(theme: any) => ({
+                                color: theme.colors.text2,
+                                opacity: '1',
+                                // opacity: '0.75',
+                                // '&:hover': {
+                                //     opacity: '1',
+                                //     transition: '150ms ease-in-out'
+                                // }
+                            })}
+                        />
+                    </RoundButton>
+                </div>
+            }
         </nav>
     )
 }
@@ -138,7 +136,6 @@ export const Footer = () => {
         >
             @cdelahay @frrobert
         </footer>
-
     )
 }
 

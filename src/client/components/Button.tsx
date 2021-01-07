@@ -2,11 +2,10 @@
 import { jsx } from '@emotion/react'
 
 export function Button({ title, action, disabled = false }: { title: string, action: any, disabled?: boolean }) {
-
     return (
         <button
             disabled={disabled}
-            css={{
+            css={(theme: any) => ({
                 fontFamily: 'Audiowide, cursive',
                 fontSize: '26px',
                 height: '60px',
@@ -16,16 +15,16 @@ export function Button({ title, action, disabled = false }: { title: string, act
                 boxShadow: `
                     3px 3px black
                 `,
-                color: 'white',
-                backgroundColor: '#303030',
-                marginTop: '20px',
+                color: theme.colors.dark,
+                backgroundColor: theme.colors.light,
+                margin: '20px 10px',
                 outline: 'none',
                 transition: '100ms ease-out',
+                cursor: 'pointer',
                 '&:hover': {
-                    backgroundColor: '#282828'
+                    backgroundColor: theme.colors.lightGrey,
                 },
                 '&:active': {
-                    backgroundColor: '#202020',
                     transition: '200ms ease-out',
                     boxShadow: 'none',
                     transform: 'translate(3px, 3px)'
@@ -33,8 +32,9 @@ export function Button({ title, action, disabled = false }: { title: string, act
                 '&:disabled': {
                     opacity: '0.5',
                     transition: '200ms ease-out',
+                    cursor: 'not-allowed'
                 }
-            }}
+            })}
             onClick={action}
         >
             {title}

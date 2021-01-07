@@ -201,7 +201,7 @@ function Grid() {
                     display: 'grid',
                     gridTemplateRows: 'repeat(20, minmax(0, 1fr))',
                     gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
-                    border: '10px solid cyan',
+                    border: '8px solid red',
                 }}
             >
                 {piece && grid.map((line: any, index: number) => (

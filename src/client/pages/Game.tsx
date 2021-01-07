@@ -1,16 +1,21 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/react'
-import { useReducer, useState, useEffect, useContext } from 'react'
+import { jsx, css } from '@emotion/react'
+import { useState, useEffect, useContext, Fragment } from 'react'
 import _ from 'lodash'
 import Grid from '../components/game/Grid'
 import LittleGridSpectrum from '../components/game/LittleGridSpectrum'
-import { Navbar, Footer, Main, PageContainer } from '../components/Template'
+import { Navbar, PageContainer } from '../components/Template'
 import { emitToEvent, subscribeToEvent } from '../middlewares/socket'
 import { useHistory } from "react-router-dom"
 import { SOCKET } from '../config/constants.json'
 import { UserContext } from '../utils/userContext'
 import { Button } from '../components/Button'
-import background from '../assets/background.jpg'
+import background from '../assets/tetris-background.jpg'
+import { Paper } from '@material-ui/core'
+import { useInterval } from '../utils/useInterval'
+import IdleGame from '../components/game/IdleGame'
+import StartedGame from '../components/game/StartedGame'
+import EndedGame from '../components/game/EndedGame'
 
 const initialState = {
     name: '',
@@ -39,14 +44,13 @@ const initialState = {
 // - score of each player
 // - restart / leave button
 
-
 function Game() {
 
     const user = useContext(UserContext)
     const history = useHistory()
     const [state, setState] = useState(initialState)
+    // const { winner, status, leaderId, players } = state
     const { winner, status, leaderId, players } = state
-
     const isLeader = user.id === leaderId
 
     useEffect(() => {
@@ -57,7 +61,6 @@ function Game() {
         subscribeToEvent(SOCKET.GAMES.GET_INFO, (error, data) => {
             if (!error) {
                 setState(data)
-                // dispatch({ type: SOCKET.GAMES.INFO, payload: data })
             }
             else console.error(error)
         })
@@ -73,107 +76,67 @@ function Game() {
         history.push('/games')
     }
 
+    const setStatusToIdle = () => {
+        setState({
+            ...state,
+            status: 'idle'
+        })
+    }
+
     return (
         <PageContainer
             backgroundImage={`url(${background})`}
             backgroundPosition="center"
         >
-            <Navbar />
-            <Main
-                // css={{
-                //     display: 'grid',
-                //     gridTemplateColumns: '1fr 2fr 1fr',
-                //     gridTemplateRows: "1fr 1fr 50px",
-                //     // gridTemplateRows: 'auto auto 50px',
-                //     // gridTemplateAreas: `
-                //     //     "little_grid_1 main_grid little_grid_2"
-                //     //     "little_grid_3 main_grid little_grid_4"
-                //     // `
-                // }}
+            <Navbar userConnected userInGame />
+            <div
+                css={{
+                    gridArea: 'main',
+                    display: 'grid',
+                    gridTemplateColumns: '28% auto 28%',
+                    gridTemplateRows: 'auto auto',
+                    gridTemplateAreas: `
+                        "little_grid_1 main_grid little_grid_2"
+                        "little_grid_3 main_grid little_grid_4"
+                    `
+                }}
             >
-                <div
-                    css={{
-                        background: 'red',
-                        height: '100px',
-                        width: '100%',
-                        flex: 1,
-                        alignSelf: 'stretch'
-                    }}
-                >
+                {status === 'idle' && 
+                    <IdleGame />
+                }
+                {status === 'started' &&
+                    <StartedGame players={players} />
+                }
+                {status === 'ended' &&
+                    <EndedGame setStatusToIdle={setStatusToIdle} />
+                }
+            </div>
 
-                </div>
- 
-                {/* <Button
-                    title="Start"
-                    action={startGame}
+            <footer
+                id="footer"
+                css={{
+                    gridArea: 'footer',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center'
+                }}
+            >
+                <Button 
+                    title="Lobby"
+                    action={leaveGame} 
                 />
-                <Button
+                {isLeader && status !== 'started' &&
+                    <Button 
+                        title={status === 'idle' ? "Start" : "Restart"}
+                        action={startGame} 
+                    />
+                }
+                {/* <Button 
                     title="Leave"
-                    action={leaveGame}
+                    action={leaveGame} 
                 /> */}
-            </Main>
-            {/* {status === 'idle' &&
-                <Main>
-                    <div>
-                        {players.map((player: any) => {
-                            return <p key={`player_${player.username}`}>{player.username}</p>
-                        })}
-                    </div>
-                    {isLeader &&
-                        <button
-                            onClick={startGame}
-                        >
-                            Start
-                        </button>
-                    }
-                    <button
-                        onClick={leaveGame}
-                    >
-                        Leave
-                    </button>
-                </Main>
-            }
-            {status === 'started' &&
-                <Main
-                    css={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 2fr 1fr',
-                        gridTemplateRows: '50% 50%',
-                        gridTemplateAreas: `
-                            "little_grid_1 main_grid little_grid_2"
-                            "little_grid_3 main_grid little_grid_4"
-                        `
-                    }}
-                >
-                    <Grid />
-
-                    {_.filter(players, (o: any) => o.id !== user.id).map((player: any, index: number) => (
-                        <LittleGridSpectrum
-                            key={`${player.id}`}
-                            spectrum={player.spectrum}
-                            position={index}
-                            playerStatus={player.status}
-                        />
-                    ))}
-                </Main>
-            }
-            {status === 'ended' &&
-                <Main>
-                    <p>{winner} wins the game</p>
-                    {isLeader &&
-                        <button
-                            onClick={startGame}
-                        >
-                            Restart
-                        </button>
-                    }
-                    <button
-                        onClick={leaveGame}
-                    >
-                        Leave
-                    </button>
-                </Main>
-            } */}
+   
+            </footer>
         </PageContainer>  
     )
 }
