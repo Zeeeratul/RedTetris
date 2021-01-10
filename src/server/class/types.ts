@@ -19,7 +19,7 @@ export interface Coords {
 
 export type gameStatusType = 'idle' | 'started' | 'ended';
 
-export type gameModeType = 'classic' | 'invisible';
+export type gameModeType = 'classic' | 'invisible' | 'marathon';
 
 export interface CallbackFunction {
     (error: string | null, data?: any): void

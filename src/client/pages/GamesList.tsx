@@ -12,7 +12,7 @@ import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core'
 import { Button } from '../components/Button'
-import { CreateGameModal } from '../components/gamesList/CreateGameModal'
+import CreateGameModal from '../components/gamesList/CreateGameModal'
 import { Navbar, PageContainer } from '../components/Template'
 import { UserContext } from '../utils/userContext'
 import background from '../assets/tetris-background.jpg'
@@ -75,15 +75,16 @@ const GamesList = () => {
                     }}
                 >
                     <Paper elevation={3}
-                        css={css({
+                        css={(theme: any) => css({
                             width: '70%',
                             minWidth: '600px',
+                            backgroundColor: `${theme.colors.dark} !important`,
                             height: '400px',
                             padding: '20px',
                             display: 'flex',
                             justifyContent: 'space-around',
                             alignItems: 'center'
-                        })}    
+                        })}   
                     >
                         <div
                             css={{

@@ -2,20 +2,19 @@
 import { jsx, css } from '@emotion/react'
 import { useState, useEffect, useContext, Fragment } from 'react'
 import _ from 'lodash'
-import Grid from '../components/game/Grid'
-import LittleGridSpectrum from '../components/game/LittleGridSpectrum'
 import { Navbar, PageContainer } from '../components/Template'
-import { emitToEvent, subscribeToEvent } from '../middlewares/socket'
+import { cancelSubscribtionToEvent, emitToEvent, subscribeToEvent } from '../middlewares/socket'
 import { useHistory } from "react-router-dom"
 import { SOCKET } from '../config/constants.json'
 import { UserContext } from '../utils/userContext'
 import { Button } from '../components/Button'
 import background from '../assets/tetris-background.jpg'
-import { Paper } from '@material-ui/core'
-import { useInterval } from '../utils/useInterval'
 import IdleGame from '../components/game/IdleGame'
-import StartedGame from '../components/game/StartedGame'
 import EndedGame from '../components/game/EndedGame'
+import Grid from '../components/game/Grid'
+import LittleGridSpectrum from '../components/game/LittleGridSpectrum'
+import styled from '@emotion/styled/macro'
+
 
 const initialState = {
     name: '',
@@ -23,39 +22,26 @@ const initialState = {
     maxPlayers: 2,
     mode: 'classic',
     speed: 1,
-    isLeader: false,
     leaderId: '',
     status: 'idle',
-    winner: ''
+    results: null
 }
 
-// game status
-// 'idle'
-// - Start / Leave Buttons
-// - List players
-// - Chat maybe
-
-// 'playing'
-// - grid
-// - littlte grid
-// - leave Button
-
-// 'ended' 
-// - score of each player
-// - restart / leave button
+const NoMarginButton = styled(Button)`
+  margin-top: 0px;
+  margin-bottom: 0px;
+`
 
 function Game() {
 
-    const user = useContext(UserContext)
+    const { id: userId } = useContext(UserContext)
     const history = useHistory()
     const [state, setState] = useState(initialState)
-    // const { winner, status, leaderId, players } = state
-    const { winner, status, leaderId, players } = state
-    const isLeader = user.id === leaderId
+    const { results, status, leaderId, players, maxPlayers, speed, mode } = state
+    const isLeader = userId === leaderId
+    const player: any = _.find(players, { 'id': userId })
 
     useEffect(() => {
-
-        // on mount get game info
         emitToEvent(SOCKET.GAMES.GET_INFO)
 
         subscribeToEvent(SOCKET.GAMES.GET_INFO, (error, data) => {
@@ -65,7 +51,10 @@ function Game() {
             else console.error(error)
         })
 
-        return () => emitToEvent(SOCKET.GAMES.LEAVE)
+        return () => {
+            cancelSubscribtionToEvent(SOCKET.GAMES.GET_INFO)
+            emitToEvent(SOCKET.GAMES.LEAVE)
+        }
     }, [])
 
     const startGame = () => {
@@ -82,6 +71,12 @@ function Game() {
             status: 'idle'
         })
     }
+
+    useEffect(() => {
+        console.log('results have changed')
+    }, [results])
+
+    console.log(results)
 
     return (
         <PageContainer
@@ -102,13 +97,24 @@ function Game() {
                 }}
             >
                 {status === 'idle' && 
-                    <IdleGame />
+                    <IdleGame players={players} isSoloGame={maxPlayers === 1} speed={speed} mode={mode} />
                 }
                 {status === 'started' &&
-                    <StartedGame players={players} />
+                    <Fragment>
+                        <Grid speed={speed} mode={mode} isKo={player.status === 'KO'} />
+
+                        {_.filter(players, (o: any) => o.id !== userId).map((player: any, index: number) => (
+                            <LittleGridSpectrum
+                                key={`${player.id}`}
+                                spectrum={player.spectrum}
+                                position={index}
+                                playerStatus={player.status}
+                            />
+                        ))}
+                    </Fragment>
                 }
                 {status === 'ended' &&
-                    <EndedGame setStatusToIdle={setStatusToIdle} />
+                    <EndedGame results={results} setStatusToIdle={setStatusToIdle} />
                 }
             </div>
 
@@ -121,20 +127,22 @@ function Game() {
                     alignItems: 'center'
                 }}
             >
-                <Button 
-                    title="Lobby"
-                    action={leaveGame} 
-                />
+                {status === 'ended' &&
+                    <NoMarginButton 
+                        title="Lobby"
+                        action={setStatusToIdle} 
+                    />
+                }
                 {isLeader && status !== 'started' &&
-                    <Button 
+                    <NoMarginButton 
                         title={status === 'idle' ? "Start" : "Restart"}
                         action={startGame} 
                     />
                 }
-                {/* <Button 
+                <NoMarginButton 
                     title="Leave"
                     action={leaveGame} 
-                /> */}
+                />
    
             </footer>
         </PageContainer>  

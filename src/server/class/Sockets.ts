@@ -23,7 +23,7 @@ class Sockets {
 
             socket.on(SOCKET.AUTH.LOGIN, (username: string, callback: CallbackFunction) => {
                 try {
-                    if (!username) 
+                    if (!username || username.length > 15) 
                         throw SOCKET.AUTH.ERROR.INVALID_USERNAME
             
                     const findUser = _.find(this.users, { username })
@@ -163,8 +163,8 @@ class Sockets {
                         throw SOCKET.GAMES.ERROR.NOT_FOUND
     
                     game.setPlayerKo(id)
-                    this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, game.info())
-
+                    const info = game.info()
+                    this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
                 }
                 catch (error) {
                     console.log('error', error)
@@ -192,19 +192,20 @@ class Sockets {
                 }
             })
             
-            socket.on(SOCKET.GAMES.LINE_PENALTY, (linesCount: number) => {
+            socket.on(SOCKET.GAMES.LINE, (linesCount: number) => {
                 if (!socket.player) 
                     return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
-                
-                const { gameName } = socket.player
+
+                const { gameName, id: playerId } = socket.player
                 const game = this.games.getGame(gameName)
-                
+                                
                 if (!game)
                     return
 
-                console.log('send linepenalty: ', linesCount)
-                
-                socket.to(gameName).emit(SOCKET.GAMES.LINE_PENALTY, null, linesCount)
+                if (linesCount > 1 && game.mode !== 'marathon')
+                    socket.to(gameName).emit(SOCKET.GAMES.LINE_PENALTY, null, linesCount - 1)
+                game.updateScore(linesCount, playerId)
+                this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, game.info())
             })
 
             socket.on(SOCKET.GAMES.GET_GAMES, (_: any, callback: CallbackFunction) => {
@@ -224,8 +225,12 @@ class Sockets {
                 if (!game)
                     return console.error('game not found cant give piece')
 
-                const piece = game.givePiece(id)
-                if (!piece) 
+                const player = game.getPlayer(id)
+                if (!player || player.status === 'KO')
+                    return console.error('no player found')
+
+                const piece = game.givePiece(player)
+                if (!piece)
                     return console.error('player not found cant give piece')
                 callback(null, piece)
             })
@@ -244,6 +249,26 @@ class Sockets {
                         const info = game.info()
                         socket.emit(SOCKET.GAMES.GET_INFO, null, info)
                     }
+                }
+                catch (error) {
+                    console.log('error', error)
+                }
+            })
+
+            socket.on(SOCKET.GAMES.MESSAGES, (messageContent: string) => {
+                try {
+                    if (!socket.player) 
+                        throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
+    
+                    const { gameName, username } = socket.player
+
+                    const message = {
+                        content: messageContent,
+                        sender: username,
+                        id: uuidv4()
+                    }  
+
+                    this.io.in(gameName).emit(SOCKET.GAMES.MESSAGES, null, message)
                 }
                 catch (error) {
                     console.log('error', error)

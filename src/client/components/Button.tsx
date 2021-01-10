@@ -1,10 +1,11 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 
-export function Button({ title, action, disabled = false }: { title: string, action: any, disabled?: boolean }) {
+export function Button({ title, action, disabled = false, className }: { title: string, action: any, disabled?: boolean, className?: string }) {
     return (
         <button
             disabled={disabled}
+            className={className}
             css={(theme: any) => ({
                 fontFamily: 'Audiowide, cursive',
                 fontSize: '26px',
@@ -15,9 +16,9 @@ export function Button({ title, action, disabled = false }: { title: string, act
                 boxShadow: `
                     3px 3px black
                 `,
-                color: theme.colors.dark,
+                color: theme.colors.text2,
                 backgroundColor: theme.colors.light,
-                margin: '20px 10px',
+                margin: '10px 20px 0px 10px',
                 outline: 'none',
                 transition: '100ms ease-out',
                 cursor: 'pointer',

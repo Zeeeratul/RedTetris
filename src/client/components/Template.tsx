@@ -1,14 +1,10 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { Fragment } from 'react'
 import styled from '@emotion/styled/macro'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import { motion, AnimatePresence } from 'framer-motion'
 import { disconnectSocket } from '../../client/middlewares/socket'
 import CloseIcon from '@material-ui/icons/Close';
-import MusicNoteIcon from '@material-ui/icons/MusicNote'
-import MusicOffIcon from '@material-ui/icons/MusicOff';
-import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 
 type PageContainerProps = {
     backgroundImage?: string
@@ -20,7 +16,7 @@ export const PageContainer = styled.div({
         width: '100%',
         display: 'grid',
         gridTemplateColumns: "1fr",
-        gridTemplateRows: '70px auto 100px',
+        gridTemplateRows: '70px auto 80px',
         gridTemplateAreas: `
             "header"
             "main"
@@ -74,50 +70,17 @@ export const Navbar = ({ userConnected = false, userInGame = false }: { userConn
                 Red Tetris
             </h1>
             {userConnected &&
-                <div    
-                    css={{
-                        display: 'flex'
-                    }}
+                <RoundButton
+                    title="Logout"
+                    onClick={logout}
                 >
-                    {userInGame &&
-                    <Fragment>
-                        <RoundButton
-                            title="Logout"
-                            onClick={logout}
-                            >
-                            <MusicNoteIcon 
-                                fontSize='large'
-                                css={(theme: any) => ({
-                                    color: theme.colors.text2,
-                                    opacity: '1',
-                                    // opacity: '0.75',
-                                    // '&:hover': {
-                                        //     opacity: '1',
-                                        //     transition: '150ms ease-in-out'
-                                        // }
-                                })}
-                            />
-                        </RoundButton>
-                    </Fragment>
-                    }
-                    <RoundButton
-                        title="Logout"
-                        onClick={logout}
-                    >
-                        <ExitToAppIcon 
-                            fontSize='large'
-                            css={(theme: any) => ({
-                                color: theme.colors.text2,
-                                opacity: '1',
-                                // opacity: '0.75',
-                                // '&:hover': {
-                                //     opacity: '1',
-                                //     transition: '150ms ease-in-out'
-                                // }
-                            })}
-                        />
-                    </RoundButton>
-                </div>
+                    <ExitToAppIcon 
+                        fontSize='large'
+                        css={(theme: any) => ({
+                            color: theme.colors.text2,
+                        })}
+                    />
+                </RoundButton>
             }
         </nav>
     )
@@ -193,7 +156,7 @@ export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: bo
                 >
                     <motion.div
                         id="modal"
-                        css={{
+                        css={(theme: any) => ({
                             margin: "0 auto",
                             padding: "20px 20px",
                             width,
@@ -201,7 +164,7 @@ export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: bo
                             backgroundColor: 'white',
                             borderRadius: '10px',
                             position: 'relative'
-                        }}
+                        })}
                         variants={modal}
                     >
                         <button

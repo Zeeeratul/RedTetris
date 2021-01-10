@@ -33,6 +33,7 @@ class Game {
     removePlayer(playerId: string) {
         const index = _.findIndex(this.players, { id: playerId })
         this.players.splice(index, 1)
+        this.updateStatus()
     }
 
     transferLeadership() {
@@ -57,27 +58,22 @@ class Game {
     }
 
 
+    // set player ko and position
+
+    // on info check winner
+
     setPlayerKo(playerId: string) {
         const player = this.getPlayer(playerId)
         if (!player)
             return
-        // if the player is solo in the game
-        if (this.players.length === 1) {
-            this.status = 'ended'
-            this.winner = player.username
-        }
-        else {
-            player.setStatus('KO')
-            const playersStillPlaying = _.filter(this.players, { status: 'playing' })
-            if (playersStillPlaying.length === 1) {
-                this.status = 'ended'
-                this.winner = playersStillPlaying[0].username
-            }
-        }
+            
+        player.status = 'KO'
+        const playersStillPlaying = _.filter(this.players, { status: 'playing' })
+        player.position = playersStillPlaying.length + 1
+        this.updateStatus()
     }
 
-    givePiece(playerId: string) {
-        const player = this.getPlayer(playerId)
+    givePiece(player: Player) {
         if (player) {
             const currentPieceIndex = player.currentPieceIndex
             player.incrementCurrentPieceIndex()
@@ -87,10 +83,45 @@ class Game {
             return null
     }
 
+    updateScore(lineCleared: number, playerId: string) {
+        const player = this.getPlayer(playerId)
+        if (player)
+            player.score = player.score + lineCleared * 10
+    }
+
     updateSpectrum(spectrumArray: number[], playerId: string) {
         const player = this.getPlayer(playerId)
         if (player)
-            player.setSpectrum(spectrumArray)
+            player.spectrum = spectrumArray
+    }
+
+    updateStatus() {
+        // When game is launched
+        if (this.status === 'started') {
+            const playersStillPlaying = _.filter(this.players, { status: 'playing' })
+            // Solo Game
+            if (this.players.length === 1) {
+                if (playersStillPlaying.length === 0) {
+                    this.status = 'ended'
+                }
+            }
+            // Multi Game
+            else if (this.players.length > 1) {
+                if (playersStillPlaying.length === 1) {
+                    this.status = 'ended'
+                }
+            }
+        }
+    }
+
+    getResults() {
+        const results = this.players.map((player: Player) => ({
+            id: player.id,
+            username: player.username,
+            position: player.position,
+            score: player.score,
+        }))
+        return results
     }
 
     info() {
@@ -98,11 +129,11 @@ class Game {
             name: this.name,
             players: this.players.map((player) => player),
             maxPlayers: this.maxPlayers,
-            // mode: this.mode,
-            // speed: this.speed,
+            mode: this.mode,
+            speed: this.speed,
             status: this.status,
             leaderId: this.leaderId,
-            winner: this.winner
+            results: this.status === 'ended' ? this.getResults() : null,
         }
     }
 

@@ -4,11 +4,16 @@ import useEventListener from '@use-it/event-listener'
 import { useInterval } from '../../utils/useInterval'
 import { useReducer, useEffect } from 'react'
 import { SOCKET } from '../../config/constants.json'
-import { emitToEvent, emitToEventWithAcknowledgement, subscribeToEvent } from '../../middlewares/socket'
+import { 
+    cancelSubscribtionToEvent,
+    emitToEvent,
+    emitToEventWithAcknowledgement,
+    subscribeToEvent
+} from '../../middlewares/socket'
 import { 
     movePiece,
-    checkPosition,
     movePieceToLowerPlace, 
+    checkPosition,
     addPieceToTheGrid, 
     rotatePiece,
     convertStructureToPositions,
@@ -93,12 +98,12 @@ const reducer = (state: any, action: any) => {
     }
 }
 
-function Grid() {
+function Grid({ speed, mode, isKo }: { speed: number, mode: string, isKo: boolean }) {
     const [state, dispatch] = useReducer(reducer, initState)
     const { piece, nextPiece, grid } = state
 
     const handleKey = (key: string) => {
-        if (!piece || !key) return
+        if (!piece || !key || isKo) return
 
         if (key === "ArrowRight") {
             const updatedPiece = movePiece(piece, 1, 0)
@@ -130,8 +135,7 @@ function Grid() {
             else {
                 const updatedGrid = addPieceToTheGrid(piece, grid)
                 const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
-                if (lineRemoved > 1)
-                    emitToEvent(SOCKET.GAMES.LINE_PENALTY, lineRemoved)
+                emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
                 emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
                     dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
                 })
@@ -142,18 +146,17 @@ function Grid() {
             const updatedPiece = movePieceToLowerPlace(piece, grid)
             const updatedGrid = addPieceToTheGrid(updatedPiece, grid)
             const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
-            if (lineRemoved > 1)
-                emitToEvent(SOCKET.GAMES.LINE_PENALTY, lineRemoved)
+            emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
             emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
                 dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
             })
         }
     }
 
-    // Every second move piece down
+    // Move piece down regularly
     useInterval(
         () => handleKey('ArrowDown'),
-        1000
+        speed * 10000
     )
 
     // Get pieces at start
@@ -170,13 +173,18 @@ function Grid() {
         subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount) => {
             dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
         })
+
+        return () => {
+            cancelSubscribtionToEvent(SOCKET.GAMES.LINE_PENALTY)
+        }
     }, [])
 
     // Check game Over
     // Send new grid spectrum
     useEffect(() => {
-        if (checkGameOver(grid))
+        if (checkGameOver(grid)) {
             emitToEvent(SOCKET.GAMES.GAME_OVER)
+        }
         
         const spectrum = getGridSpectrum(grid)
         emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
@@ -192,20 +200,24 @@ function Grid() {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'flex-start',
-            }} 
+                filter: isKo ? 'brightness(0.5)' : 'brightness(1)',
+                transition: 'filter 500ms'
+            }}
         >
             <div 
-                css={{
+                css={(theme: any) => ({
                     width: '300px',
                     height: '600px',
                     display: 'grid',
                     gridTemplateRows: 'repeat(20, minmax(0, 1fr))',
                     gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
-                    border: '8px solid red',
-                }}
+                    border: `15px solid ${theme.colors.text2}`,
+                    clipPath: `polygon(15px 0px, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0% calc(100% - 15px), 0% 100%, 0px 15px)`
+                })}
             >
                 {piece && grid.map((line: any, index: number) => (
                     <Line
+                        invisible={mode === 'invisible' ? true : false}
                         key={`line_${index}`} 
                         piecePositions={piece.positions}
                         pieceType={piece.type}

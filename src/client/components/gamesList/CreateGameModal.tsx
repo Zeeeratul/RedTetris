@@ -2,11 +2,12 @@
 import { useState, useEffect } from 'react'
 import { jsx, css } from '@emotion/react'
 import { Modal } from '../Template'
-import { MenuItem, Select, FormControl, InputLabel, TextField } from '@material-ui/core';
+import { MenuItem, Select, FormControl, InputLabel, TextField, createStyles } from '@material-ui/core';
 import { Button } from '../Button'
 import { emitToEventWithAcknowledgement } from '../../middlewares/socket';
 import { SOCKET } from '../../config/constants.json'
 import { useHistory } from "react-router-dom"
+import styled from '@emotion/styled/macro'
 
 const initialState = {
     name: '',
@@ -15,7 +16,11 @@ const initialState = {
     maxPlayers: 2
 }
 
-export function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isMultiplayer: boolean, close: any }) {
+const ButtonGreyBackground = styled(Button)`
+    background-color: ${(props: any) => props.theme.colors.lightGrey};
+`
+
+function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isMultiplayer: boolean, close: any }) {
 
     const history = useHistory()
     const [gameParameters, setGameParameters] = useState(initialState)
@@ -90,9 +95,10 @@ export function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boole
                 }}
             >
                 <h2
-                    css={{
+                    css={(theme: any) => ({
                         textAlign: 'center',
-                    }}
+                        color: theme.colors.text2
+                    })}
                 >
                     Create your game
                 </h2>
@@ -144,6 +150,7 @@ export function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boole
                                 <Select
                                     css={css({
                                         minWidth: "260px",
+                                        background: '#d8d8d'
                                     })}
                                     labelId="max-players"
                                     name="maxPlayers"
@@ -214,22 +221,22 @@ export function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boole
                     >
                         <FormControl variant="outlined">
                             <InputLabel id="speed">
-                                Gravity Speed
+                                Speed
                             </InputLabel>
                             <Select
                                 css={css({
-                                    width: "260px"
+                                    width: "260px",
                                 })}
-                                label="Gravity Speed"
+                                label="Speed"
                                 labelId="speed"
                                 name="speed"
                                 value={speed}
                                 onChange={handleSelect}
                             >
-                                <MenuItem value={0.5}>Slow</MenuItem>
-                                <MenuItem value={1}>Classic</MenuItem>
-                                <MenuItem value={1.5}>Fast</MenuItem>
-                                <MenuItem value={3}>Ultra Fast</MenuItem>
+                                <MenuItem value={2}>Slow</MenuItem>
+                                <MenuItem value={1.5}>Classic</MenuItem>
+                                <MenuItem value={1}>Fast</MenuItem>
+                                <MenuItem value={0.5}>Ultra Fast</MenuItem>
                             </Select>
                         </FormControl>
                     </div>
@@ -251,13 +258,13 @@ export function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boole
                         {error}
                     </p> */}
                     {isMultiplayer ? 
-                        <Button
+                        <ButtonGreyBackground
                             disabled={gameParameters.name.length < 4}
                             title="Create" 
                             action={createMultiplayerGame} 
                         />
                         :
-                        <Button
+                        <ButtonGreyBackground
                             title="Play Solo" 
                             action={createSoloGame} 
                         />
@@ -268,3 +275,5 @@ export function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boole
         </Modal>
     )
 }
+
+export default CreateGameModal

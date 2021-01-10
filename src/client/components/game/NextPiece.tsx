@@ -312,20 +312,20 @@ export function NextPiece({ pieceType }: { pieceType: string }) {
 
     return (
         <div
-            css={{
+            css={(theme: any) => ({
                 height: '120px',
                 width: '110px',
-                border: '10px solid cyan',
+                border: `15px solid ${theme.colors.text2}`,
                 borderLeft: 'none',
-                background: 'cyan',
+                background: theme.colors.text2,
                 display: 'flex',
                 flexDirection: 'column',
-                clipPath: "polygon(0% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 0% 100%)"
-            }}
-            >
-                <p css={{ margin: 0, background: 'cyan', color: 'black', textAlign: 'center', width: '100%', alignSelf: 'flex-start' }}>Next</p>
+                clipPath: "polygon(0% 0%, calc(100% - 15px) 0%, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%)"
+            })}
+        >
+                <p css={(theme : any) => ({ margin: 0, background: theme.colors.text2, color: 'black', textAlign: 'center', width: '100%', alignSelf: 'flex-start' })}>Next</p>
                 <div
-                    css={{
+                    css={(theme: any) => ({
                         width: '100%',
                         height: '100%',
                         backgroundColor: 'black',
@@ -333,7 +333,7 @@ export function NextPiece({ pieceType }: { pieceType: string }) {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                    }}
+                    })}
                 >
                     <div
                         css={{

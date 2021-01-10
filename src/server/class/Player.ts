@@ -3,6 +3,7 @@ class Player {
     id: string;
     currentPieceIndex: number = 0;
     score: number = 0;
+    position: number = 1;
     status: string = 'playing';
     spectrum: number[] = []
 
@@ -15,21 +16,14 @@ class Player {
         this.currentPieceIndex = this.currentPieceIndex + 1
     }
 
-    incrementScore() {
-        this.score = this.score + 10
-    }
-
     setStatus(status: string) {
         this.status = status
-    }
-
-    setSpectrum(spectrum: number[]) {
-        this.spectrum = spectrum
     }
 
     reset() {
         this.spectrum = []
         this.score = 0
+        this.position = 1
         this.status = 'playing'
         this.currentPieceIndex = 0
     }

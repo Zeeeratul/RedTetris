@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
 import { ErrorBoundary } from 'react-error-boundary'
 import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
@@ -11,21 +11,59 @@ import { makeStyles, Paper } from '@material-ui/core'
 import { useTheme } from '@material-ui/core/styles'
 
 
-// function ErrorFallback({error, resetErrorBoundary}: any) {
-//     return (
-//         <div role="alert">
-//             <p>Oups... Something went wrong:</p>
-//             <pre style={{color: 'red'}}>{error?.message}</pre>
-//             <button onClick={resetErrorBoundary}>Try again</button>
-//         </div>
-//     )
+// import { motion, AnimatePresence } from 'framer-motion'
+
+
+// const variants = {
+//     hidden: { 
+//         opacity: 0,
+//         x: "-100px"
+
+//     },
+//     visible: {
+//         x: "50vw",
+//         opacity: 1,
+//         delay: 2
+//     },
+//     exit: {
+//         opacity: 0,
+//         x: "100vw" 
+//     }
 // }
 
-// function LandingWrapper({ setUser }: any) {
+// function Combo({ toggle, setToggle }: { toggle: boolean, setToggle: any }) {
+
+//     useEffect(() => {
+//         const timeout = setTimeout(() => {
+//             setToggle(false)
+//         }, 2000)
+        
+//         return () => {
+//             clearTimeout(timeout)
+//         }
+//     }, [toggle, setToggle])
+
 //     return (
-//         <ErrorBoundary FallbackComponent={ErrorFallback}>
-//             <Landing setUser={setUser} />
-//         </ErrorBoundary>
+//         <AnimatePresence exitBeforeEnter>
+//         {toggle &&
+//             <motion.div
+//                 css={{
+//                     position: 'absolute',
+//                     top: '200px',
+//                     // left: '-200px',
+//                     background: 'white'
+//                 }}
+//                 initial="hidden"
+//                 animate="visible"
+//                 exit="exit"
+//                 variants={variants}
+//             >
+//                 <p>
+//                     Combo!
+//                 </p>
+//             </motion.div>
+//         }
+//         </AnimatePresence>
 //     )
 // }
 
@@ -37,6 +75,8 @@ function Landing({ setUser }: any) {
     useEffect(() => {
         initiateSocket()
     }, [])
+    
+    const [toggle, setToggle] = useState(false)
 
     const handleSubmit = (ev: any) => {
         ev.preventDefault()
@@ -59,7 +99,11 @@ function Landing({ setUser }: any) {
     if (error === 'socket_not_connected')
         throw new Error(error)
 
+
     return (
+        <Fragment>
+        {/* <Combo toggle={toggle} setToggle={setToggle} /> */}
+
         <PageContainer
             backgroundImage={`url(${background})`}
             backgroundPosition="center"
@@ -75,7 +119,8 @@ function Landing({ setUser }: any) {
             >
                 <Paper 
                     elevation={3}
-                    css={css({
+                    css={(theme: any) => css({
+                        backgroundColor: `${theme.colors.dark} !important`,
                         width: '600px',
                         display: 'flex',
                         flexDirection: 'column',
@@ -83,6 +128,8 @@ function Landing({ setUser }: any) {
                         alignItems: 'center',
                         padding: '60px 10px',
                     })}   
+
+                    onClick={() => setToggle(!toggle)}
                 >   
                     <form
                         onSubmit={handleSubmit}
@@ -156,6 +203,8 @@ function Landing({ setUser }: any) {
                 </Paper>
             </div>
         </PageContainer>
+        </Fragment>
+
     )
 }
 

@@ -48,27 +48,20 @@ function App() {
     palette: {
       primary: {
         main: '#ff0000'
-      },
-      // secondary: {
-      //   main: '#151515'
-      // },
-      background: {
-        paper: '#151515',
-        default: '#ffff00'
       }
-    },
+    }
   })
 
   const themeEmotion = {
     colors: {
       primary: '#ff0000',
       text1: 'white',
-      text2: 'red',
+      text2: '#ff0000',
       light: 'white',
       dark: '#151515',
       lightGrey: '#d8d8d8',
       darkGrey: '#202020',
-      error: 'red'
+      error: 'ff0000'
     }
   }
 

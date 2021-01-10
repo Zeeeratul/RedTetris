@@ -237,11 +237,12 @@
             "GET_PIECE": "get_piece",
             "SET_PIECE": "set_piece",
             "SET_NEXT_PIECE": "set_next_piece",
+            "LINE": "line",
             "LINE_PENALTY": "line_penalty",
-            "SEND_LINE_PENALTY": "send_line_penalty",
             "SPECTRUM": "spectrum",
             "GET_SPECTRUM": "get_spectrum",
             "SEND_SPECTRUM": "send_spectrum",
+            "MESSAGES": "messages",
             "ERROR": {
                 "INVALID_NAME": "invalid_game_name",
                 "NAME_TAKEN": "game_name_taken",

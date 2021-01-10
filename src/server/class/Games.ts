@@ -73,6 +73,7 @@ class Games {
     }
 
     getGamesList() {
+        console.log(this.games)
         return _.filter(this.games, (game) => {
             if ((game.status === 'idle' || game.status === 'ended') && game.maxPlayers > 1)
                 return true

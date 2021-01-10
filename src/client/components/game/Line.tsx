@@ -125,18 +125,31 @@ function Cell({ value }: { value: string }) {
     )
 }
 
-function Line({ piecePositions, pieceType, cells, yCoord }: any) {
-    return (
-        <React.Fragment>
-            {cells.map((cell: any, index: number) => {
-                const pieceHere = piecePositions.some((item: any) => _.isEqual(item, { x: index, y: yCoord }))
-                return <Cell
-                    key={`cell_${index}`}
-                    value={pieceHere ? pieceType : cell}
-                />
-            })}
-        </React.Fragment>
-    )
+function Line({ piecePositions, pieceType, cells, yCoord, invisible }: any) {
+
+    if (invisible)
+        return (
+            <React.Fragment>
+                {cells.map((cell: any, index: number) => {
+                    return <Cell
+                        key={`cell_${index}`}
+                        value={cell}
+                    />
+                })}
+            </React.Fragment>
+        )
+    else 
+        return (
+            <React.Fragment>
+                {cells.map((cell: any, index: number) => {
+                    const pieceHere = piecePositions.some((item: any) => _.isEqual(item, { x: index, y: yCoord }))
+                    return <Cell
+                        key={`cell_${index}`}
+                        value={pieceHere ? pieceType : cell}
+                    />
+                })}
+            </React.Fragment>
+        )
 }
 
 export {
