@@ -1,7 +1,7 @@
 import _, { random } from 'lodash'
 import { Game } from './Game'
 import { Player } from './Player'
-import { SOCKET } from '../../client/config/constants.json'
+import { SOCKET } from '../constants.json'
 import { User, GameParameters } from './types'
 
 class Games {

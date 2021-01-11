@@ -18,8 +18,8 @@ class Server {
     }
 
     listen() {
-        this.app.use(express.static(path.join(__dirname, '../../build')))
-        this.app.get('/*', (_: any, res: any) => res.sendFile(path.join(__dirname, '../../build', 'index.html')))
+        this.app.use(express.static(path.join(__dirname, '../client/')))
+        this.app.get('/*', (_: any, res: any) => res.sendFile(path.join(__dirname, '../client/', 'index.html')))
         this.http.listen(port, () => console.log(`Our app is running on http://localhost:${ port }`))
     }
 }

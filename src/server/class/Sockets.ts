@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import http from 'http'
 import { Games } from './Games'
-import { SOCKET } from '../../client/config/constants.json'
+import { SOCKET } from '../constants.json'
 import { User, GameParameters, CallbackFunction } from './types'
 import { Server } from 'socket.io'
 import { v4 as uuidv4 } from 'uuid'

@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { piecesArray } from '../../client/config/constants.json'
+import { piecesArray } from '../constants.json'
 import { Coords } from './types'
 
 class Piece {
