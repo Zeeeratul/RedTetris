@@ -24,7 +24,6 @@ const initialState = {
     speed: 1,
     leaderId: '',
     status: 'idle',
-    results: null
 }
 
 const NoMarginButton = styled(Button)`
@@ -37,7 +36,8 @@ function Game() {
     const { id: userId } = useContext(UserContext)
     const history = useHistory()
     const [state, setState] = useState(initialState)
-    const { results, status, leaderId, players, maxPlayers, speed, mode } = state
+    const [results, setResults] = useState(null)
+    const { status, leaderId, players, maxPlayers, speed, mode } = state
     const isLeader = userId === leaderId
     const player: any = _.find(players, { 'id': userId })
 
@@ -47,6 +47,13 @@ function Game() {
         subscribeToEvent(SOCKET.GAMES.GET_INFO, (error, data) => {
             if (!error) {
                 setState(data)
+            }
+            else console.error(error)
+        })
+
+        subscribeToEvent(SOCKET.GAMES.RESULTS, (error, results) => {
+            if (!error) {
+                setResults(results)
             }
             else console.error(error)
         })
@@ -65,17 +72,20 @@ function Game() {
         history.push('/games')
     }
 
-    const setStatusToIdle = () => {
-        setState({
-            ...state,
-            status: 'idle'
-        })
-    }
+    const resetResults = () => setResults(null)
 
-    useEffect(() => {
-        console.log('results have changed')
-    }, [results])
+    // useEffect(() => {
+    //     console.log('results have changed')
+    // }, [results])
 
+    // const  = () => {
+    //     setState({
+    //         ...state,
+    //         results: null
+    //     })
+    // }
+
+    console.log(state)
     console.log(results)
 
     return (
@@ -96,8 +106,11 @@ function Game() {
                     `
                 }}
             >
-                {status === 'idle' && 
+                {status === 'idle' && !results &&
                     <IdleGame players={players} isSoloGame={maxPlayers === 1} speed={speed} mode={mode} />
+                }
+                {status === 'idle' && results &&
+                    <EndedGame results={results} resetResults={resetResults} />
                 }
                 {status === 'started' &&
                     <Fragment>
@@ -105,7 +118,7 @@ function Game() {
 
                         {_.filter(players, (o: any) => o.id !== userId).map((player: any, index: number) => (
                             <LittleGridSpectrum
-                                key={`${player.id}`}
+                                key={`little_grid_${player.id}`}
                                 spectrum={player.spectrum}
                                 position={index}
                                 playerStatus={player.status}
@@ -113,9 +126,9 @@ function Game() {
                         ))}
                     </Fragment>
                 }
-                {status === 'ended' &&
-                    <EndedGame results={results} setStatusToIdle={setStatusToIdle} />
-                }
+                {/* {status === 'idle' && results &&
+                    <EndedGame results={results} resetResults={setResults(null)} />
+                } */}
             </div>
 
             <footer
@@ -127,10 +140,10 @@ function Game() {
                     alignItems: 'center'
                 }}
             >
-                {status === 'ended' &&
+                {status === 'idle' && results &&
                     <NoMarginButton 
                         title="Lobby"
-                        action={setStatusToIdle} 
+                        action={resetResults} 
                     />
                 }
                 {isLeader && status !== 'started' &&

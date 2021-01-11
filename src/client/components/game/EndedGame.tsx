@@ -12,15 +12,15 @@ const positionLeaderboardColors: { [index: number] : string } = {
     5: '#d8d8d8',
 }
 
-function EndedGame({ setStatusToIdle, results }: any) {
+function EndedGame({ resetResults, results }: any) {
     
     // Redirect to lobby after 10 seconds
     useEffect(() => {
         const timeoutRef = setTimeout(() => {
-            setStatusToIdle()
+            resetResults()
         }, 10000)
         return () => clearTimeout(timeoutRef)
-    }, [setStatusToIdle])
+    }, [resetResults])
 
     return (
         <div

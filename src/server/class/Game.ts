@@ -16,7 +16,6 @@ class Game {
     mode: gameModeType = 'classic';
     maxPlayers: number = 2;
     speed: number = 1;
-    winner: string = '';
 
     constructor(gameParameters: GameParameters, player: Player) {
         this.name = gameParameters.name
@@ -62,16 +61,7 @@ class Game {
 
     // on info check winner
 
-    setPlayerKo(playerId: string) {
-        const player = this.getPlayer(playerId)
-        if (!player)
-            return
-            
-        player.status = 'KO'
-        const playersStillPlaying = _.filter(this.players, { status: 'playing' })
-        player.position = playersStillPlaying.length + 1
-        this.updateStatus()
-    }
+
 
     givePiece(player: Player) {
         if (player) {
@@ -114,6 +104,39 @@ class Game {
         }
     }
 
+    setPlayerKo(playerId: string) {
+        const player = this.getPlayer(playerId)
+        if (!player)
+            return
+            
+        player.status = 'KO'
+        const playersStillPlaying = _.filter(this.players, { status: 'playing' })
+        player.position = playersStillPlaying.length + 1
+        // this.updateStatus()
+    }
+
+    // 
+    checkGameOver() {
+        if (this.status === 'started') {
+            const playersStillPlaying = _.filter(this.players, { status: 'playing' })
+            // Solo Game
+            if (this.players.length === 1) {
+                if (playersStillPlaying.length === 0) {
+                    return true
+                    // this.status = 'ended'
+                }
+            }
+            // Multi Game
+            else if (this.players.length > 1) {
+                if (playersStillPlaying.length === 1) {
+                    return true
+                    // this.status = 'ended'
+                }
+            }
+        }
+        return false
+    }
+
     getResults() {
         const results = this.players.map((player: Player) => ({
             id: player.id,
@@ -133,13 +156,12 @@ class Game {
             speed: this.speed,
             status: this.status,
             leaderId: this.leaderId,
-            results: this.status === 'ended' ? this.getResults() : null,
         }
     }
 
     reset() {
         this.pieces = Piece.generatingPiecesPool()
-        this.winner = ''
+        this.status = 'idle'
         this.players.forEach((player) => player.reset())
     }
 }

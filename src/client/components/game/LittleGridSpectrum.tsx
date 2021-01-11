@@ -17,27 +17,27 @@ function LittleGridSpectrum({ position, spectrum, playerStatus }: any) {
 
     return (
         <div
-            css={{
+            css={(theme: any) => ({
                 gridArea: `little_grid_${position + 1}`,
                 justifySelf: "stretch",
                 alignSelf: "normal",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center"
-            }}
+            })}
         >
             <div
-                css={{
+                css={(theme: any) => ({
                     width: '150px',
                     height: '300px',
-                    border: '1px solid cyan',
+                    border: `1px solid ${theme.colors.text2}`,
                     overflow: 'hidden',
                     borderRadius: '4px',
                     display: 'grid',
                     gridTemplateRows: 'repeat(20, minmax(0, 1fr))',
                     gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
                     opacity: playerStatus === "KO" ? '0.5' : 1
-                }}
+                })}
             >
                 {playerStatus === 'KO' &&
                     <div

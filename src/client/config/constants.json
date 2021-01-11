@@ -242,6 +242,7 @@
             "SPECTRUM": "spectrum",
             "GET_SPECTRUM": "get_spectrum",
             "SEND_SPECTRUM": "send_spectrum",
+            "RESULTS": "results",
             "MESSAGES": "messages",
             "ERROR": {
                 "INVALID_NAME": "invalid_game_name",

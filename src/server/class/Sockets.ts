@@ -141,7 +141,6 @@ class Sockets {
                     const { gameName } = socket.player
                     const game = this.games.startGame(gameName, socket.player)
     
-                    game.reset()
                     const info = game.info()
                     this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
                 }
@@ -163,6 +162,12 @@ class Sockets {
                         throw SOCKET.GAMES.ERROR.NOT_FOUND
     
                     game.setPlayerKo(id)
+
+                    if (game.checkGameOver()) {
+                        const results = game.getResults()
+                        this.io.in(gameName).emit(SOCKET.GAMES.RESULTS, null, results)
+                        game.reset()
+                    }
                     const info = game.info()
                     this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
                 }
