@@ -147,7 +147,6 @@ export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: bo
                         height: '100%',
                         background: 'rgba(0, 0, 0, 0.5)',
                         zIndex: 1,
-
                     }}
                     variants={backdrop}
                     initial="hidden"
@@ -163,7 +162,10 @@ export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: bo
                             color: 'white',
                             backgroundColor: 'white',
                             borderRadius: '10px',
-                            position: 'relative'
+                            position: 'relative',
+                            '@media (max-width: 800px)': {
+                                width: '90%'
+                            }
                         })}
                         variants={modal}
                     >
@@ -183,7 +185,7 @@ export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: bo
                                 alignItems: 'center',
                                 cursor: 'pointer',
                                 background: 'transparent',
-                                color: 'white',
+                                color: 'black',
                                 '&:hover': {
                                     background: '#D3D3D3',
                                     transition: '300ms ease-in-out'

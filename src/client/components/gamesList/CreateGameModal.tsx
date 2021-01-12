@@ -107,7 +107,8 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                         css={{
                             display: 'flex',
                             justifyContent: 'space-between',
-                            height: '100px'
+                            flexWrap: 'wrap',
+                            minHeight: '100px'
                         }}
                     >
                         {/* Game Name */}
@@ -117,7 +118,7 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                flexDirection: 'column',
+                                margin: '10px 0px'
                             }}
                         >
                             <TextField 
@@ -140,7 +141,8 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                flexDirection: 'column',
+                                margin: '10px 0px',
+                                flexWrap: 'wrap',
                             }}
                         >
                             <FormControl variant="outlined">
@@ -175,7 +177,8 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        height: '100px'
+                        flexWrap: 'wrap',
+                        minHeight: '100px'
                     }}
                 >
                     {/* Mode */}
@@ -185,7 +188,7 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            flexDirection: 'column',
+                            margin: '10px 0px'
                         }}
                     >
                         <FormControl variant="outlined">
@@ -216,7 +219,7 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            flexDirection: 'column',
+                            margin: '10px 0px'
                         }}
                     >
                         <FormControl variant="outlined">
