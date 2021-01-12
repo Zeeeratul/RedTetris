@@ -18,7 +18,7 @@ export interface Coords {
 }
 
 export type gameStatusType = 'idle' | 'started' | 'ended';
-
+export type gameSpeedType = 0.5 | 1 | 1.5 | 2;
 export type gameModeType = 'classic' | 'invisible' | 'marathon';
 
 export interface CallbackFunction {

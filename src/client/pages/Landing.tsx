@@ -8,6 +8,11 @@ import background from '../assets/tetris-background.jpg'
 import { PageContainer, Navbar } from '../components/Template'
 import { Paper } from '@material-ui/core'
 
+const errorMessages: { [index: string] : string } = {
+    [SOCKET.AUTH.ERROR.INVALID_USERNAME]: "Invalid username",
+    [SOCKET.AUTH.ERROR.USERNAME_TAKEN]: "Username is taken",
+}
+
 function Landing({ setUser }: any) {
     const history = useHistory()
     const [error, setError] = useState('')
@@ -31,7 +36,6 @@ function Landing({ setUser }: any) {
                     history.push('/games')
                 }
             })
-
         }
     }
 
@@ -131,7 +135,7 @@ function Landing({ setUser }: any) {
                                     fontSize: '22px'
                                 }}
                             >
-                                {error}
+                                {errorMessages[error]}
                             </p>
                         }
                     </form>

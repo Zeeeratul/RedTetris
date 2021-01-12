@@ -15,18 +15,33 @@ import CreateGameModal from '../components/gamesList/CreateGameModal'
 import { Navbar, PageContainer } from '../components/Template'
 import background from '../assets/tetris-background.jpg'
 
+const errorMessages: { [index: string] : string } = {
+    [SOCKET.GAMES.ERROR.NOT_FOUND]: "Sorry this is game doesn't exist",
+    [SOCKET.GAMES.ERROR.STARTED]: "Sorry this game has already started",
+    [SOCKET.GAMES.ERROR.FULL]: "Sorry this game is full",
+}
+
 const GamesList = () => {
 
     const [showModal, setShowModal] = useState(false)
     const [isMultiplayer, setIsMultiplayer] = useState(true)
-    const history = useHistory()
+    const [joinError, setJoinError] = useState('')
     const [games, setGames] = useState([])
+    const history = useHistory()
+
+    const getGames = () => {
+        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_GAMES, {}, (error, games) => {
+            if (!error && games) 
+                setGames(games)
+        })
+    }
 
     const joinGame = (gameNameJoin: string) => {
         if (!gameNameJoin) return 
         emitToEventWithAcknowledgement(SOCKET.GAMES.JOIN, gameNameJoin, (error: any, gameName: string) => {
             if (error) {
-                console.error(error)
+                setJoinError(error)
+                getGames()
             }
             else {
                 history.replace(`/game/${gameName}`)
@@ -35,23 +50,18 @@ const GamesList = () => {
     }
 
     useEffect(() => {
-        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_GAMES, {}, (error, games) => {
-            if (error) {
-                console.log(error)
-            }
-            else
-                setGames(games)
-        })
+        getGames()
+        const timeoutId = setTimeout(() => {
+            setJoinError('')
+        }, 5000)
+        
+        return () => clearTimeout(timeoutId)
+    }, [joinError])
 
+    useEffect(() => {
         const intervalId = setInterval(() => {
-            emitToEventWithAcknowledgement(SOCKET.GAMES.GET_GAMES, {}, (error, games) => {
-                if (error) {
-                    console.log(error)
-                }
-                else
-                    setGames(games)
-            })
-        }, 3000)
+            getGames()
+        }, 5000)
         
         return () => clearInterval(intervalId)
     }, [])
@@ -99,6 +109,7 @@ const GamesList = () => {
                         <div
                             css={{
                                 display: 'flex',
+                                minHeight: '250px',
                                 height: '80%',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
@@ -117,6 +128,16 @@ const GamesList = () => {
                                 >
                                 Join game
                             </h1>
+                            {joinError && 
+                                <p
+                                    css={{
+                                        color: 'red',
+                                        fontSize: '22px'
+                                    }}
+                                >
+                                    {errorMessages[joinError]}
+                                </p>
+                            }
                             <div
                                 css={{
                                     maxHeight: '400px !important',
@@ -178,6 +199,7 @@ const GamesList = () => {
                             css={{
                                 display: 'flex',
                                 height: '80%',
+                                minHeight: '250px',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',

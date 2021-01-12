@@ -42,13 +42,21 @@ export const emitToEvent = (eventName: string, data?: any) => {
     }
 }
 
+
 export const emitToEventWithAcknowledgement = (
         eventName: string,
         data: any,
         cb: CallbackFunction,
     ) => {
+
+    const WrapCallback = (error: string | null, data: any) => {
+        if (error === SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
+            return disconnectSocket()
+        return cb(error, data)
+    }
+    
     if (socket)
-        socket.emit(eventName, data, cb)
+        socket.emit(eventName, data, WrapCallback)
     else {
         disconnectSocket()
     }

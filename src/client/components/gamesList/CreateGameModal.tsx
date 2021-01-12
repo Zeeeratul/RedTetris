@@ -7,9 +7,10 @@ import { Button } from '../Button'
 import { emitToEventWithAcknowledgement } from '../../middlewares/socket';
 import { SOCKET } from '../../config/constants.json'
 import { useHistory } from "react-router-dom"
+import { motion } from 'framer-motion'
 import styled from '@emotion/styled/macro'
 
-const initialState = {
+const defaultGameParameters = {
     name: '',
     mode: 'classic',
     speed: 1,
@@ -19,22 +20,28 @@ const initialState = {
 const ButtonGreyBackground = styled(Button)`
     background-color: ${(props: any) => props.theme.colors.lightGrey};
 `
+const errorMessages: { [index: string] : string } = {
+    [SOCKET.GAMES.ERROR.NAME_TAKEN]: "Game name is taken",
+    [SOCKET.GAMES.ERROR.INVALID_NAME]: "Game name is invalid",
+}
+
 
 function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isMultiplayer: boolean, close: any }) {
 
     const history = useHistory()
-    const [gameParameters, setGameParameters] = useState(initialState)
+    const [gameParameters, setGameParameters] = useState(defaultGameParameters)
     const [error, setError] = useState('')
     const { mode, speed, maxPlayers, name } = gameParameters
 
     useEffect(() => {
         setError('')
-        setGameParameters(initialState)
+        setGameParameters(defaultGameParameters)
     }, [isOpen, isMultiplayer])
 
     const handleChangeName = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const name = ev.target.value.replace(' ', '')
         setGameParameters({ ...gameParameters, name })
+        setError('')
     }
 
     const handleSelect = (ev: React.ChangeEvent<{
@@ -118,6 +125,7 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
+                                flexDirection: 'column',
                                 margin: '10px 0px'
                             }}
                         >
@@ -132,6 +140,18 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                                 variant="outlined"
                                 onChange={handleChangeName}
                             />
+                            {error &&
+                                <motion.p
+                                    animate={{ scale: 2 }}
+                                    transition={{ duration: 0.5 }}
+                                    css={{
+                                        color: 'red',
+                                        fontSize: '10px',
+                                    }}
+                                >
+                                    {errorMessages[error]}
+                                </motion.p>
+                            }
                         </div>
                         
                         {/* Max Players */}
@@ -143,6 +163,7 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                                 justifyContent: 'center',
                                 margin: '10px 0px',
                                 flexWrap: 'wrap',
+                                alignSelf: error ? 'flex-start' : 'inherit'
                             }}
                         >
                             <FormControl variant="outlined">
@@ -252,14 +273,6 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                         justifyContent: 'flex-end',
                     }}
                 >
-                    {/* <p
-                        css={{
-                            color: 'red',
-                            // fontSize: '22px'
-                        }}
-                    >
-                        {error}
-                    </p> */}
                     {isMultiplayer ? 
                         <ButtonGreyBackground
                             disabled={gameParameters.name.length < 4}
@@ -273,7 +286,6 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
                         />
                     }
                 </div>
-            
             </div>
         </Modal>
     )
