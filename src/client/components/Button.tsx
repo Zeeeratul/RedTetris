@@ -18,7 +18,7 @@ export function Button({ title, action, disabled = false, className }: { title: 
                 `,
                 color: theme.colors.text2,
                 backgroundColor: theme.colors.light,
-                margin: '10px 20px 0px 10px',
+                margin: '10px 10px 0px 10px',
                 outline: 'none',
                 transition: '100ms ease-out',
                 cursor: 'pointer',

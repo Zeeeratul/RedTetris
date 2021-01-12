@@ -8,7 +8,7 @@ class Games {
     games: Game[] = [];
 
     createGame(gameParameters: GameParameters, playerData: User) {
-        if (!gameParameters.name || gameParameters.name.length > 15)
+        if (!gameParameters.isSolo && (!gameParameters.name || gameParameters.name.length > 15 || gameParameters.name.length < 4))
             throw SOCKET.GAMES.ERROR.INVALID_NAME
 
         const checkGame = this.getGame(gameParameters.name)
@@ -73,7 +73,6 @@ class Games {
     }
 
     getGamesList() {
-        console.log(this.games)
         return _.filter(this.games, (game) => {
             if ((game.status === 'idle' || game.status === 'ended') && game.players.length < game.maxPlayers)
                 return true

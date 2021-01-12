@@ -75,6 +75,8 @@ class Game {
         if (player) {
             const currentPieceIndex = player.currentPieceIndex
             player.incrementCurrentPieceIndex()
+            console.log(this.pieces.length)
+            console.log(player.currentPieceIndex)
             return this.pieces[currentPieceIndex]
         }
         else 

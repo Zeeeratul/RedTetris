@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { jsx, css } from '@emotion/react'
 import { Modal } from '../Template'
-import { MenuItem, Select, FormControl, InputLabel, TextField, createStyles } from '@material-ui/core';
+import { MenuItem, Select, FormControl, InputLabel, TextField } from '@material-ui/core';
 import { Button } from '../Button'
 import { emitToEventWithAcknowledgement } from '../../middlewares/socket';
 import { SOCKET } from '../../config/constants.json'
@@ -24,7 +24,6 @@ const errorMessages: { [index: string] : string } = {
     [SOCKET.GAMES.ERROR.NAME_TAKEN]: "Game name is taken",
     [SOCKET.GAMES.ERROR.INVALID_NAME]: "Game name is invalid",
 }
-
 
 function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isMultiplayer: boolean, close: any }) {
 
@@ -74,7 +73,6 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
             ...gameParameters,
             isSolo: true
         }
-        // setError('')
         emitToEventWithAcknowledgement(SOCKET.GAMES.CREATE, soloGameParameters, (error: any, gameName: string) => {
             if (error) {
                 console.error(error)

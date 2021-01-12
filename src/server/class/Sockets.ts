@@ -75,11 +75,12 @@ class Sockets {
 
                     let gameName : string
                     if (gameParameters.isSolo) {
-                        gameName = this.games.createGame({
+                        const soloGameParameters = {
                             ...gameParameters,
                             maxPlayers: 1,
                             name: uuidv4()
-                        }, socket.player)
+                        }
+                        gameName = this.games.createGame(soloGameParameters, socket.player)
                     }
                     else
                         gameName = this.games.createGame(gameParameters, socket.player)

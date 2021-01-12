@@ -5,13 +5,13 @@ import {
   Route,
   Redirect
 } from "react-router-dom"
+import { createMuiTheme, ThemeProvider as ThemeProviderMaterialUI } from '@material-ui/core'
+import { ThemeProvider as ThemeProviderEmotion } from '@emotion/react'
 import { UserContext } from './utils/userContext'
 import Landing from './pages/Landing'
 import GamesList from './pages/GamesList'
 import Game from './pages/Game'
 import './App.css'
-import { createMuiTheme, ThemeProvider as ThemeProviderMaterialUI } from '@material-ui/core'
-import { ThemeProvider as ThemeProviderEmotion } from '@emotion/react'
 
 function PrivateRoute({ children, path, exact }: { children: React.ReactNode, path: string, exact?: boolean }) {
   const user = useContext(UserContext)

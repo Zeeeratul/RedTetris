@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
 import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { SOCKET } from '../config/constants.json'
-import background from '../assets/tetris-background.jpg'
 import { PageContainer, Navbar } from '../components/Template'
 import { Paper } from '@material-ui/core'
+import background from '../assets/tetris-background.jpg'
 
 const errorMessages: { [index: string] : string } = {
     [SOCKET.AUTH.ERROR.INVALID_USERNAME]: "Invalid username",
@@ -119,10 +119,6 @@ function Landing({ setUser }: any) {
                                         fontSize: '18px',
                                         width: '250px'
                                     },
-                                    '&:focus': {
-                                        // color: 'blue',
-                                        // borderBottom: '2px solid grey',
-                                    }
                                 })}
                             />
                         </div>

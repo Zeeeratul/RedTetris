@@ -13,6 +13,7 @@ import Paper from '@material-ui/core/Paper'
 import { Button } from '../components/Button'
 import CreateGameModal from '../components/gamesList/CreateGameModal'
 import { Navbar, PageContainer } from '../components/Template'
+import { useInterval } from '../utils/useInterval'
 import background from '../assets/tetris-background.jpg'
 
 const errorMessages: { [index: string] : string } = {
@@ -38,7 +39,7 @@ const GamesList = () => {
 
     const joinGame = (gameNameJoin: string) => {
         if (!gameNameJoin) return 
-        emitToEventWithAcknowledgement(SOCKET.GAMES.JOIN, gameNameJoin, (error: any, gameName: string) => {
+        emitToEventWithAcknowledgement(SOCKET.GAMES.JOIN, gameNameJoin, (error: string | null, gameName: string) => {
             if (error) {
                 setJoinError(error)
                 getGames()
@@ -58,13 +59,7 @@ const GamesList = () => {
         return () => clearTimeout(timeoutId)
     }, [joinError])
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            getGames()
-        }, 5000)
-        
-        return () => clearInterval(intervalId)
-    }, [])
+    useInterval(() => getGames(), 5000)
 
     return (
         <Fragment>
