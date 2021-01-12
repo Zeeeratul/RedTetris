@@ -1,73 +1,12 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
-import { Fragment, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
-import { ErrorBoundary } from 'react-error-boundary'
 import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { SOCKET } from '../config/constants.json'
 import background from '../assets/tetris-background.jpg'
 import { PageContainer, Navbar } from '../components/Template'
-import { makeStyles, Paper } from '@material-ui/core'
-import { useTheme } from '@material-ui/core/styles'
-
-
-// import { motion, AnimatePresence } from 'framer-motion'
-
-
-// const variants = {
-//     hidden: { 
-//         opacity: 0,
-//         x: "-100px"
-
-//     },
-//     visible: {
-//         x: "50vw",
-//         opacity: 1,
-//         delay: 2
-//     },
-//     exit: {
-//         opacity: 0,
-//         x: "100vw" 
-//     }
-// }
-
-// function Combo({ toggle, setToggle }: { toggle: boolean, setToggle: any }) {
-
-//     useEffect(() => {
-//         const timeout = setTimeout(() => {
-//             setToggle(false)
-//         }, 2000)
-        
-//         return () => {
-//             clearTimeout(timeout)
-//         }
-//     }, [toggle, setToggle])
-
-//     return (
-//         <AnimatePresence exitBeforeEnter>
-//         {toggle &&
-//             <motion.div
-//                 css={{
-//                     position: 'absolute',
-//                     top: '200px',
-//                     // left: '-200px',
-//                     background: 'white'
-//                 }}
-//                 initial="hidden"
-//                 animate="visible"
-//                 exit="exit"
-//                 variants={variants}
-//             >
-//                 <p>
-//                     Combo!
-//                 </p>
-//             </motion.div>
-//         }
-//         </AnimatePresence>
-//     )
-// }
-
-
+import { Paper } from '@material-ui/core'
 
 function Landing({ setUser }: any) {
     const history = useHistory()
@@ -96,14 +35,7 @@ function Landing({ setUser }: any) {
         }
     }
 
-    if (error === 'socket_not_connected')
-        throw new Error(error)
-
-
     return (
-        <Fragment>
-        {/* <Combo toggle={toggle} setToggle={setToggle} /> */}
-
         <PageContainer
             backgroundImage={`url(${background})`}
             backgroundPosition="center"
@@ -121,7 +53,9 @@ function Landing({ setUser }: any) {
                     elevation={3}
                     css={(theme: any) => css({
                         backgroundColor: `${theme.colors.dark} !important`,
-                        width: '600px',
+                        maxWidth: '600px',
+                        minWidth: '300px',
+                        width: '80%',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'center',
@@ -145,7 +79,8 @@ function Landing({ setUser }: any) {
                                 fontSize: '38px',
                                 marginBottom: '20px',
                                 color: theme.colors.text1,
-                                '@media (max-width: 550px)': {
+                                textAlign: 'center',
+                                '@media (max-width: 650px)': {
                                     fontSize: '28px',
                                 }
                             })}
@@ -203,8 +138,6 @@ function Landing({ setUser }: any) {
                 </Paper>
             </div>
         </PageContainer>
-        </Fragment>
-
     )
 }
 

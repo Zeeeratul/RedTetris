@@ -257,6 +257,7 @@ class Sockets {
                 }
                 catch (error) {
                     console.log('error', error)
+                    socket.emit(SOCKET.GAMES.GET_INFO, error)
                 }
             })
 

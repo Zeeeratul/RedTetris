@@ -1,5 +1,6 @@
 import io from 'socket.io-client'
-let socket : any
+import { SOCKET } from '../config/constants.json'
+let socket : SocketIOClient.Socket
 
 interface CallbackFunction {
     (error: string | null, data?: any): void
@@ -12,14 +13,23 @@ export const initiateSocket = () => {
 
 export const subscribeToEvent = (eventName: string, cb: CallbackFunction) => {
     if (socket)
-        socket.on(eventName, (error: any, data: any) => {
+        socket.on(eventName, (error: string | null, data: any) => {
+            if (error === SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
+                return disconnectSocket()
             return cb(error, data)
         })
+    else {
+        disconnectSocket()
+    }
 }
 
 export const cancelSubscribtionToEvent = (eventName: string) => {
-    if (socket && eventName) {
-        socket.off(eventName)
+    if (socket) {
+        if (eventName)
+            socket.off(eventName)
+    }
+    else {
+        disconnectSocket()
     }
 }
 
@@ -28,7 +38,7 @@ export const emitToEvent = (eventName: string, data?: any) => {
         socket.emit(eventName, data)
     }
     else {
-        throw new Error('Socket not connected')
+        disconnectSocket()
     }
 }
 
@@ -37,11 +47,11 @@ export const emitToEventWithAcknowledgement = (
         data: any,
         cb: CallbackFunction,
     ) => {
-
     if (socket)
         socket.emit(eventName, data, cb)
-    else
-        return cb('socket_not_connected')
+    else {
+        disconnectSocket()
+    }
 }
 
 export const disconnectSocket = () => {

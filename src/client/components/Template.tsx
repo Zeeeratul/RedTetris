@@ -12,11 +12,11 @@ type PageContainerProps = {
 }
 
 export const PageContainer = styled.div({
-        height: '100vh',
+        minHeight: '100vh',
         width: '100%',
         display: 'grid',
         gridTemplateColumns: "1fr",
-        gridTemplateRows: '70px auto 80px',
+        gridTemplateRows: '70px auto 70px',
         gridTemplateAreas: `
             "header"
             "main"

@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
-import { useState, useEffect, useContext, Fragment } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { useHistory } from "react-router-dom"
 import { SOCKET } from '../config/constants.json'
@@ -10,11 +10,9 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
-import { makeStyles } from '@material-ui/core'
 import { Button } from '../components/Button'
 import CreateGameModal from '../components/gamesList/CreateGameModal'
 import { Navbar, PageContainer } from '../components/Template'
-import { UserContext } from '../utils/userContext'
 import background from '../assets/tetris-background.jpg'
 
 const GamesList = () => {
@@ -31,19 +29,27 @@ const GamesList = () => {
                 console.error(error)
             }
             else {
-                history.push(`/game/${gameName}`)
+                history.replace(`/game/${gameName}`)
             }
         })
     }
 
     useEffect(() => {
         emitToEventWithAcknowledgement(SOCKET.GAMES.GET_GAMES, {}, (error, games) => {
-            setGames(games)
+            if (error) {
+                console.log(error)
+            }
+            else
+                setGames(games)
         })
 
         const intervalId = setInterval(() => {
             emitToEventWithAcknowledgement(SOCKET.GAMES.GET_GAMES, {}, (error, games) => {
-                setGames(games)
+                if (error) {
+                    console.log(error)
+                }
+                else
+                    setGames(games)
             })
         }, 3000)
         
@@ -76,14 +82,18 @@ const GamesList = () => {
                 >
                     <Paper elevation={3}
                         css={(theme: any) => css({
-                            width: '70%',
-                            minWidth: '600px',
+                            width: '100%',
+                            maxWidth: '800px',
+                            minHeight: '400px',
                             backgroundColor: `${theme.colors.dark} !important`,
-                            height: '400px',
                             padding: '20px',
                             display: 'flex',
                             justifyContent: 'space-around',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            '@media (max-width: 640px)': {
+                                flexDirection: 'column',
+                            }
                         })}   
                     >
                         <div
@@ -93,25 +103,26 @@ const GamesList = () => {
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                flex: 4,
+                                flex: 2,
+                                '@media (max-width: 640px)': {
+                                    width: '100%',
+                                }
                             }}
-                        >
+                            >
                             <h1
                                 css={(theme: any) => ({
-                                    color: theme.colors.text2
+                                    color: theme.colors.text2,
+                                    textAlign: 'center'
                                 })}
-                            >
+                                >
                                 Join game
                             </h1>
                             <div
                                 css={{
                                     maxHeight: '400px !important',
-                                    overflow: 'scroll',
-                                    // width: '100%',
+                                    overflowY: 'scroll',
                                     borderRadius: '10px',
-                                    width: '80%',
-                                    minWidth: '400px'
-
+                                    width: '100%',
                                 }}
                             >
                                 <Table 
@@ -170,12 +181,13 @@ const GamesList = () => {
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                flex: 2
+                                flex: 1,
                             }}
                         >
                             <h1
                                 css={(theme: any) => ({
-                                    color: theme.colors.text2
+                                    color: theme.colors.text2,
+                                    textAlign: 'center'
                                 })}
                             >Create game</h1>
                             <div

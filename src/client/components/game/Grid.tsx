@@ -53,6 +53,7 @@ const initState = {
     ],
     piece: null,
     nextPiece: null,
+    isKo: false
 }
 
 const reducer = (state: any, action: any) => {
@@ -92,15 +93,21 @@ const reducer = (state: any, action: any) => {
                 nextPiece: action.payload.nextPiece
             }
         }
+        case 'KO': {
+            return {
+                ...state,
+                isKO: true
+            }
+        }
         default:
             console.log(action.type, 'not supported')
             return state
     }
 }
 
-function Grid({ speed, mode, isKo }: { speed: number, mode: string, isKo: boolean }) {
+function Grid({ speed, mode }: { speed: number, mode: string }) {
     const [state, dispatch] = useReducer(reducer, initState)
-    const { piece, nextPiece, grid } = state
+    const { isKo, piece, nextPiece, grid } = state
 
     const handleKey = (key: string) => {
         if (!piece || !key || isKo) return
@@ -184,6 +191,7 @@ function Grid({ speed, mode, isKo }: { speed: number, mode: string, isKo: boolea
     useEffect(() => {
         if (checkGameOver(grid)) {
             emitToEvent(SOCKET.GAMES.GAME_OVER)
+            dispatch({ type: 'KO' })
         }
         
         const spectrum = getGridSpectrum(grid)

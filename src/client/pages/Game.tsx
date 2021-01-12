@@ -39,37 +39,41 @@ function Game() {
     const [results, setResults] = useState(null)
     const { status, leaderId, players, maxPlayers, speed, mode } = state
     const isLeader = userId === leaderId
-    const player: any = _.find(players, { 'id': userId })
 
     useEffect(() => {
+        console.log('recall')
         emitToEvent(SOCKET.GAMES.GET_INFO)
 
         subscribeToEvent(SOCKET.GAMES.GET_INFO, (error, data) => {
-            if (!error) {
+            if (error) {
+                if (error === SOCKET.GAMES.ERROR.NOT_FOUND)
+                    history.replace('/games')
+            }
+            else {
                 setState(data)
             }
-            else console.error(error)
         })
 
         subscribeToEvent(SOCKET.GAMES.RESULTS, (error, results) => {
-            if (!error) {
+            if (error) {
+            }
+            else {
                 setResults(results)
             }
-            else console.error(error)
         })
 
         return () => {
             cancelSubscribtionToEvent(SOCKET.GAMES.GET_INFO)
             emitToEvent(SOCKET.GAMES.LEAVE)
         }
-    }, [])
+    }, [history])
 
     const startGame = () => {
         emitToEvent(SOCKET.GAMES.START)
     }
 
     const leaveGame = () => {
-        history.push('/games')
+        history.replace('/games')
     }
 
     const resetResults = () => setResults(null)
@@ -84,9 +88,6 @@ function Game() {
     //         results: null
     //     })
     // }
-
-    console.log(state)
-    console.log(results)
 
     return (
         <PageContainer
@@ -114,7 +115,7 @@ function Game() {
                 }
                 {status === 'started' &&
                     <Fragment>
-                        <Grid speed={speed} mode={mode} isKo={player.status === 'KO'} />
+                        <Grid speed={speed} mode={mode} />
 
                         {_.filter(players, (o: any) => o.id !== userId).map((player: any, index: number) => (
                             <LittleGridSpectrum
