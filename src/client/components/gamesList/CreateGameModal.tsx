@@ -55,7 +55,11 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
     }
     
     const createMultiplayerGame = () => {
-        if (!gameParameters.name) return 
+        if (!gameParameters.name) {
+            setError(SOCKET.GAMES.ERROR.INVALID_NAME)
+            return 
+        }
+
         emitToEventWithAcknowledgement(SOCKET.GAMES.CREATE, gameParameters, (error: any, gameName: string) => {
             if (error) {
                 console.error(error)

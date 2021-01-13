@@ -58,6 +58,12 @@ class Sockets {
                         socket.leave(gameName)
     
                         if (game) {
+                            const gameOver = game.isGameOver()
+                            if (gameOver) {
+                                const results = game.getResults()
+                                this.io.in(gameName).emit(SOCKET.GAMES.RESULTS, null, results)
+                                game.reset()
+                            }
                             const info = game.info()
                             socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
                         }
@@ -125,6 +131,12 @@ class Sockets {
                     socket.leave(gameName)
 
                     if (game) {
+                        const gameOver = game.isGameOver()
+                        if (gameOver) {
+                            const results = game.getResults()
+                            this.io.in(gameName).emit(SOCKET.GAMES.RESULTS, null, results)
+                            game.reset()
+                        }
                         const info = game.info()
                         socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
                     }
@@ -147,7 +159,6 @@ class Sockets {
                 }
                 catch (error) {
                     console.log('error', error)
-                    // return callback(error)
                 }
             })
 
@@ -163,8 +174,9 @@ class Sockets {
                         throw SOCKET.GAMES.ERROR.NOT_FOUND
     
                     game.setPlayerKo(id)
+                    const gameOver = game.isGameOver()
 
-                    if (game.checkGameOver()) {
+                    if (gameOver) {
                         const results = game.getResults()
                         this.io.in(gameName).emit(SOCKET.GAMES.RESULTS, null, results)
                         game.reset()
@@ -174,7 +186,6 @@ class Sockets {
                 }
                 catch (error) {
                     console.log('error', error)
-                    // return callback(error)
                 }
             })
 
@@ -194,7 +205,6 @@ class Sockets {
                 }
                 catch (error) {
                     console.log('error', error)
-                    // return callback(error)
                 }
             })
             

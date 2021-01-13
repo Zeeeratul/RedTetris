@@ -18,7 +18,7 @@ class Piece {
 
     static generatingPiecesPool() {
         const pieces : Piece[] = []
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 50; i++) {
             const piece = new Piece()
             pieces.push(piece)
         }

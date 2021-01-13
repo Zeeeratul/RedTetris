@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/react'
+import { jsx } from '@emotion/react'
 import { useState, useEffect, useContext } from 'react'
 import _ from 'lodash'
 import { cancelSubscribtionToEvent, emitToEvent, subscribeToEvent } from '../middlewares/socket'
@@ -19,7 +19,7 @@ import Chat from '../components/idleGame/Chat'
 
 import background from '../assets/tetris-background.jpg'
 
-const initialState = {
+const defautGameParameters = {
     name: '',
     players: [],
     maxPlayers: 2,
@@ -31,8 +31,9 @@ const initialState = {
 
 function Game() {
 
-    const [state, setState] = useState(initialState)
-    const { name, status, leaderId, players, maxPlayers, speed, mode } = state
+    const [gameParameters, setGameParameters] = useState(defautGameParameters)
+    const [results, setResults] = useState([])
+    const { name, status, leaderId, players, maxPlayers, speed, mode } = gameParameters
     const { id: userId } = useContext(UserContext)
     const history = useHistory()
 
@@ -44,20 +45,25 @@ function Game() {
                 if (error === SOCKET.GAMES.ERROR.NOT_FOUND)
                     history.replace('/games')
             }
-            else {
-                setState(data)
+            else
+                setGameParameters(data)
+        })
+
+        subscribeToEvent(SOCKET.GAMES.RESULTS, (error, results) => {
+            if (error) {
             }
+            else
+                setResults(results)
         })
 
         return () => {
             cancelSubscribtionToEvent(SOCKET.GAMES.GET_INFO)
+            cancelSubscribtionToEvent(SOCKET.GAMES.RESULTS)
             emitToEvent(SOCKET.GAMES.LEAVE)
         }
     }, [history])
 
-    const startGame = () => {
-        emitToEvent(SOCKET.GAMES.START)
-    }
+    const startGame = () => emitToEvent(SOCKET.GAMES.START)
 
     return (
         <PageContainer
@@ -84,7 +90,9 @@ function Game() {
                             isLeader={userId === leaderId}
                             startGame={startGame}
                         />
-                        <Leaderboard />
+                        {results.length > 0 &&
+                            <Leaderboard results={results} />
+                        }
                         {maxPlayers > 1 &&
                             <Chat />
                         }

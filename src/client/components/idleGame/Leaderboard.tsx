@@ -11,28 +11,7 @@ const positionLeaderboardColors: { [index: number] : string } = {
     5: '#d8d8d8',
 }
 
-const results = [
-    {
-        username: 'Zeeeartul',
-        id: 'tgewwe',
-        score: 234,
-        position: 1
-    },
-    {
-        username: 'tique3',
-        id: 'gerwgew',
-        score: 120,
-        position: 2
-    },
-    {
-        username: 'Babalamerde',
-        id: 'wegeqgweg',
-        score: 23,
-        position: 3
-    }
-]
-
-function Leaderboard() {
+function Leaderboard({ results }: { results: ResultInterface[] }) {
 
     return (
         <Paper

@@ -100,7 +100,7 @@ const reducer = (state: any, action: any) => {
             }
         }
         default:
-            console.log(action.type, 'not supported')
+            console.log(action.type, ' is not supported...')
             return state
     }
 }

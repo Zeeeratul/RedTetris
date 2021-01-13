@@ -3,10 +3,6 @@ import { Player } from './Player'
 import { Piece } from './Piece'
 import { gameModeType, GameParameters, gameStatusType, gameSpeedType } from './types'
 
-// TO BE DONE
-// FOR Now 100 piece are created at the beginning but need to create more if needed
-
-
 class Game {
     players: Player[];
     pieces: Piece[];
@@ -25,6 +21,16 @@ class Game {
         Object.assign(this, this.checkGameParameters(gameParameters))
     }
 
+    checkGameParameters(gameParameters: GameParameters) {
+        if (!gameParameters.mode || ['classic', 'invisible', 'marathon'].indexOf(gameParameters.mode) === -1)
+            gameParameters.mode = 'classic'
+        if (!gameParameters.speed || [0.5, 1, 1.5, 2].indexOf(gameParameters.speed) === -1) 
+            gameParameters.speed = 1
+        if (!gameParameters.maxPlayers || [1, 2, 3, 4, 5].indexOf(gameParameters.maxPlayers) === -1)
+            gameParameters.maxPlayers = 2
+        return gameParameters
+    }
+
     addPlayer(player: Player) {
         this.players.push(player)
     }
@@ -32,7 +38,6 @@ class Game {
     removePlayer(playerId: string) {
         const index = _.findIndex(this.players, { id: playerId })
         this.players.splice(index, 1)
-        this.updateStatus()
     }
 
     transferLeadership() {
@@ -52,31 +57,13 @@ class Game {
         return player
     }
 
-    // Check the game Parameters and set it to default if not provided
-    checkGameParameters(gameParameters: GameParameters) {
-        if (gameParameters.mode && ['classic', 'invisible', 'marathon'].indexOf(gameParameters.mode))
-            gameParameters.mode = 'classic'
-        if (gameParameters.speed && [0.5, 1, 1.5, 2].indexOf(gameParameters.speed)) 
-            gameParameters.speed = 1
-        if (gameParameters.maxPlayers && [1, 2, 3, 4, 5].indexOf(gameParameters.maxPlayers)) 
-            gameParameters.maxPlayers = 2
-
-        return gameParameters
-    }
-
-
-    // set player ko and position
-
-    // on info check winner
-
-
-
     givePiece(player: Player) {
         if (player) {
             const currentPieceIndex = player.currentPieceIndex
             player.incrementCurrentPieceIndex()
-            console.log(this.pieces.length)
-            console.log(player.currentPieceIndex)
+            // Generate new pieces if the player is close the end of the pieces heap
+            if (player.currentPieceIndex + 1 > this.pieces.length)
+                this.pieces = _.concat(this.pieces, Piece.generatingPiecesPool())
             return this.pieces[currentPieceIndex]
         }
         else 
@@ -95,25 +82,6 @@ class Game {
             player.spectrum = spectrumArray
     }
 
-    updateStatus() {
-        // When game is launched
-        if (this.status === 'started') {
-            const playersStillPlaying = _.filter(this.players, { status: 'playing' })
-            // Solo Game
-            if (this.players.length === 1) {
-                if (playersStillPlaying.length === 0) {
-                    this.status = 'ended'
-                }
-            }
-            // Multi Game
-            else if (this.players.length > 1) {
-                if (playersStillPlaying.length === 1) {
-                    this.status = 'ended'
-                }
-            }
-        }
-    }
-
     setPlayerKo(playerId: string) {
         const player = this.getPlayer(playerId)
         if (!player)
@@ -122,26 +90,20 @@ class Game {
         player.status = 'KO'
         const playersStillPlaying = _.filter(this.players, { status: 'playing' })
         player.position = playersStillPlaying.length + 1
-        // this.updateStatus()
     }
 
-    // 
-    checkGameOver() {
+    isGameOver() {
         if (this.status === 'started') {
             const playersStillPlaying = _.filter(this.players, { status: 'playing' })
             // Solo Game
             if (this.players.length === 1) {
-                if (playersStillPlaying.length === 0) {
+                if (playersStillPlaying.length === 0)
                     return true
-                    // this.status = 'ended'
-                }
             }
             // Multi Game
             else if (this.players.length > 1) {
-                if (playersStillPlaying.length === 1) {
+                if (playersStillPlaying.length === 1)
                     return true
-                    // this.status = 'ended'
-                }
             }
         }
         return false

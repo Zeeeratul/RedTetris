@@ -8,6 +8,13 @@ declare global {
         status: string
         username: string
     }
+
+    interface ResultInterface {
+        id: string
+        username: string
+        position: number
+        score: number
+    }
 }
 
 export {}
