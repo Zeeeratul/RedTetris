@@ -1,8 +1,7 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
-import { useEffect } from 'react'
-import _ from 'lodash'
 import { Paper } from '@material-ui/core'
+import _ from 'lodash'
 
 const positionLeaderboardColors: { [index: number] : string } = {
     1: 'gold',
@@ -12,38 +11,52 @@ const positionLeaderboardColors: { [index: number] : string } = {
     5: '#d8d8d8',
 }
 
-function EndedGame({ resetResults, results }: any) {
-    
-    // Redirect to lobby after 10 seconds
-    useEffect(() => {
-        const timeoutRef = setTimeout(() => {
-            resetResults()
-        }, 10000)
-        return () => clearTimeout(timeoutRef)
-    }, [resetResults])
+const results = [
+    {
+        username: 'Zeeeartul',
+        id: 'tgewwe',
+        score: 234,
+        position: 1
+    },
+    {
+        username: 'tique3',
+        id: 'gerwgew',
+        score: 120,
+        position: 2
+    },
+    {
+        username: 'Babalamerde',
+        id: 'wegeqgweg',
+        score: 23,
+        position: 3
+    }
+]
+
+function Leaderboard() {
 
     return (
-        <div
-            css={{
-                gridArea: 'main_grid',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-            }}
+        <Paper
+            elevation={3}
+            css={(theme: any) => css({
+                backgroundColor: `${theme.colors.dark} !important`,
+                minWidth: '300px',
+                height: '500px',
+                padding: '20px',
+                margin: '10px 0px'
+            })}   
         >
-            <Paper 
-                elevation={3}
+            <div
                 css={(theme: any) => css({
+                    backgroundColor: `${theme.colors.darkGrey}`,
                     width: '100%',
+                    height: '100%',
                     display: 'flex',
-                    backgroundColor: `${theme.colors.dark} !important`,
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    padding: '20px 10px 60px 10px',
-                })}   
-            >   
+                    borderRadius: '10px'
+                })}
+            >
                 <h1 
                     css={(theme: any) => ({
                         color: theme.colors.text2
@@ -53,7 +66,7 @@ function EndedGame({ resetResults, results }: any) {
                 </h1>
                 <div
                     css={{
-                        width: '80%',
+                        width: '90%',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'center',
@@ -78,9 +91,9 @@ function EndedGame({ resetResults, results }: any) {
                         </div>
                     ))}
                 </div>
-            </Paper>
-        </div>
+            </div>
+        </Paper>
     )
 }
 
-export default EndedGame
+export default Leaderboard

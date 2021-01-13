@@ -16,11 +16,10 @@ export const PageContainer = styled.div({
         width: '100%',
         display: 'grid',
         gridTemplateColumns: "1fr",
-        gridTemplateRows: '70px auto 70px',
+        gridTemplateRows: '70px auto',
         gridTemplateAreas: `
             "header"
             "main"
-            "footer"
         `
     },
     (props: PageContainerProps) => ({

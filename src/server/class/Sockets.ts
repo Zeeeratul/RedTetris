@@ -267,11 +267,14 @@ class Sockets {
                     if (!socket.player) 
                         throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
     
-                    const { gameName, username } = socket.player
+                    const { gameName, username, id } = socket.player
 
                     const message = {
                         content: messageContent,
-                        sender: username,
+                        sender: {
+                            username,
+                            id
+                        },
                         id: uuidv4()
                     }  
 
