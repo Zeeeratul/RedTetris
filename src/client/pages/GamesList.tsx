@@ -12,7 +12,8 @@ import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import { Button } from '../components/Button'
 import CreateGameModal from '../components/gamesList/CreateGameModal'
-import { Navbar, PageContainer } from '../components/Template'
+import { PageContainer } from '../components/PageContainer'
+import { Navbar } from '../components/Navbar'
 import { useInterval } from '../utils/useInterval'
 import background from '../assets/tetris-background.jpg'
 
@@ -52,7 +53,7 @@ const GamesList = () => {
 
     const joinGame = (gameNameJoin: string) => {
         if (!gameNameJoin) return 
-        emitToEventWithAcknowledgement(SOCKET.GAMES.JOIN, gameNameJoin, (error: string | null, gameName: string) => {
+        emitToEventWithAcknowledgement(SOCKET.GAMES.JOIN, gameNameJoin, (error, gameName) => {
             if (error) {
                 setJoinError(error)
                 getGames()
@@ -80,7 +81,7 @@ const GamesList = () => {
                 isOpen={showModal}  
                 isMultiplayer={isMultiplayer}    
                 close={() => {
-                    // reset default
+                    // Reset to default
                     setShowModal(false)
                     setIsMultiplayer(true)
                 }}
@@ -172,7 +173,7 @@ const GamesList = () => {
                                     </TableHead>
                                     <TableBody>
                                     {games.length > 0 ?
-                                        games.map((game: any) => (
+                                        games.map((game: Game) => (
                                             <TableRow 
                                                 key={`game-list-${game.name}`}
                                                 hover

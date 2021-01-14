@@ -7,23 +7,13 @@ import SendIcon from '@material-ui/icons/Send';
 import { emitToEvent, subscribeToEvent, cancelSubscribtionToEvent } from '../../middlewares/socket'
 import { SOCKET } from '../../config/constants.json'
 
-interface MessageInterface {
-    sender: {
-        username: string,
-        id: string
-    },
-    content: string,
-    id: string
-}
-
 function Chat() {
-
     const { id: userId } = useContext(UserContext)
-    const [messages, setMessages] = useState<MessageInterface[]>([])
+    const [messages, setMessages] = useState<Message[]>([])
     const [message, setMessage] = useState('')
 
     useEffect(() => {
-        subscribeToEvent(SOCKET.GAMES.MESSAGES, (error, message: MessageInterface) => {
+        subscribeToEvent(SOCKET.GAMES.MESSAGES, (error, message: Message) => {
             if (!error) {
                 setMessages((messages) => [...messages, message])
             }

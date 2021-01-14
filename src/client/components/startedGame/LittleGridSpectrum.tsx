@@ -13,12 +13,21 @@ function Column({ start, columnIndex }: { start: number, columnIndex: number }) 
     )
 }
 
-function LittleGridSpectrum({ position, spectrum, playerStatus, playerId }: { position: any, spectrum: number[], playerStatus: string, playerId: string }) {
-
+function LittleGridSpectrum({ 
+    gridPosition,
+    spectrum,
+    playerStatus,
+    playerId
+}: { 
+    gridPosition: number,
+    spectrum: number[],
+    playerStatus: PlayerStatus,
+    playerId: string
+}) {
     return (
         <div
             css={{
-                gridArea: `little_grid_${position + 1}`,
+                gridArea: `little_grid_${gridPosition + 1}`,
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -54,7 +63,7 @@ function LittleGridSpectrum({ position, spectrum, playerStatus, playerId }: { po
                         KO
                     </div>
                 }
-                {spectrum.map((line: number, index: number) => (
+                {spectrum.map((line, index) => (
                     <Column key={`column${playerId}${index}`} columnIndex={index + 1} start={line + 1} />
                 ))}
             </div>

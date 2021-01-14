@@ -10,6 +10,12 @@
       "resolveJsonModule": true,
       "skipLibCheck": true,
     },
+    "ts-node": {
+      "files": true
+    },
+    "files": [
+      "src/server/global.d.ts"
+    ],
     "include": ["src/server/**/*"],
     "exclude": ["node_modules", "src/client/**/*"]
 }

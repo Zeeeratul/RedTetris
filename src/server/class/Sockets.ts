@@ -2,7 +2,6 @@ import _ from 'lodash'
 import http from 'http'
 import { Games } from './Games'
 import { SOCKET } from '../constants.json'
-import { User, GameParameters, CallbackFunction } from './types'
 import { Server } from 'socket.io'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -83,7 +82,7 @@ class Sockets {
                     if (gameParameters.isSolo) {
                         const soloGameParameters = {
                             ...gameParameters,
-                            maxPlayers: 1,
+                            maxPlayers: 1 as GameMaxPlayers,
                             name: uuidv4()
                         }
                         gameName = this.games.createGame(soloGameParameters, socket.player)
@@ -189,7 +188,7 @@ class Sockets {
                 }
             })
 
-            socket.on(SOCKET.GAMES.SPECTRUM, (spectrumArray: number[]) => {
+            socket.on(SOCKET.GAMES.SPECTRUM, (spectrumArray: SpectrumArray) => {
                 try {
                     if (!socket.player) 
                         throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
@@ -246,8 +245,6 @@ class Sockets {
                     return console.error('no player found')
 
                 const piece = game.givePiece(player)
-                if (!piece)
-                    return console.error('player not found cant give piece')
                 callback(null, piece)
             })
                         

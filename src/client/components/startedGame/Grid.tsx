@@ -25,7 +25,7 @@ import {
 import { NextPiece } from './NextPiece'
 import { Line } from './Line'
 
-const initState = {
+const initState: GamePlaying = {
     grid: [
         ['', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', ''],
@@ -56,7 +56,7 @@ const initState = {
     isKo: false
 }
 
-const reducer = (state: any, action: any) => {
+const reducer = (state: GamePlaying, action: any): GamePlaying => {
     const { nextPiece, grid } = state
 
     switch (action.type) {
@@ -105,9 +105,13 @@ const reducer = (state: any, action: any) => {
     }
 }
 
-function Grid({ speed, mode }: { speed: number, mode: string }) {
-    const [state, dispatch] = useReducer(reducer, initState)
-    const { isKo, piece, nextPiece, grid } = state
+function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
+    const [{
+        isKo,
+        piece,
+        nextPiece,
+        grid
+    }, dispatch] = useReducer(reducer, initState)
 
     const handleKey = (key: string) => {
         if (!piece || !key || isKo) return
@@ -168,16 +172,18 @@ function Grid({ speed, mode }: { speed: number, mode: string }) {
 
     // Get pieces at start
     useEffect(() => {
-        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece) => {
-            dispatch({ type: SOCKET.GAMES.SET_PIECE, payload: piece })
+        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
+            if (piece) 
+                dispatch({ type: SOCKET.GAMES.SET_PIECE, payload: piece })
         })
 
-        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece) => {
-            dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
+        emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
+            if (piece) 
+                dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
         })
 
         // Subscribe to line penalty sended by the players
-        subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount) => {
+        subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount: number) => {
             dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
         })
 
@@ -193,7 +199,6 @@ function Grid({ speed, mode }: { speed: number, mode: string }) {
             emitToEvent(SOCKET.GAMES.GAME_OVER)
             dispatch({ type: 'Ko' })
         }
-        
         const spectrum = getGridSpectrum(grid)
         emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
     }, [grid])
@@ -224,8 +229,7 @@ function Grid({ speed, mode }: { speed: number, mode: string }) {
                     clipPath: `polygon(15px 0px, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0% calc(100% - 15px), 0% 100%, 0px 15px)`
                 })}
             >
-
-                {piece && grid.map((line: any, index: number) => (
+                {piece && grid.map((line, index) => (
                     <Line
                         key={`line_${index}`} 
                         invisible={mode === 'invisible'}
@@ -256,7 +260,9 @@ function Grid({ speed, mode }: { speed: number, mode: string }) {
                     </div>
                 )}
             </div>
-            <NextPiece pieceType={nextPiece?.type} />
+            {nextPiece &&
+                <NextPiece pieceType={nextPiece.type} />
+            }
         </div>
     )
 }

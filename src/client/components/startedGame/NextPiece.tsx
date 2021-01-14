@@ -1,15 +1,14 @@
 /** @jsx jsx */
-import React from 'react'
+import { Fragment } from 'react'
 import { jsx } from '@emotion/react'
 import { Cell } from './Line'
 
-function createPiece(pieceType: string): any {
+function createPiece(pieceType: PieceType): any {
 
-    // Not nice but it's working ...
     switch (pieceType) {
         case 'I':
             return (
-                <React.Fragment>
+                <Fragment>
                     <div
                         css={{
                             gridColumn: "1 / 2",
@@ -42,11 +41,11 @@ function createPiece(pieceType: string): any {
                     >
                         <Cell value={pieceType} />
                     </div>
-                </React.Fragment>
+                </Fragment>
             )
         case 'O':
             return (
-                <React.Fragment>
+                <Fragment>
                     <div
                         css={{
                             gridColumn: "1 / 2",
@@ -79,11 +78,11 @@ function createPiece(pieceType: string): any {
                     >
                         <Cell value={pieceType} />
                     </div>
-                </React.Fragment>
+                </Fragment>
             )
         case 'T':
             return (
-                <React.Fragment>
+                <Fragment>
                     <div
                         css={{
                             gridColumn: "1 / 2",
@@ -116,11 +115,11 @@ function createPiece(pieceType: string): any {
                     >
                         <Cell value={pieceType} />
                     </div>
-                </React.Fragment>
+                </Fragment>
             )
         case 'S':
             return (
-                <React.Fragment>
+                <Fragment>
                     <div
                         css={{
                             gridColumn: "1 / 2",
@@ -153,11 +152,11 @@ function createPiece(pieceType: string): any {
                     >
                         <Cell value={pieceType} />
                     </div>
-                </React.Fragment>
+                </Fragment>
             )
         case 'Z':
             return (
-                <React.Fragment>
+                <Fragment>
                     <div
                         css={{
                             gridColumn: "1 / 2",
@@ -190,11 +189,11 @@ function createPiece(pieceType: string): any {
                     >
                         <Cell value={pieceType} />
                     </div>
-                </React.Fragment>
+                </Fragment>
             )
         case 'L':
             return (
-                <React.Fragment>
+                <Fragment>
                     <div
                         css={{
                             gridColumn: "3 / 4",
@@ -227,11 +226,11 @@ function createPiece(pieceType: string): any {
                     >
                         <Cell value={pieceType} />
                     </div>
-                </React.Fragment>
+                </Fragment>
             )
         case 'J':
             return (
-                <React.Fragment>
+                <Fragment>
                     <div
                         css={{
                             gridColumn: "1 / 2",
@@ -264,11 +263,11 @@ function createPiece(pieceType: string): any {
                     >
                         <Cell value={pieceType} />
                     </div>
-                </React.Fragment>
+                </Fragment>
             )
         default:
             return (
-                <React.Fragment>
+                <Fragment>
                     <div
                         css={{
                             gridColumn: "1 / 2",
@@ -301,13 +300,12 @@ function createPiece(pieceType: string): any {
                     >
                         <Cell value="" />
                     </div>
-                </React.Fragment>
+                </Fragment>
             )
     }
 }
 
-export function NextPiece({ pieceType }: { pieceType: string }) {
-
+export function NextPiece({ pieceType }: { pieceType: PieceType }) {
     const piece = createPiece(pieceType)
 
     return (
@@ -323,29 +321,28 @@ export function NextPiece({ pieceType }: { pieceType: string }) {
                 clipPath: "polygon(0% 0%, calc(100% - 15px) 0%, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%)"
             })}
         >
-                <p css={(theme : any) => ({ margin: 0, background: theme.colors.text2, color: 'black', textAlign: 'center', width: '100%', alignSelf: 'flex-start' })}>Next</p>
+            <p css={(theme : any) => ({ margin: 0, background: theme.colors.text2, color: 'black', textAlign: 'center', width: '100%', alignSelf: 'flex-start' })}>Next</p>
+            <div
+                css={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'black',
+                    clipPath: "polygon(0% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 0% 100%)",
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
                 <div
-                    css={(theme: any) => ({
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'black',
-                        clipPath: "polygon(0% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 0% 100%)",
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    })}
+                    css={{
+                        display: 'grid',
+                        gridTemplateColumns: "20px 20px 20px 20px",
+                        gridTemplateRows: "20px 20px",
+                    }}
                 >
-                    <div
-                        css={{
-                            display: 'grid',
-                            gridTemplateColumns: "20px 20px 20px 20px",
-                            gridTemplateRows: "20px 20px",
-                        }}
-                    >
-                        {piece}
-
-                    </div>
+                    {piece}
                 </div>
+            </div>
         </div>
     )
 }

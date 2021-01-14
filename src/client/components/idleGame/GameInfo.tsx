@@ -33,10 +33,10 @@ function GameInfo({
     startGame 
 }: { 
     gameName: string, 
-    players: any[], 
-    maxPlayers: number, 
-    speed: number, 
-    mode: string, 
+    players: Player[], 
+    maxPlayers: GameMaxPlayers, 
+    speed: GameSpeed, 
+    mode: GameMode, 
     isLeader: boolean, 
     startGame: any }) {
 
@@ -72,7 +72,7 @@ function GameInfo({
                     }}
                 >
                     <h2
-                        css={(theme:any) => ({
+                        css={(theme: any) => ({
                             color: theme.colors.text2,
                             margin: '6px 0px'
                         })}

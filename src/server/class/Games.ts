@@ -2,7 +2,6 @@ import _ from 'lodash'
 import { Game } from './Game'
 import { Player } from './Player'
 import { SOCKET } from '../constants.json'
-import { User, GameParameters } from './types'
 
 class Games {
     games: Game[] = [];
@@ -64,7 +63,7 @@ class Games {
         if (!game.isLeader(playerData.id))
             throw SOCKET.GAMES.ERROR.NOT_LEADER
 
-        game.changeStatus('started')
+        game.status = 'started'
         return game
     }
 
@@ -73,11 +72,13 @@ class Games {
     }
 
     getGamesList() {
-        return _.filter(this.games, (game) => {
+        const unstartedGames = _.filter(this.games, (game) => {
             if (game.status === 'idle' && game.players.length < game.maxPlayers)
                 return true
             return false
         })
+
+        return unstartedGames.map((game: Game) => game.info())
     }
 }
 

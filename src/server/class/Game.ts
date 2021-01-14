@@ -1,17 +1,16 @@
 import _ from 'lodash'
 import { Player } from './Player'
 import { Piece } from './Piece'
-import { gameModeType, GameParameters, gameStatusType, gameSpeedType } from './types'
 
 class Game {
     players: Player[];
     pieces: Piece[];
     leaderId: string;
     name: string;
-    status: gameStatusType = 'idle';
-    mode: gameModeType = 'classic';
-    maxPlayers: number = 2;
-    speed: gameSpeedType = 1;
+    status: GameStatus = 'idle';
+    mode: GameMode = 'classic';
+    maxPlayers: GameMaxPlayers = 2;
+    speed: GameSpeed = 1;
 
     constructor(gameParameters: GameParameters, player: Player) {
         this.name = gameParameters.name
@@ -44,30 +43,22 @@ class Game {
         this.leaderId = this.players[0].id
     }
 
-    changeStatus(status: gameStatusType) {
-        this.status = status
-    }
-
     isLeader(playerId: string) {
         return this.leaderId === playerId
     }
 
-    getPlayer(playerId: string): Player | null {
+    getPlayer(playerId: string) {
         const player = _.find(this.players, { id: playerId }) || null
         return player
     }
 
     givePiece(player: Player) {
-        if (player) {
-            const currentPieceIndex = player.currentPieceIndex
-            player.incrementCurrentPieceIndex()
-            // Generate new pieces if the player is close the end of the pieces heap
-            if (player.currentPieceIndex + 1 > this.pieces.length)
-                this.pieces = _.concat(this.pieces, Piece.generatingPiecesPool())
-            return this.pieces[currentPieceIndex]
-        }
-        else 
-            return null
+        const currentPieceIndex = player.currentPieceIndex
+        player.incrementCurrentPieceIndex()
+        // Generate new pieces if the player is close the end of the pieces heap
+        if (player.currentPieceIndex + 1 > this.pieces.length)
+            this.pieces = _.concat(this.pieces, Piece.generatingPiecesPool())
+        return this.pieces[currentPieceIndex]
     }
 
     updateScore(lineCleared: number, playerId: string) {

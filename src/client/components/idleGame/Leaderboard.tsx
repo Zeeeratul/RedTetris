@@ -11,7 +11,7 @@ const positionLeaderboardColors: { [index: number] : string } = {
     5: '#d8d8d8',
 }
 
-function Leaderboard({ results }: { results: ResultInterface[] }) {
+function Leaderboard({ results }: { results: Result[] }) {
 
     return (
         <Paper
@@ -53,7 +53,7 @@ function Leaderboard({ results }: { results: ResultInterface[] }) {
                         overflow: 'hidden'
                     }}
                 >
-                    {_.sortBy(results, ['position']).map((result: any, index: number) => (
+                    {_.sortBy(results, ['position']).map((result, index) => (
                         <div
                             key={result.id}
                             css={{

@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { useState, useEffect } from 'react'
 import { jsx, css } from '@emotion/react'
-import { Modal } from '../Template'
+import { Modal } from '../Modal'
 import { MenuItem, Select, FormControl, InputLabel, TextField } from '@material-ui/core';
 import { Button } from '../Button'
 import { emitToEventWithAcknowledgement } from '../../middlewares/socket';
@@ -20,6 +20,7 @@ const defaultGameParameters = {
 const ButtonGreyBackground = styled(Button)`
     background-color: ${(props: any) => props.theme.colors.lightGrey};
 `
+
 const errorMessages: { [index: string] : string } = {
     [SOCKET.GAMES.ERROR.NAME_TAKEN]: "Game name is taken",
     [SOCKET.GAMES.ERROR.INVALID_NAME]: "Game name is invalid",
@@ -60,7 +61,7 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
             return 
         }
 
-        emitToEventWithAcknowledgement(SOCKET.GAMES.CREATE, gameParameters, (error: any, gameName: string) => {
+        emitToEventWithAcknowledgement(SOCKET.GAMES.CREATE, gameParameters, (error: SocketError, gameName: string) => {
             if (error) {
                 console.error(error)
                 setError(error)
@@ -77,7 +78,7 @@ function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isM
             ...gameParameters,
             isSolo: true
         }
-        emitToEventWithAcknowledgement(SOCKET.GAMES.CREATE, soloGameParameters, (error: any, gameName: string) => {
+        emitToEventWithAcknowledgement(SOCKET.GAMES.CREATE, soloGameParameters, (error: SocketError, gameName: string) => {
             if (error) {
                 console.error(error)
                 setError(error)

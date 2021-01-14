@@ -2,10 +2,6 @@ import io from 'socket.io-client'
 import { SOCKET } from '../config/constants.json'
 let socket : SocketIOClient.Socket
 
-interface CallbackFunction {
-    (error: string | null, data?: any): void
-}
-
 export const initiateSocket = () => {
     socket = io('/')
     console.log('Initiating socket...')
@@ -13,7 +9,7 @@ export const initiateSocket = () => {
 
 export const subscribeToEvent = (eventName: string, cb: CallbackFunction) => {
     if (socket)
-        socket.on(eventName, (error: string | null, data: any) => {
+        socket.on(eventName, (error: SocketError, data: any) => {
             if (error === SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
                 return disconnectSocket()
             return cb(error, data)
@@ -49,7 +45,7 @@ export const emitToEventWithAcknowledgement = (
         cb: CallbackFunction,
     ) => {
 
-    const WrapCallback = (error: string | null, data: any) => {
+    const WrapCallback = (error: SocketError, data: any) => {
         if (error === SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
             return disconnectSocket()
         return cb(error, data)

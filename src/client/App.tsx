@@ -61,7 +61,6 @@ function App() {
       dark: '#151515',
       lightGrey: '#d8d8d8',
       darkGrey: '#202020',
-      error: 'ff0000'
     }
   }
 

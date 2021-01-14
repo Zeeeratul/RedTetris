@@ -1,16 +1,16 @@
 import _ from 'lodash'
 
-export const movePiece = (piece: pieceInterface, xDirection: number, yDirection: number) => {
+export const movePiece = (piece: Piece, xDirection: number, yDirection: number) => {
     const newPiece = {
         ...piece,
-        positions: piece.positions.map((part: positionInterface) => ({x: part.x + xDirection, y: part.y + yDirection})),
+        positions: piece.positions.map((part: Position) => ({x: part.x + xDirection, y: part.y + yDirection})),
         leftTopPosition: {x: piece.leftTopPosition.x + xDirection, y: piece.leftTopPosition.y + yDirection}
     }
     return newPiece
 }
 
 
-export const movePieceToLowerPlace = (piece: pieceInterface, grid: any): pieceInterface => {
+export const movePieceToLowerPlace = (piece: Piece, grid: Grid): Piece => {
 
     let i = 1
     while (true) {
@@ -23,7 +23,7 @@ export const movePieceToLowerPlace = (piece: pieceInterface, grid: any): pieceIn
     return movePiece(piece, 0, i - 1)
 }
 
-export const rotatePiece = (pieceStructure: structureInterface): structureInterface => {
+export const rotatePiece = (pieceStructure: StructureType): StructureType => {
     const N = pieceStructure.length
     const pieceClone = _.cloneDeep(pieceStructure)
 
@@ -39,11 +39,12 @@ export const rotatePiece = (pieceStructure: structureInterface): structureInterf
     return pieceClone
 }
 
-export const convertStructureToPositions = (pieceStructure: structureInterface, leftTopPosition: positionInterface): any => {
+export const convertStructureToPositions = (pieceStructure: StructureType, leftTopPosition: Position): Position[] => {
 
-    const newPositions: positionInterface[] = []
-    pieceStructure.forEach((line, yCoord) => {
-        line.forEach((cell, xCoord) => {
+    const newPositions: Position[] = []
+
+    pieceStructure.forEach((line: StructureCell[], yCoord: number) => {
+        line.forEach((cell: StructureCell, xCoord: number) => {
             if (cell === '#')
                 newPositions.push({
                     x: xCoord + leftTopPosition.x,
@@ -54,7 +55,7 @@ export const convertStructureToPositions = (pieceStructure: structureInterface, 
     return newPositions
 }
 
-export const checkPosition = (positions: positionInterface[], grid: any[][]) => {
+export const checkPosition = (positions: Position[], grid: Grid) => {
     for (let i = 0; i < positions.length; i++) {
         const {x, y} = positions[i]
         if ((x < 0 || x > 9) || y > 19)
@@ -66,7 +67,7 @@ export const checkPosition = (positions: positionInterface[], grid: any[][]) => 
 }
 
 // need to change the way it works
-export const checkGameOver = (grid: any[][], lineToCheck: number = 2) => {
+export const checkGameOver = (grid: Grid, lineToCheck: number = 2): boolean => {
     const gridWidthLength = grid[0].length
 
     for (let line = 0; line < lineToCheck; line++) {
@@ -81,10 +82,10 @@ export const checkGameOver = (grid: any[][], lineToCheck: number = 2) => {
 
 // GRID FUNCTION
 
-export const addPieceToTheGrid = (piece: pieceInterface, grid: any[][]) => {
+export const addPieceToTheGrid = (piece: Piece, grid: Grid) => {
     const newGrid = _.cloneDeep(grid)
 
-    piece.positions.forEach((part: positionInterface) => {
+    piece.positions.forEach((part: Position) => {
         const {x, y} = part
         newGrid[y][x] = piece.type
     })
@@ -93,14 +94,14 @@ export const addPieceToTheGrid = (piece: pieceInterface, grid: any[][]) => {
 }
 
 
-const fillLine = (char: string): any => new Array(10).fill(char)
+const fillLine = (type: PieceType): PieceType[] => new Array(10).fill(type)
 
 const lineCellsCounter = (line: any) => {
     const reducer = (accumulator: number, currentValue: number) => accumulator + (currentValue ? 1 : 0)
     return line.reduce(reducer, 0)
 }
 
-export const clearFullLineGrid = (grid: any[][]) => {
+export const clearFullLineGrid = (grid: Grid) => {
     const lineToDelete : number[] = []
     const newGrid = _.cloneDeep(grid)
     
@@ -126,7 +127,7 @@ export const clearFullLineGrid = (grid: any[][]) => {
     }
 }
 
-export const addPenaltyToGrid = (grid: any[][], lineCount: number) => {
+export const addPenaltyToGrid = (grid: Grid, lineCount: number) => {
     const newGrid = _.reverse(_.cloneDeep(grid))
 
     for (let line = 0; line < lineCount; line++) {
@@ -139,7 +140,7 @@ export const addPenaltyToGrid = (grid: any[][], lineCount: number) => {
     return newGrid
 }
 
-export const getGridSpectrum = (grid: any[][], start = 0, end = 10) => {
+export const getGridSpectrum = (grid: Grid, start = 0, end = 10): number[] => {
     const spectrum = Array(10).fill(20)
     for (let j = start; j < end; j++) {
         for (let i = 0; i < 20; i++) {

@@ -46,6 +46,7 @@ const cellsColors: { [index: string] : any } = {
         bottom: "#cc1b00",
         side: "#e61f00",
     },
+    // Penalty Line
     "*": {
         cell: "#A0A0A0",
         top: "#B0B0B0",

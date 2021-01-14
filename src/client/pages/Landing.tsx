@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
 import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { SOCKET } from '../config/constants.json'
-import { PageContainer, Navbar } from '../components/Template'
+import { PageContainer } from '../components/PageContainer'
+import { Navbar } from '../components/Navbar'
 import { Paper } from '@material-ui/core'
 import background from '../assets/tetris-background.jpg'
 

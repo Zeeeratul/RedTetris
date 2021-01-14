@@ -1,15 +1,14 @@
 import _ from 'lodash'
 import { piecesArray } from '../constants.json'
-import { Coords } from './types'
 
 class Piece {
-    structure: string[][];
-    type: string;
-    leftTopPosition: Coords;
-    positions: Coords[];
+    structure: StructureType;
+    type: PieceType;
+    leftTopPosition: Position;
+    positions: Position[];
 
     constructor() {
-        const piece = piecesArray[_.random(6)]
+        const piece = piecesArray[_.random(6)] as Piece
         this.structure = piece.structure
         this.type = piece.type
         this.leftTopPosition = piece.leftTopPosition

@@ -4,7 +4,8 @@ import { useState, useEffect, useContext } from 'react'
 import _ from 'lodash'
 import { cancelSubscribtionToEvent, emitToEvent, subscribeToEvent } from '../middlewares/socket'
 import { useHistory } from "react-router-dom"
-import { Navbar, PageContainer } from '../components/Template'
+import { PageContainer } from '../components/PageContainer'
+import { Navbar } from '../components/Navbar'
 import { SOCKET } from '../config/constants.json'
 import { UserContext } from '../utils/userContext'
 
@@ -23,14 +24,14 @@ import background from '../assets/tetris-background.jpg'
 // RESPONSIVE GRID
 
 
-const defautGameParameters = {
+const defautGameParameters: Game = {
+    leaderId: '',
+    maxPlayers: 2,
+    status: 'idle',
+    speed: 1,
+    mode: 'classic',
     name: '',
     players: [],
-    maxPlayers: 2,
-    mode: 'classic',
-    speed: 1,
-    leaderId: '',
-    status: 'idle',
 }
 
 function Game() {
@@ -74,7 +75,7 @@ function Game() {
             backgroundPosition="center"
         >
             <Navbar userConnected userInGame />
-                {(status === 'idle' || status === 'ended') && (
+                {status === 'idle' && (
                     <div
                         css={{
                             gridArea: 'main',
@@ -101,7 +102,7 @@ function Game() {
                         }
                     </div>
                 )}
-                {status === 'started' &&
+                {status === 'started' && (
                     <div
                         css={{
                             gridArea: 'main',
@@ -125,17 +126,17 @@ function Game() {
                     >
                         <Grid speed={speed} mode={mode} />
 
-                        {_.filter(players, (o: any) => o.id !== userId).map((player: PlayerInterface, index: number) => (
+                        {_.filter(players, (o: Player) => o.id !== userId).map((player: Player, index: number) => (
                             <LittleGridSpectrum
                                 key={`little_grid_${player.id}`}
                                 spectrum={player.spectrum}
-                                position={index}
+                                gridPosition={index}
                                 playerStatus={player.status}
                                 playerId={player.id}
                             />
                         ))}
                     </div>
-                }
+                )}
         </PageContainer>  
     )
 }
