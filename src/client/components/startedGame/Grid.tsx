@@ -93,10 +93,10 @@ const reducer = (state: any, action: any) => {
                 nextPiece: action.payload.nextPiece
             }
         }
-        case 'KO': {
+        case 'Ko': {
             return {
                 ...state,
-                isKO: true
+                isKo: true
             }
         }
         default:
@@ -191,7 +191,7 @@ function Grid({ speed, mode }: { speed: number, mode: string }) {
     useEffect(() => {
         if (checkGameOver(grid)) {
             emitToEvent(SOCKET.GAMES.GAME_OVER)
-            dispatch({ type: 'KO' })
+            dispatch({ type: 'Ko' })
         }
         
         const spectrum = getGridSpectrum(grid)
@@ -223,16 +223,41 @@ function Grid({ speed, mode }: { speed: number, mode: string }) {
                     clipPath: `polygon(15px 0px, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0% calc(100% - 15px), 0% 100%, 0px 15px)`
                 })}
             >
+
                 {piece && grid.map((line: any, index: number) => (
                     <Line
-                        invisible={mode === 'invisible' ? true : false}
                         key={`line_${index}`} 
-                        piecePositions={piece.positions}
+                        invisible={mode === 'invisible'}
+                        piecePositions={isKo ? null : piece.positions}
                         pieceType={piece.type}
                         cells={line}
                         yCoord={index}
                     />
                 ))}
+                {isKo && (
+                    <div
+                        css={{
+                            background: 'black',
+                            color: 'white',
+                            position: 'absolute',
+                            top: '255px',
+                            zIndex: 2,
+                            width: '300px',
+                            height: '120px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexDirection: 'column'
+                        }}
+                    >
+                        <p>
+                            KO
+                        </p>
+                        <p>
+                            Wait for other players to end
+                        </p>
+                    </div>
+                )}
             </div>
             <NextPiece pieceType={nextPiece?.type} />
         </div>

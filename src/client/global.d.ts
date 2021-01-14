@@ -1,5 +1,5 @@
 declare global {
-    interface Player {
+    interface PlayerInterface {
         currentPieceIndex: number,
         id: string
         position: number

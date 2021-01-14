@@ -127,7 +127,7 @@ function Cell({ value }: { value: string }) {
 
 function Line({ piecePositions, pieceType, cells, yCoord, invisible }: any) {
 
-    if (invisible)
+    if (invisible || !piecePositions)
         return (
             <React.Fragment>
                 {cells.map((cell: any, index: number) => {

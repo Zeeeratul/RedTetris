@@ -74,7 +74,7 @@ class Games {
 
     getGamesList() {
         return _.filter(this.games, (game) => {
-            if ((game.status === 'idle' || game.status === 'ended') && game.players.length < game.maxPlayers)
+            if (game.status === 'idle' && game.players.length < game.maxPlayers)
                 return true
             return false
         })
