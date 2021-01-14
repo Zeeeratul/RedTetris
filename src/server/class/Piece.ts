@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { piecesArray } from '../constants.json'
+import { piecesArray } from '../config/pieces.json'
 
 class Piece {
     structure: StructureType;

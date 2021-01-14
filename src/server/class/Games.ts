@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { Game } from './Game'
 import { Player } from './Player'
-import { SOCKET } from '../constants.json'
+import { SOCKET } from '../config/constants.json'
 
 class Games {
     games: Game[] = [];

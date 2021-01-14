@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import http from 'http'
 import { Games } from './Games'
-import { SOCKET } from '../constants.json'
+import { SOCKET } from '../config/constants.json'
 import { Server } from 'socket.io'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -208,44 +208,46 @@ class Sockets {
             })
             
             socket.on(SOCKET.GAMES.LINE, (linesCount: number) => {
-                if (!socket.player) 
-                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
+                try {
+                    if (!socket.player) 
+                        throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
+    
+                    const { gameName, id: playerId } = socket.player
+                    const game = this.games.getGame(gameName)
 
-                const { gameName, id: playerId } = socket.player
-                const game = this.games.getGame(gameName)
-                                
-                if (!game)
-                    return
-
-                if (linesCount > 1 && game.mode !== 'marathon')
-                    socket.to(gameName).emit(SOCKET.GAMES.LINE_PENALTY, null, linesCount - 1)
-                game.updateScore(linesCount, playerId)
-                this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, game.info())
-            })
-
-            socket.on(SOCKET.GAMES.GET_GAMES, (_: any, callback: CallbackFunction) => {
-                if (!socket.player) 
-                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
-
-                const games = this.games.getGamesList()
-                callback(null, games)
+                    if (!game)
+                        throw SOCKET.GAMES.ERROR.NOT_FOUND
+    
+                    if (linesCount > 1 && game.mode !== 'marathon')
+                        socket.to(gameName).emit(SOCKET.GAMES.LINE_PENALTY, null, linesCount - 1)
+                    game.updateScore(linesCount, playerId)
+                    this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, game.info())
+                }
+                catch (error) {
+                    console.error(error)
+                }
             })
 
             socket.on(SOCKET.GAMES.GET_PIECE, (_: any, callback: CallbackFunction) => {
-                if (!socket.player) 
-                    return console.error(SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
-
-                const { gameName, id } = socket.player
-                const game = this.games.getGame(gameName)
-                if (!game)
-                    return console.error('game not found cant give piece')
-
-                const player = game.getPlayer(id)
-                if (!player || player.status === 'KO')
-                    return console.error('no player found')
-
-                const piece = game.givePiece(player)
-                callback(null, piece)
+                try {
+                    if (!socket.player) 
+                        throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
+                    
+                    const { gameName, id } = socket.player
+                    const game = this.games.getGame(gameName)
+                    if (!game)
+                        throw SOCKET.GAMES.ERROR.NOT_FOUND
+    
+                    const player = game.getPlayer(id)
+                    if (!player || player.status === 'KO')
+                        throw SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND
+    
+                    const piece = game.givePiece(player)
+                    callback(null, piece)
+                }
+                catch (error) {
+                    console.error(error)
+                }
             })
                         
             socket.on(SOCKET.GAMES.GET_INFO, (_: any) => {
@@ -289,6 +291,19 @@ class Sockets {
                 }
                 catch (error) {
                     console.log('error', error)
+                }
+            })
+
+            socket.on(SOCKET.GAMES.GET_GAMES, (_: any, callback: CallbackFunction) => {
+                try {
+                    if (!socket.player) 
+                        throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
+
+                    const games = this.games.getGamesList()
+                    callback(null, games)
+                }
+                catch (error) {
+                    console.error(error)
                 }
             })
         })
