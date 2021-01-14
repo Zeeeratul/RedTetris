@@ -13,7 +13,7 @@ import styled from '@emotion/styled/macro'
 const defaultGameParameters = {
     name: '',
     mode: 'classic',
-    speed: 1,
+    speed: 1.5,
     maxPlayers: 2
 }
 

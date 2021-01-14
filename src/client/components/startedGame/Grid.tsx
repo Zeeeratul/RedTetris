@@ -163,7 +163,7 @@ function Grid({ speed, mode }: { speed: number, mode: string }) {
     // Move piece down regularly
     useInterval(
         () => handleKey('ArrowDown'),
-        speed * 10000
+        speed * 1000
     )
 
     // Get pieces at start
@@ -208,6 +208,7 @@ function Grid({ speed, mode }: { speed: number, mode: string }) {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'flex-start',
+                margin: '10px 0px',
                 filter: isKo ? 'brightness(0.5)' : 'brightness(1)',
                 transition: 'filter 500ms'
             }}
@@ -250,12 +251,8 @@ function Grid({ speed, mode }: { speed: number, mode: string }) {
                             flexDirection: 'column'
                         }}
                     >
-                        <p>
-                            KO
-                        </p>
-                        <p>
-                            Wait for other players to end
-                        </p>
+                        <p>KO</p>
+                        <p>Wait for other players to end</p>
                     </div>
                 )}
             </div>

@@ -22,6 +22,19 @@ const errorMessages: { [index: string] : string } = {
     [SOCKET.GAMES.ERROR.FULL]: "Sorry this game is full",
 }
 
+const speedToText: { [index: number] : string } = {
+    2: 'Slow',
+    1.5: 'Classic',
+    1: 'Fast',
+    0.5: 'Ultra Fast',
+}
+
+const modeToText: { [index: string] : string } = {
+    "classic": 'Classic',
+    "invisible": 'Invisible',
+    "marathon": 'Marathon',
+}
+
 const GamesList = () => {
 
     const [showModal, setShowModal] = useState(false)
@@ -152,9 +165,9 @@ const GamesList = () => {
                                     <TableHead>
                                     <TableRow>
                                         <TableCell>Game Name</TableCell>
-                                        <TableCell align="right">Slots</TableCell>
-                                        <TableCell align="right">Mode</TableCell>
-                                        <TableCell align="right">Speed</TableCell>
+                                        <TableCell>Slots</TableCell>
+                                        <TableCell>Mode</TableCell>
+                                        <TableCell>Speed</TableCell>
                                     </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -173,9 +186,9 @@ const GamesList = () => {
                                                 <TableCell component="th" scope="row">
                                                     {game.name}
                                                 </TableCell>
-                                                <TableCell align="right">{game.players.length} / {game.maxPlayers}</TableCell>
-                                                <TableCell align="right">{game.mode}</TableCell>
-                                                <TableCell align="right">{game.speed}</TableCell>
+                                                <TableCell>{game.players.length} / {game.maxPlayers}</TableCell>
+                                                <TableCell>{modeToText[game.mode]}</TableCell>
+                                                <TableCell>{speedToText[game.speed]}</TableCell>
                                             </TableRow>
                                         ))
                                         :

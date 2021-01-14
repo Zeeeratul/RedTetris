@@ -6,7 +6,7 @@ function Column({ start, columnIndex }: { start: number, columnIndex: number }) 
         <div
             css={{
                 gridColumn: `${columnIndex} / ${columnIndex + 1}`,
-                gridRow: `${start} / 21`,
+                gridRow: `${start} / -1`,
                 background: '#d8d8d8'
             }}
         />
@@ -19,8 +19,6 @@ function LittleGridSpectrum({ position, spectrum, playerStatus, playerId }: { po
         <div
             css={{
                 gridArea: `little_grid_${position + 1}`,
-                justifySelf: "stretch",
-                alignSelf: "normal",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",

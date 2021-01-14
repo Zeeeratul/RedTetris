@@ -4,7 +4,9 @@ import styled from '@emotion/styled/macro'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import { motion, AnimatePresence } from 'framer-motion'
 import { disconnectSocket } from '../../client/middlewares/socket'
-import CloseIcon from '@material-ui/icons/Close';
+import { useHistory } from "react-router-dom"
+import CloseIcon from '@material-ui/icons/Close'
+import MeetingRoomIcon from '@material-ui/icons/MeetingRoom'
 
 type PageContainerProps = {
     backgroundImage?: string
@@ -48,7 +50,10 @@ const RoundButton = styled.button((props: any) => ({
 
 export const Navbar = ({ userConnected = false, userInGame = false }: { userConnected?: boolean, userInGame?: boolean }) => {
 
+    const history = useHistory()
     const logout = () => disconnectSocket()
+
+    const leaveGame = () => history.replace('/games')
 
     return (
         <nav
@@ -68,19 +73,38 @@ export const Navbar = ({ userConnected = false, userInGame = false }: { userConn
             >
                 Red Tetris
             </h1>
-            {userConnected &&
-                <RoundButton
-                    title="Logout"
-                    onClick={logout}
-                >
-                    <ExitToAppIcon 
-                        fontSize='large'
-                        css={(theme: any) => ({
-                            color: theme.colors.text2,
-                        })}
-                    />
-                </RoundButton>
-            }
+            <div
+                css={{
+                    display: 'flex',
+                }}
+            >
+                {userInGame &&
+                    <RoundButton
+                        title="Leave Game"
+                        onClick={leaveGame}
+                    >
+                        <MeetingRoomIcon 
+                            fontSize='large'
+                            css={(theme: any) => ({
+                                color: theme.colors.text2,
+                            })}
+                        />
+                    </RoundButton>
+                }
+                {userConnected &&
+                    <RoundButton
+                        title="Logout"
+                        onClick={logout}
+                    >
+                        <ExitToAppIcon 
+                            fontSize='large'
+                            css={(theme: any) => ({
+                                color: theme.colors.text2,
+                            })}
+                        />
+                    </RoundButton>
+                }
+            </div>
         </nav>
     )
 }
@@ -100,7 +124,6 @@ export const Footer = () => {
         </footer>
     )
 }
-
 
 export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: boolean, close: any, children: React.ReactNode, width?: string }) => {
 

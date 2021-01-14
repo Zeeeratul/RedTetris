@@ -19,6 +19,10 @@ import Chat from '../components/idleGame/Chat'
 
 import background from '../assets/tetris-background.jpg'
 
+// LEAVEBUTTON SOMEWHERE ....
+// RESPONSIVE GRID
+
+
 const defautGameParameters = {
     name: '',
     players: [],
@@ -102,12 +106,21 @@ function Game() {
                         css={{
                             gridArea: 'main',
                             display: 'grid',
-                            gridTemplateColumns: '28% auto 28%',
+                            gridTemplateColumns: 'auto auto auto',
                             gridTemplateRows: 'auto auto',
                             gridTemplateAreas: `
                                 "little_grid_1 main_grid little_grid_2"
                                 "little_grid_3 main_grid little_grid_4"
-                            `
+                            `,
+                            '@media (max-width: 800px)': {
+                                gridTemplateColumns: '1fr 1fr',
+                                gridTemplateRows: '2fr 1fr 1fr',
+                                gridTemplateAreas: `
+                                    "main_grid main_grid"
+                                    "little_grid_1 little_grid_2"
+                                    "little_grid_3 little_grid_4"
+                                `,
+                            }
                         }}
                     >
                         <Grid speed={speed} mode={mode} />

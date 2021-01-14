@@ -25,7 +25,7 @@ class Game {
         if (!gameParameters.mode || ['classic', 'invisible', 'marathon'].indexOf(gameParameters.mode) === -1)
             gameParameters.mode = 'classic'
         if (!gameParameters.speed || [0.5, 1, 1.5, 2].indexOf(gameParameters.speed) === -1) 
-            gameParameters.speed = 1
+            gameParameters.speed = 1.5
         if (!gameParameters.maxPlayers || [1, 2, 3, 4, 5].indexOf(gameParameters.maxPlayers) === -1)
             gameParameters.maxPlayers = 2
         return gameParameters

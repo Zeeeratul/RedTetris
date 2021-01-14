@@ -1,19 +1,5 @@
 import _ from 'lodash'
 
-interface positionInterface {
-    x: number,
-    y: number
-}
-
-type structureInterface = string[][]
-
-interface pieceInterface {
-    leftTopPosition: positionInterface,
-    type: string,
-    positions: positionInterface[],
-    structure: structureInterface
-}
-
 export const movePiece = (piece: pieceInterface, xDirection: number, yDirection: number) => {
     const newPiece = {
         ...piece,

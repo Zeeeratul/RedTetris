@@ -15,6 +15,20 @@ declare global {
         position: number
         score: number
     }
+
+    interface positionInterface {
+        x: number,
+        y: number
+    }
+    
+    type structureInterface = string[][]
+    
+    interface pieceInterface {
+        leftTopPosition: positionInterface,
+        type: string,
+        positions: positionInterface[],
+        structure: structureInterface
+    }
 }
 
 export {}
