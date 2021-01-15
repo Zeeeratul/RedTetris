@@ -93,81 +93,81 @@ afterAll((done) => {
 // })
   
 
-describe('connected route', () => {
+// describe('connected route', () => {
     
-    beforeEach((done) => {
-        const usernameFaker = faker.internet.userName()
-        clientSocketLogged = io.connect(`http://[${httpServerAddr.address}]:${httpServerAddr.port}`, {
-            reconnectionDelay: 0,
-            forceNew: true,
-        })
+//     beforeEach((done) => {
+//         const usernameFaker = faker.internet.userName()
+//         clientSocketLogged = io.connect(`http://[${httpServerAddr.address}]:${httpServerAddr.port}`, {
+//             reconnectionDelay: 0,
+//             forceNew: true,
+//         })
 
-        clientSocketLogged.on('connect', () => {
-            clientSocketLogged.emit(SOCKET.AUTH.LOGIN, usernameFaker, ({ error }: any) => {
-                try {
-                    if (error) throw new Error(error)
-                    done()
-                } 
-                catch (error) {
-                    done(error)
-                }
-            })
-        })
-    })
+//         clientSocketLogged.on('connect', () => {
+//             clientSocketLogged.emit(SOCKET.AUTH.LOGIN, usernameFaker, ({ error }: any) => {
+//                 try {
+//                     if (error) throw new Error(error)
+//                     done()
+//                 } 
+//                 catch (error) {
+//                     done(error)
+//                 }
+//             })
+//         })
+//     })
 
-    afterEach((done) => {
-        if (clientSocketLogged.connected) {
-            clientSocketLogged.disconnect()
-        }
-        // wait a bit for the socket to be disconnected correctly
-        setTimeout(() => {
-            done()
-        }, 200)
-    })
+//     afterEach((done) => {
+//         if (clientSocketLogged.connected) {
+//             clientSocketLogged.disconnect()
+//         }
+//         // wait a bit for the socket to be disconnected correctly
+//         setTimeout(() => {
+//             done()
+//         }, 200)
+//     })
 
-    test('Game Create route', (done) => {
-        const gameName = faker.random.word()
+//     test('Game Create route', (done) => {
+//         const gameName = faker.random.word()
     
-        clientSocketLogged.emit(SOCKET.GAMES.CREATE, gameName, ({ error, url }: any) => {
-            expect(sockets.games.games.length).toEqual(2)
-            done()
-        })
-    })
+//         clientSocketLogged.emit(SOCKET.GAMES.CREATE, gameName, ({ error, url }: any) => {
+//             expect(sockets.games.games.length).toEqual(2)
+//             done()
+//         })
+//     })
 
-    test('Game Join route', (done) => {
+//     test('Game Join route', (done) => {
 
-        clientSocketLogged.emit(SOCKET.GAMES.JOIN, hardcoded_game_name, ({ error, url }: any) => {
-            expect(url).toBe(`#${hardcoded_game_name}`)
-            done()
-        })
-    })
+//         clientSocketLogged.emit(SOCKET.GAMES.JOIN, hardcoded_game_name, ({ error, url }: any) => {
+//             expect(url).toBe(`#${hardcoded_game_name}`)
+//             done()
+//         })
+//     })
 
-    test('Game Join route not_existing_game', (done) => {
-        const gameName = faker.random.word()
+//     test('Game Join route not_existing_game', (done) => {
+//         const gameName = faker.random.word()
     
-        clientSocketLogged.emit(SOCKET.GAMES.JOIN, gameName, ({ error }) => {
-            expect(error).toBe(SOCKET.GAMES.ERROR.NOT_FOUND)
-            done()
-        })
-    })
+//         clientSocketLogged.emit(SOCKET.GAMES.JOIN, gameName, ({ error }) => {
+//             expect(error).toBe(SOCKET.GAMES.ERROR.NOT_FOUND)
+//             done()
+//         })
+//     })
 
 
-    test('Game check leader route, being leader', (done) => {
-        const gameName = faker.random.word()
+//     test('Game check leader route, being leader', (done) => {
+//         const gameName = faker.random.word()
     
-        clientSocketLogged.emit(SOCKET.GAMES.CREATE, gameName, ({ error, url }: any) => {
-            clientSocketLogged.emit(SOCKET.GAMES.CHECK_LEADER, gameName, ({ isLeader }) => {
-                expect(isLeader).toBeTruthy()
-                done()
-            })
-        })
-    })
+//         clientSocketLogged.emit(SOCKET.GAMES.CREATE, gameName, ({ error, url }: any) => {
+//             clientSocketLogged.emit(SOCKET.GAMES.CHECK_LEADER, gameName, ({ isLeader }) => {
+//                 expect(isLeader).toBeTruthy()
+//                 done()
+//             })
+//         })
+//     })
 
-    test('Game check leader route, not being leader', (done) => {
-        clientSocketLogged.emit(SOCKET.GAMES.CHECK_LEADER, hardcoded_game_name, ({ isLeader }) => {
-            expect(isLeader).toBeFalsy()
-            done()
-        })
-    })
+//     test('Game check leader route, not being leader', (done) => {
+//         clientSocketLogged.emit(SOCKET.GAMES.CHECK_LEADER, hardcoded_game_name, ({ isLeader }) => {
+//             expect(isLeader).toBeFalsy()
+//             done()
+//         })
+//     })
 
-})
+// })

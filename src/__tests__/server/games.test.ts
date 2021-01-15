@@ -1,12 +1,16 @@
-import Games from '../../server/class/Games'
+import { Games } from '../../server/class/Games'
 import { Player } from '../../server/class/Player'
-import { Piece } from '../../server/class/Piece'
 import { generateUserData } from './player.test'
-import faker from 'faker'
 import { SOCKET } from '../../client/config/constants.json'
 
-let games : Games
-let game_name : string
+let gamesInstance : Games
+let player: Player
+let correctGameParameters = {
+    name: 'random_game_name',
+    mode: 'classic',
+    speed: 1.5,
+    maxPlayers: 2
+}
 let playerData : any
 
 beforeEach(() => {
@@ -15,160 +19,142 @@ beforeEach(() => {
         creating a Games instance, and a Game instance
     */
    playerData = generateUserData()
+   player = new Player(playerData.username, playerData.id)
 
-   game_name = faker.random.word()
-   games = new Games()
-   games.createGame(game_name, new Player(playerData.username, playerData.id))
+   gamesInstance = new Games()
+   gamesInstance.createGame(correctGameParameters, player)
 })
 
 afterEach(() => {
-    games = null
-    game_name = null
+    gamesInstance = null
+    player = null
     playerData = null
 })
 
-describe('createGame()', () => {
+describe('createGame', () => {
     test('working', () => {
-        expect(games.games.length).toBe(1)
+        expect(gamesInstance.games.length).toBe(1)
     })
-    
-    test('gameName taken', () => {
-        const playerData = generateUserData()
-        // still one game because this game doesn't exist
-        const { error } = games.createGame(game_name, playerData)
-        expect(error).toEqual(SOCKET.GAMES.ERROR.NAME_TAKEN)
+
+    test('invalid gameName', () => {
+        expect(() => {
+            gamesInstance.createGame({
+                name: 'too_long_game_name_so_its_invalid',
+            }, player)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.INVALID_NAME)
     })
-    
-    test('invalid name', () => {
-        const newPlayerData = generateUserData()
-        const { error } = games.createGame('', new Player(newPlayerData.username, newPlayerData.id))
-        expect(error).toBe(SOCKET.GAMES.ERROR.INVALID_NAME)
+
+    test('gameName already taken', () => {
+        expect(() => {
+            gamesInstance.createGame({
+                name: correctGameParameters.name,
+            }, player)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.NAME_TAKEN)
     })
 })
 
-
-describe('destroyGame()', () => {
+describe('joinGame', () => {
     test('working', () => {
-        games.destroyGame(game_name)
-        expect(games.games.length).toBe(0)
+        const playerData2 = generateUserData()
+        const player2 = new Player(playerData2.username, playerData2.id)
+        const game = gamesInstance.joinGame(correctGameParameters.name, player2)
+        expect(game.players.length).toBe(2)
     })
 
-    test('unexisting game', () => {
-        const non_existing_game_name = faker.random.word()
-    
-        // still one game because this game doesn't exist
-        games.destroyGame(non_existing_game_name)
-        expect(games.games.length).toBe(1)
-    })
-})
+    test('unknown game', () => {
+        const playerData2 = generateUserData()
+        const player2 = new Player(playerData2.username, playerData2.id)
 
-
-
-describe('joinGame()', () => {
-    test('add player and send the url of the game', () => {
-        const secondPlayerData = generateUserData()
-    
-        const { url } = games.joinGame(game_name, secondPlayerData)
-        expect(url).toBe(`#${game_name}`)
-    })
-    
-    test('game not found', () => {
-        const secondPlayerData = generateUserData()
-    
-        const { url, error } = games.joinGame('not_existing_game_name', secondPlayerData)
-        expect(url).toBeUndefined()
-        expect(error).toEqual(SOCKET.GAMES.ERROR.NOT_FOUND)
+        expect(() => {
+            gamesInstance.joinGame('unknown_game_name', player2)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.NOT_FOUND)
     })
 
-    test('game full', () => {
-        const secondPlayerData = generateUserData()
-        const thirdPlayerData = generateUserData()
+    test('started game', () => {
+        gamesInstance.games[0].status = 'started'
+        const playerData2 = generateUserData()
+        const player2 = new Player(playerData2.username, playerData2.id)
 
-        // can join because less than 2 player
-        games.joinGame(game_name, secondPlayerData)
-        // can't because there are 2 players
-        const { url, error } = games.joinGame(game_name, thirdPlayerData)
-        
-        expect(url).toBeUndefined()
-        expect(error).toEqual(SOCKET.GAMES.ERROR.FULL)
+        expect(() => {
+            gamesInstance.joinGame(correctGameParameters.name, player2)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.STARTED)
+    })
+
+    test('full game', () => {
+        gamesInstance.games[0].maxPlayers = 1
+        const playerData2 = generateUserData()
+        const player2 = new Player(playerData2.username, playerData2.id)
+
+        expect(() => {
+            gamesInstance.joinGame(correctGameParameters.name, player2)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.FULL)
     })
 })
 
-describe('leaveGame()', () => {
-    test('leaveGame() leader player leaving', () => {
-        const { error } = games.leaveGame(game_name, playerData)
-        
-        expect(error).toBeUndefined()
+describe('leaveGame', () => {
+    test('1 player', () => {
+        gamesInstance.leaveGame(correctGameParameters.name, player)
+        expect(gamesInstance.games.length).toBe(0)
+    })    
+
+    test('multiple players', () => {
+        const playerData2 = generateUserData()
+        const player2 = new Player(playerData2.username, playerData2.id)
+
+        gamesInstance.games[0].addPlayer(player2)
+        const game = gamesInstance.leaveGame(correctGameParameters.name, player)
+        expect(game.players.length).toBe(1)
     })
-    
-    test('leaveGame() other player leaving', () => {
-        const secondPlayerData = generateUserData()
-        games.joinGame(game_name, secondPlayerData)
-        const { error } = games.leaveGame(game_name, secondPlayerData)
-        
-        expect(error).toBeUndefined()
+
+    test('unknown game', () => {
+        expect(() => {
+            gamesInstance.leaveGame('unknown_game_name', player)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.NOT_FOUND)
     })
-    
-    test('leaveGame()  game not found', () => {
-        const { error } = games.leaveGame('not_existing_game_name', playerData)
-        expect(error).toBe(SOCKET.GAMES.ERROR.NOT_FOUND)
-    })
-    
 })
 
-
-
-
-describe('startGame()', () => {
+describe('startGame', () => {
     test('working', () => {
-        const { payload } = games.startGame(game_name, playerData)
-        expect(payload.currentPiece).toBeInstanceOf(Piece)
-    })
-    
-    test('not existing game', () => {
-        const { error } = games.startGame('not_existing_game_name', playerData)
-        expect(error).toEqual(SOCKET.GAMES.ERROR.NOT_FOUND)
-    })
-    
-    test('not being leader', () => {
-        const playerNotInTheGame = generateUserData()
-        const { error } = games.startGame(game_name, playerNotInTheGame)
-        expect(error).toEqual(SOCKET.GAMES.ERROR.NOT_LEADER)
-    })
-})
+        const game = gamesInstance.startGame(correctGameParameters.name, player)
+        expect(game.status).toBe('started')
+    })  
 
-describe('endGame()', () => {
-    test('working', () => {
-        const { payload } = games.endGame(game_name, playerData)
-        expect(payload).toBeTruthy()
-    })
-    
-    test('not existing game', () => {
-        const { error } = games.endGame('not_existing_game_name', playerData)
-        expect(error).toEqual(SOCKET.GAMES.ERROR.NOT_FOUND)
-    })
-})
+    test('unknown game', () => {
+        expect(() => {
+            gamesInstance.startGame('unknown_game_name', player)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.NOT_FOUND)
+    })  
 
-describe('getGame() and getUnstartGamesList()', () => {
-    test('send game_name and players number', () => {
-        const game = games.getGame(game_name)
-        expect(game.name).toBe(game_name)
+    test('player not leader', () => {
+        const playerData2 = generateUserData()
+        const player2 = new Player(playerData2.username, playerData2.id)
+        gamesInstance.joinGame(correctGameParameters.name, player2)
 
-        const non_existing_game_name = faker.random.word()
-        const non_existing_game = games.getGame(non_existing_game_name)
-        expect(non_existing_game).toBeNull()
-
-    })
-
-    test('send all games with a status idle', () => {
-        
-        const game = games.getGame(game_name)
-        let gamesList = games.getGamesList()
-        expect(gamesList.length).toBe(1)
-
-        game.changeStatus('started')
-        gamesList = games.getGamesList()
-        expect(gamesList.length).toBe(0)
+        expect(() => {
+            gamesInstance.startGame(correctGameParameters.name, player2)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.NOT_LEADER)
     })  
 })
 
+describe('getGamesList', () => {
+    test('unstarted game', () => {
+        const games = gamesInstance.getGamesList()
+    
+        expect(games.length).toBe(1)
+    })
+    
+    test('started game', () => {
+        gamesInstance.games[0].status = 'started'
+        const games = gamesInstance.getGamesList()
+    
+        expect(games.length).toBe(0)
+    })
+})

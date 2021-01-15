@@ -1,119 +1,211 @@
 import { Game } from '../../server/class/Game'
 import { Player } from '../../server/class/Player'
+import { Piece } from '../../server/class/Piece'
 import { generateUserData } from './player.test'
-import faker from 'faker'
+import { SOCKET } from '../../client/config/constants.json'
 
 let game : Game
-let gameParameters : any
-let leader_player : Player
-let second_player : Player
+let correctGameParameters : any
+let player1 : Player
+let player2 : Player
 
 beforeEach(() => {
     /* 
         Before each test
         Creating a game instance, and two player instances
     */
-    const playerData = generateUserData()
-    const secondPlayerData = generateUserData()
-    leader_player = new Player(playerData.username, playerData.id)
-    second_player = new Player(secondPlayerData.username, secondPlayerData.id)
+    const player1Data = generateUserData()
+    const player2Data = generateUserData()
+    player1 = new Player(player1Data.username, player1Data.id)
+    player2 = new Player(player2Data.username, player2Data.id)
     
-    gameParameters = {
-        name: 'game_test',
+    correctGameParameters = {
+        name: 'random_game_name',
+        mode: 'classic',
+        speed: 1.5,
+        maxPlayers: 2
     }
 
     // Game is only create with one player 
-    game = new Game(gameParameters, leader_player)
+    game = new Game(correctGameParameters, player1)
 })
 
 afterEach(() => {
-    leader_player = null
-    second_player = null
-    gameParameters = null
+    player1 = null
+    player2 = null
+    correctGameParameters = null
     game = null
 })
 
-test('constructor', () => {
-    expect(game.name).toEqual(gameParameters.name)
+test('constructor correct parameters', () => {
+    expect(game.name).toEqual(correctGameParameters.name)
 })
 
-test('checkGameParameters badParameters', () => {
+test('constructor bad parameters', () => {
     const badGameParameters = {
-        name: 'game_name',
-        mode: 'class',
+        name: 'random_game_name',
+        mode: 'not_existing_mode',
         speed: 100,
         maxPlayers: 12000
     }
 
-    const game = new Game(badGameParameters)
+    const game = new Game(badGameParameters, player1)
+
+    expect({
+        mode: game.mode,
+        speed: game.speed,
+        maxPlayers: game.maxPlayers,
+    })
+    .toStrictEqual({
+        mode: 'classic',
+        speed: 1.5,
+        maxPlayers: 2,
+    })
 })
 
+test('addPlayer', () => {
+    game.addPlayer(player2)
 
+    expect(game.players.length).toBe(2)
+})
 
+test('removePlayer', () => {
+    game.addPlayer(player2)
+    game.removePlayer(player2.id)
 
-// test('Game Class, isLeader()', () => {
-//     game.addPlayer(second_player)
+    expect(game.players.length).toBe(1)
+})
 
-//     const checkLeader1 = game.isLeader(leader_player.id)
-//     expect(checkLeader1).toEqual(true)
+test('transferLeadership', () => {
+    game.addPlayer(player2)
+    game.removePlayer(player1.id)
+    game.transferLeadership()
 
-//     const checkLeader2 = game.isLeader(second_player.id)
-//     expect(checkLeader2).toEqual(false)
-// })
+    expect(game.leaderId).toBe(player2.id)
+})
 
-// test('Game Class, add a second player and remove him', () => {
-//     game.addPlayer(second_player)
-//     expect(game.players.length).toEqual(2)
+test('isLeader', () => {
+    expect(game.isLeader(player1.id)).toBeTruthy()
+})
 
-//     game.removePlayer(second_player.id)
-//     expect(game.players.length).toEqual(1)
-// })
+test('getPlayer', () => {
+    const player = game.getPlayer(player1.id)
+    expect(player).toStrictEqual(player1)
+})
 
-// test('Game Class, ownership tranfer', () => {
-//     game.addPlayer(second_player)
-//     game.removePlayer(leader_player.id)
-//     game.transferLeadership()
+describe('givePiece', () => {
+    test('with player', () => {
+        const piece = game.givePiece(player1.id)
+        expect(piece).toBeInstanceOf(Piece)
+    })
 
-//     expect(game.leaderId).toBe(second_player.id)
-// })
-
-// test('Game Class, getPlayer()', () => {
-//     const player = game.getPlayer(leader_player.id)
-//     expect(player).toEqual(leader_player)
+    test('without player', () => {
+        expect(() => {
+            game.givePiece('unknown_id')
+        })
+        .toThrow(SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND)
+    })
     
-//     // this user is not in the game -> should be null
-//     const player2 = game.getPlayer(second_player.id)
-//     expect(player2).toBeNull()
-// })
+    test('player being KO', () => {
+        player1.status = 'KO'
+        expect(() => {
+            game.givePiece(player1.id)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.PLAYER_KO)
+    })
+})
 
-// test('Game Class, givePiece()', () => {
-//     game.addPlayer(second_player)
+describe('updateScore', () => {
+    test('with player', () => {
+        game.updateScore(1, player1.id)
+        expect(player1.score).toBe(10)
+    })
 
-//     const piece_leader_player = game.givePiece(leader_player.id)
-//     const piece_second_player = game.givePiece(second_player.id)
-//     expect(piece_leader_player).toHaveProperty('type')
-//     expect(piece_second_player).toHaveProperty('type')
+    test('without player', () => {
+        expect(() => {
+            game.updateScore(1, 'unknown_id')
+        })
+        .toThrow(SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND)
+    })
+        
+    test('player being KO', () => {
+        player1.status = 'KO'
+        expect(() => {
+            game.updateScore(1, player1.id)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.PLAYER_KO)
+    })
+})
 
-//     // should be the same piece
-//     expect(piece_leader_player.type).toEqual(piece_second_player.type)
-// })
+describe('updateSpectrum', () => {
+    const spectrum = Array(10).fill(19)
 
-// test('Game Class, givePiece() wrong user', () => {
-//     const noPiece = game.givePiece('bad_username')
-//     expect(noPiece).toBeNull()
+    test('with player', () => {
+        game.updateSpectrum(spectrum, player1.id)
+        expect(player1.spectrum.length).toBe(10)
+    })
 
-// })
+    test('without player', () => {
+        expect(() => {
+            game.updateSpectrum(spectrum, 'unknown_id')
+        })
+        .toThrow(SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND)
+    })
 
-// test('Game Class, info()', () => {
-//     const info = game.info()
-//     expect(info).toEqual({
-//         name: game_name,
-//         players: 1
-//     })
-// })
+    test('player being KO', () => {
+        player1.status = 'KO'
+        expect(() => {
+            game.updateSpectrum(spectrum, player1.id)
+        })
+        .toThrow(SOCKET.GAMES.ERROR.PLAYER_KO)
+    })
+})
 
-// test('Game Class, status()', () => {
-//     const status = 'started'
-//     game.changeStatus(status)
-//     expect(game.status).toEqual(status)
-// })
+describe('setPlayerKo', () => {
+    test('with player', () => {
+        game.setPlayerKo(player1.id)
+        expect(player1.status).toBe('KO')
+    })
+
+    test('without player', () => {
+        expect(() => {
+            game.setPlayerKo('unknown_id')
+        })
+        .toThrow(SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND)
+    })
+})
+
+describe('isGameOver', () => {
+    test('not started game', () => {
+        const isGameOver = game.isGameOver()
+        expect(isGameOver).toBeFalsy()
+    })
+
+    test('started solo game and player still playing', () => {
+        game.status = 'started'
+        const isGameOver = game.isGameOver()
+        expect(isGameOver).toBeFalsy()
+    })
+
+    test('started solo game and player being KO', () => {
+        game.status = 'started'
+        game.setPlayerKo(player1.id)
+        const isGameOver = game.isGameOver()
+        expect(isGameOver).toBeTruthy()
+    })
+
+    test('started multiplayer game and one player still playing', () => {
+        game.addPlayer(player2)
+        game.status = 'started'
+        game.setPlayerKo(player1.id)
+        const isGameOver = game.isGameOver()
+        expect(isGameOver).toBeTruthy()
+    })
+})
+
+test('reset', () => {
+    game.status = 'started'
+    game.reset()
+
+    expect(game.status).toBe('idle')
+})

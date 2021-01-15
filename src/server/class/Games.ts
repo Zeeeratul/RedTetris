@@ -7,7 +7,7 @@ class Games {
     games: Game[] = [];
 
     createGame(gameParameters: GameParameters, playerData: User) {
-        if (!gameParameters.isSolo && (!gameParameters.name || gameParameters.name.length > 15 || gameParameters.name.length < 4))
+        if (!gameParameters.isSolo && (!gameParameters.name || gameParameters.name.length > 25 || gameParameters.name.length < 4))
             throw SOCKET.GAMES.ERROR.INVALID_NAME
 
         const checkGame = this.getGame(gameParameters.name)

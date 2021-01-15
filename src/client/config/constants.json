@@ -38,7 +38,8 @@
                 "NOT_LEADER": "not_leader",
                 "FULL": "game_full",
                 "STARTED": "game_started",
-                "PLAYER_NOT_FOUND": "player_not_found"
+                "PLAYER_NOT_FOUND": "player_not_found",
+                "PLAYER_KO": "player_ko"
             }
         },
         "SERVER_ERROR": {
