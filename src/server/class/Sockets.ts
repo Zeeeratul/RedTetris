@@ -22,7 +22,7 @@ class Sockets {
 
             socket.on(SOCKET.AUTH.LOGIN, (username: string, callback: CallbackFunction) => {
                 try {
-                    if (!username || username.length > 15) 
+                    if (!username || username.length > 25) 
                         throw SOCKET.AUTH.ERROR.INVALID_USERNAME
             
                     const findUser = _.find(this.users, { username })
@@ -166,13 +166,13 @@ class Sockets {
                     if (!socket.player) 
                         throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
                         
-                    const { gameName, id } = socket.player
+                    const { gameName, id: playerId } = socket.player
                     const game = this.games.getGame(gameName)
     
                     if (!game)
                         throw SOCKET.GAMES.ERROR.NOT_FOUND
     
-                    game.setPlayerKo(id)
+                    game.setPlayerKo(playerId)
                     const gameOver = game.isGameOver()
 
                     if (gameOver) {
@@ -193,13 +193,13 @@ class Sockets {
                     if (!socket.player) 
                         throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
                         
-                    const { gameName } = socket.player
+                    const { gameName, id: playerId } = socket.player
                     const game = this.games.getGame(gameName)
     
                     if (!game)
                         throw SOCKET.GAMES.ERROR.NOT_FOUND
     
-                    game.updateSpectrum(spectrumArray, socket.player.id)
+                    game.updateSpectrum(spectrumArray, playerId)
                     socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, game.info())
                 }
                 catch (error) {
@@ -221,7 +221,8 @@ class Sockets {
                     if (linesCount > 1 && game.mode !== 'marathon')
                         socket.to(gameName).emit(SOCKET.GAMES.LINE_PENALTY, null, linesCount - 1)
                     game.updateScore(linesCount, playerId)
-                    this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, game.info())
+                    const gameInfo = game.info()
+                    this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
                 }
                 catch (error) {
                     console.error(error)
@@ -233,16 +234,12 @@ class Sockets {
                     if (!socket.player) 
                         throw SOCKET.SERVER_ERROR.USER_NOT_CONNECTED
                     
-                    const { gameName, id } = socket.player
+                    const { gameName, id: playerId } = socket.player
                     const game = this.games.getGame(gameName)
                     if (!game)
                         throw SOCKET.GAMES.ERROR.NOT_FOUND
     
-                    const player = game.getPlayer(id)
-                    if (!player || player.status === 'KO')
-                        throw SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND
-    
-                    const piece = game.givePiece(player)
+                    const piece = game.givePiece(playerId)
                     callback(null, piece)
                 }
                 catch (error) {
@@ -304,6 +301,7 @@ class Sockets {
                 }
                 catch (error) {
                     console.error(error)
+                    callback(error)
                 }
             })
         })

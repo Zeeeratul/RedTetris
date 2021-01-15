@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 declare global {
 
     type StructureCell = '' | '#'
@@ -38,5 +40,13 @@ declare global {
         (error: SocketError, data?: any): void
     }
 }
+// "ts-node": {
+//     "files": true
+//   },
+//   "files": [
+//     "src/server/global.d.ts"
+//   ],
+//   "include": ["src/server/**/*"],
+//   "exclude": ["node_modules", "src/client/**/*"]
 
 export {}

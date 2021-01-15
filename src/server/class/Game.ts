@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import { Player } from './Player'
 import { Piece } from './Piece'
+import { SOCKET } from '../config/constants.json'
 
 class Game {
     players: Player[];
@@ -10,7 +11,7 @@ class Game {
     status: GameStatus = 'idle';
     mode: GameMode = 'classic';
     maxPlayers: GameMaxPlayers = 2;
-    speed: GameSpeed = 1;
+    speed: GameSpeed = 1.5;
 
     constructor(gameParameters: GameParameters, player: Player) {
         this.name = gameParameters.name
@@ -52,7 +53,13 @@ class Game {
         return player
     }
 
-    givePiece(player: Player) {
+    givePiece(playerId: string) {
+        const player = this.getPlayer(playerId)
+        if (!player) 
+            throw SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND
+        if (player.status === 'KO')
+            throw SOCKET.GAMES.ERROR.PLAYER_KO
+
         const currentPieceIndex = player.currentPieceIndex
         player.incrementCurrentPieceIndex()
         // Generate new pieces if the player is close the end of the pieces heap
@@ -63,20 +70,28 @@ class Game {
 
     updateScore(lineCleared: number, playerId: string) {
         const player = this.getPlayer(playerId)
-        if (player)
-            player.score = player.score + lineCleared * 10
+        if (!player)
+            throw SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND
+        if (player.status === 'KO')
+            throw SOCKET.GAMES.ERROR.PLAYER_KO
+
+        player.score = player.score + (lineCleared * 10)
     }
 
     updateSpectrum(spectrumArray: number[], playerId: string) {
         const player = this.getPlayer(playerId)
-        if (player)
-            player.spectrum = spectrumArray
+        if (!player)
+            throw SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND
+        if (player.status === 'KO')
+            throw SOCKET.GAMES.ERROR.PLAYER_KO
+
+        player.spectrum = spectrumArray
     }
 
     setPlayerKo(playerId: string) {
         const player = this.getPlayer(playerId)
         if (!player)
-            return
+            throw SOCKET.GAMES.ERROR.PLAYER_NOT_FOUND
             
         player.status = 'KO'
         const playersStillPlaying = _.filter(this.players, { status: 'playing' })
@@ -101,13 +116,12 @@ class Game {
     }
 
     getResults() {
-        const results = this.players.map((player: Player) => ({
+        return this.players.map((player: Player) => ({
             id: player.id,
             username: player.username,
             position: player.position,
             score: player.score,
         }))
-        return results
     }
 
     info() {

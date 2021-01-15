@@ -8,18 +8,27 @@ export const generateUserData = () => {
     }
 }
 
-test('Player Class, init', () => {
+test('constructor', () => {
     const playerData = generateUserData()
     const player = new Player(playerData.username, playerData.id)
 
     expect(player).toMatchObject(playerData)
 })
 
-test('Player Class, incrementPieceIndex() function', () => {
+test('incrementPieceIndex', () => {
     const playerData = generateUserData()
     const player = new Player(playerData.username, playerData.id)
 
     expect(player.currentPieceIndex).toEqual(0)
     player.incrementCurrentPieceIndex()
     expect(player.currentPieceIndex).toEqual(1)
+})
+
+test('resetPlayer', () => {
+    const playerData = generateUserData()
+    const player = new Player(playerData.username, playerData.id)
+
+    player.status = 'KO'
+    player.reset()
+    expect(player.status).toEqual('playing')
 })
