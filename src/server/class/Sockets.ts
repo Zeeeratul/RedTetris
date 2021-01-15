@@ -53,18 +53,19 @@ class Sockets {
                         if (index !== -1)
                             this.users.splice(index, 1)
 
-                        const game = this.games.leaveGame(gameName, socket.player)
-                        socket.leave(gameName)
-    
-                        if (game) {
-                            const gameOver = game.isGameOver()
-                            if (gameOver) {
-                                const results = game.getResults()
-                                this.io.in(gameName).emit(SOCKET.GAMES.RESULTS, null, results)
-                                game.reset()
+                        if (gameName) {
+                            const game = this.games.leaveGame(gameName, socket.player)
+                            socket.leave(gameName)
+                            if (game) {
+                                const gameOver = game.isGameOver()
+                                if (gameOver) {
+                                    const results = game.getResults()
+                                    this.io.in(gameName).emit(SOCKET.GAMES.RESULTS, null, results)
+                                    game.reset()
+                                }
+                                const info = game.info()
+                                socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
                             }
-                            const info = game.info()
-                            socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
                         }
                     }
                 }
@@ -95,7 +96,7 @@ class Sockets {
                     callback(null, gameName)
                 }
                 catch (error) {
-                    console.log('error', error)
+                    console.error(error)
                     return callback(error)
                 }
             })

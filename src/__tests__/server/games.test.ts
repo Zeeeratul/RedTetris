@@ -4,31 +4,27 @@ import { generateUserData } from './player.test'
 import { SOCKET } from '../../client/config/constants.json'
 
 let gamesInstance : Games
-let player: Player
 let correctGameParameters = {
     name: 'random_game_name',
     mode: 'classic',
     speed: 1.5,
     maxPlayers: 2
 }
-let playerData : any
+let userData1 : any
 
 beforeEach(() => {
     /* 
         before each test
         creating a Games instance, and a Game instance
     */
-   playerData = generateUserData()
-   player = new Player(playerData.username, playerData.id)
-
+   userData1 = generateUserData()
    gamesInstance = new Games()
-   gamesInstance.createGame(correctGameParameters, player)
+   gamesInstance.createGame(correctGameParameters, userData1)
 })
 
 afterEach(() => {
     gamesInstance = null
-    player = null
-    playerData = null
+    userData1 = null
 })
 
 describe('createGame', () => {
@@ -39,8 +35,8 @@ describe('createGame', () => {
     test('invalid gameName', () => {
         expect(() => {
             gamesInstance.createGame({
-                name: 'too_long_game_name_so_its_invalid',
-            }, player)
+                name: 'too_long_game_name____invalid',
+            }, userData1)
         })
         .toThrow(SOCKET.GAMES.ERROR.INVALID_NAME)
     })
@@ -49,7 +45,7 @@ describe('createGame', () => {
         expect(() => {
             gamesInstance.createGame({
                 name: correctGameParameters.name,
-            }, player)
+            }, userData1)
         })
         .toThrow(SOCKET.GAMES.ERROR.NAME_TAKEN)
     })
@@ -57,40 +53,34 @@ describe('createGame', () => {
 
 describe('joinGame', () => {
     test('working', () => {
-        const playerData2 = generateUserData()
-        const player2 = new Player(playerData2.username, playerData2.id)
-        const game = gamesInstance.joinGame(correctGameParameters.name, player2)
+        const userData2 = generateUserData()
+        const game = gamesInstance.joinGame(correctGameParameters.name, userData2)
         expect(game.players.length).toBe(2)
     })
 
     test('unknown game', () => {
-        const playerData2 = generateUserData()
-        const player2 = new Player(playerData2.username, playerData2.id)
-
+        const userData2 = generateUserData()
         expect(() => {
-            gamesInstance.joinGame('unknown_game_name', player2)
+            gamesInstance.joinGame('unknown_game_name', userData2)
         })
         .toThrow(SOCKET.GAMES.ERROR.NOT_FOUND)
     })
 
     test('started game', () => {
         gamesInstance.games[0].status = 'started'
-        const playerData2 = generateUserData()
-        const player2 = new Player(playerData2.username, playerData2.id)
-
+        const userData2 = generateUserData()
         expect(() => {
-            gamesInstance.joinGame(correctGameParameters.name, player2)
+            gamesInstance.joinGame(correctGameParameters.name, userData2)
         })
         .toThrow(SOCKET.GAMES.ERROR.STARTED)
     })
 
     test('full game', () => {
         gamesInstance.games[0].maxPlayers = 1
-        const playerData2 = generateUserData()
-        const player2 = new Player(playerData2.username, playerData2.id)
+        const userData2 = generateUserData()
 
         expect(() => {
-            gamesInstance.joinGame(correctGameParameters.name, player2)
+            gamesInstance.joinGame(correctGameParameters.name, userData2)
         })
         .toThrow(SOCKET.GAMES.ERROR.FULL)
     })
@@ -98,22 +88,21 @@ describe('joinGame', () => {
 
 describe('leaveGame', () => {
     test('1 player', () => {
-        gamesInstance.leaveGame(correctGameParameters.name, player)
+        gamesInstance.leaveGame(correctGameParameters.name, userData1)
         expect(gamesInstance.games.length).toBe(0)
     })    
 
     test('multiple players', () => {
-        const playerData2 = generateUserData()
-        const player2 = new Player(playerData2.username, playerData2.id)
+        const userData2 = generateUserData()
+        gamesInstance.joinGame(correctGameParameters.name, userData2)
 
-        gamesInstance.games[0].addPlayer(player2)
-        const game = gamesInstance.leaveGame(correctGameParameters.name, player)
+        const game = gamesInstance.leaveGame(correctGameParameters.name, userData1)
         expect(game.players.length).toBe(1)
     })
 
     test('unknown game', () => {
         expect(() => {
-            gamesInstance.leaveGame('unknown_game_name', player)
+            gamesInstance.leaveGame('unknown_game_name', userData1)
         })
         .toThrow(SOCKET.GAMES.ERROR.NOT_FOUND)
     })
@@ -121,24 +110,23 @@ describe('leaveGame', () => {
 
 describe('startGame', () => {
     test('working', () => {
-        const game = gamesInstance.startGame(correctGameParameters.name, player)
+        const game = gamesInstance.startGame(correctGameParameters.name, userData1)
         expect(game.status).toBe('started')
     })  
 
     test('unknown game', () => {
         expect(() => {
-            gamesInstance.startGame('unknown_game_name', player)
+            gamesInstance.startGame('unknown_game_name', userData1)
         })
         .toThrow(SOCKET.GAMES.ERROR.NOT_FOUND)
     })  
 
     test('player not leader', () => {
-        const playerData2 = generateUserData()
-        const player2 = new Player(playerData2.username, playerData2.id)
-        gamesInstance.joinGame(correctGameParameters.name, player2)
+        const userData2 = generateUserData()
+        gamesInstance.joinGame(correctGameParameters.name, userData2)
 
         expect(() => {
-            gamesInstance.startGame(correctGameParameters.name, player2)
+            gamesInstance.startGame(correctGameParameters.name, userData2)
         })
         .toThrow(SOCKET.GAMES.ERROR.NOT_LEADER)
     })  

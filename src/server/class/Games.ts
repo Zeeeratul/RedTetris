@@ -6,7 +6,7 @@ import { SOCKET } from '../config/constants.json'
 class Games {
     games: Game[] = [];
 
-    createGame(gameParameters: GameParameters, playerData: User) {
+    createGame(gameParameters: GameParameters, userData: User) {
         if (!gameParameters.isSolo && (!gameParameters.name || gameParameters.name.length > 25 || gameParameters.name.length < 4))
             throw SOCKET.GAMES.ERROR.INVALID_NAME
 
@@ -14,13 +14,13 @@ class Games {
         if (checkGame)
             throw SOCKET.GAMES.ERROR.NAME_TAKEN
             
-        const player = new Player(playerData.username, playerData.id)
+        const player = new Player(userData.username, userData.id)
         const game = new Game(gameParameters, player)
         this.games.push(game)
         return game.name
     }
 
-    joinGame(gameName: string, playerData: User) {
+    joinGame(gameName: string, userData: User) {
         const game = this.getGame(gameName)
 
         if (!game)
@@ -30,18 +30,18 @@ class Games {
         else if (game.players.length >= game.maxPlayers)
             throw SOCKET.GAMES.ERROR.FULL
 
-        const player = new Player(playerData.username, playerData.id)
+        const player = new Player(userData.username, userData.id)
         game.addPlayer(player)
         return game
     }
 
-    leaveGame(gameName: string, playerData: User) {
+    leaveGame(gameName: string, userData: User) {
         const game = this.getGame(gameName)
         if (!game)
             throw SOCKET.GAMES.ERROR.NOT_FOUND
 
         if (game.players.length > 1) {
-            game.removePlayer(playerData.id)
+            game.removePlayer(userData.id)
             game.transferLeadership()
             return game
         }
@@ -55,12 +55,12 @@ class Games {
             this.games.splice(index, 1)
     }
 
-    startGame(gameName: string, playerData: User) {
+    startGame(gameName: string, userData: User) {
         const game = this.getGame(gameName)
         if (!game)
             throw SOCKET.GAMES.ERROR.NOT_FOUND
 
-        if (!game.isLeader(playerData.id))
+        if (!game.isLeader(userData.id))
             throw SOCKET.GAMES.ERROR.NOT_LEADER
 
         game.status = 'started'
