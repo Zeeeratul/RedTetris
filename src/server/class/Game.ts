@@ -37,7 +37,8 @@ class Game {
 
     removePlayer(playerId: string) {
         const index = _.findIndex(this.players, { id: playerId })
-        this.players.splice(index, 1)
+        if (index !== -1)
+            this.players.splice(index, 1)
     }
 
     transferLeadership() {

@@ -94,7 +94,7 @@
     "dev_client": "node scripts/start.js",
     "dev_server": "nodemon --exec ts-node --project src/server/tsconfig.json src/server --watch src/server",
     "test": "node scripts/test.js",
-    "coverage": "npm test -- --coverage",
+    "coverage": "npm test -- --coverage --watchAll --silent",
     "build": "node scripts/build.js && tsc --project src/server/tsconfig.json",
     "start": "node build/server/index.js"
   },
