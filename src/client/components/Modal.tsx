@@ -37,6 +37,7 @@ export const Modal = ({ isOpen, close, children, width = '400px' }: { isOpen: bo
         <AnimatePresence exitBeforeEnter>
             {isOpen && (
                 <motion.div
+                    aria-hidden={!isOpen}
                     onClick={closeWithNoClickPropagation}
                     id="backdrop"
                     css={{
