@@ -26,8 +26,7 @@ import {
 import { NextPiece } from './NextPiece'
 import { Line } from './Line'
 
-const initState: GamePlaying = {
-    grid: [
+const initialGrid: Grid = [
         ['', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', ''],
@@ -51,81 +50,14 @@ const initState: GamePlaying = {
         ['', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', ''],
-    ],
-    piece: null,
-    nextPiece: null,
-    isKo: false
-}
+    ]
 
-const reducer = (state: GamePlaying, action: any): GamePlaying => {
-    const { nextPiece, grid } = state
-
-    switch (action.type) {
-        case SOCKET.GAMES.SET_PIECE: {
-            return {
-                ...state,
-                piece: action.payload
-            }
-        }
-        case SOCKET.GAMES.SET_NEXT_PIECE: {
-            return {
-                ...state,
-                nextPiece: action.payload
-            }
-        }
-        case SOCKET.GAMES.LINE_PENALTY: {
-            const newGrid = addPenaltyToGrid(grid, action.payload)
-            return {
-                ...state,
-                grid: newGrid
-            }
-        }
-        case 'MovePiece': {
-            return {
-                ...state,
-                piece: action.payload
-            }
-        }
-        case 'AddPieceGrid': {
-            return {
-                ...state,
-                grid: action.payload.newGrid,
-                piece: nextPiece,
-                nextPiece: action.payload.nextPiece
-            }
-        }
-        case 'AddPieceGrid2': {
-            return {
-                ...state,
-                grid: action.payload.newGrid,
-                piece: nextPiece,
-                nextPiece: null
-            }
-        }
-        case 'Ko': {
-            return {
-                ...state,
-                isKo: true
-            }
-        }
-        default:
-            console.log(action.type, ' is not supported...')
-            return state
-    }
-}
 
 function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
-    // const [{
-    //     isKo,
-    //     piece,
-    //     nextPiece,
-    //     grid
-    // }, dispatch] = useReducer(reducer, initState)
-
     const [isKo, setIsKo] = useState(false)
     const [piece, setPiece] = useState<Piece>()
     const [nextPiece, setNextPiece] = useState<Piece>()
-    const [grid, setGrid] = useState(initState.grid)
+    const [grid, setGrid] = useState(initialGrid)
 
     const handleKey = (key: string) => {
         if (!piece || !key || isKo) return
@@ -204,115 +136,6 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
             cancelSubscribtionToEvent(SOCKET.GAMES.LINE_PENALTY)
         }
     }, [])
-    // const handleKey = (key: string) => {
-    //     if (!piece || !key || isKo) return
-
-    //     if (key === "ArrowRight") {
-    //         const updatedPiece = movePiece(piece, 1, 0)
-    //         if (checkPosition(updatedPiece.positions, grid))
-    //             dispatch({ type: 'MovePiece', payload: updatedPiece })
-    //     }
-    //     else if (key === "ArrowLeft") {
-    //         const updatedPiece = movePiece(piece, -1, 0)
-    //         if (checkPosition(updatedPiece.positions, grid))
-    //             dispatch({ type: 'MovePiece', payload: updatedPiece })
-    //     }
-    //     // Rotation
-    //     else if (key === "ArrowUp") {
-    //         const updatedStructure = rotatePiece(piece.structure)
-    //         const updatedPositions = convertStructureToPositions(updatedStructure, piece.leftTopPosition)
-    //         if (checkPosition(updatedPositions, grid)) {
-    //             const updatedPiece = {
-    //                 ...piece,
-    //                 positions: updatedPositions,
-    //                 structure: updatedStructure
-    //             }
-    //             dispatch({ type: 'MovePiece', payload: updatedPiece })
-    //         }
-    //     }
-    //     else if (key === "ArrowDown") {
-    //         const updatedPiece = movePiece(piece, 0, 1)
-    //         if (checkPosition(updatedPiece.positions, grid))
-    //             dispatch({ type: 'MovePiece', payload: updatedPiece })
-    //         else {
-    //             const updatedGrid = addPieceToTheGrid(piece, grid)
-    //             const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
-    //             emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
-    //             // dispatch({ type: 'AddPieceGrid2', payload: {
-    //             //     newGrid,
-    //             // }})
-    //             emitToEventWithAcknowledgementPromise(SOCKET.GAMES.GET_PIECE, null)
-    //             .then((piece) => {
-    //                 dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece: piece } })
-    //             })
-    //             .catch((err) => {
-    //                 console.error(err)
-    //             })
-
-    //             // emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
-    //             //     console.log(nextPiece.type)
-    //             //     dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
-    //             // })
-    //         }
-    //     }
-    //     // Space bar
-    //     else if (key === " ") {
-    //         const updatedPiece = movePieceToLowerPlace(piece, grid)
-    //         const updatedGrid = addPieceToTheGrid(updatedPiece, grid)
-    //         const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
-    //         emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
-    //         // dispatch({ type: 'AddPieceGrid2', payload: {
-    //         //     newGrid,
-    //         // }})
-    //         emitToEventWithAcknowledgementPromise(SOCKET.GAMES.GET_PIECE, null)
-    //         .then((piece) => {
-    //             dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece: piece } })
-    //         })
-    //         .catch((err) => {
-    //             console.error(err)
-    //         })
-    //         // emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
-    //         //     dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
-    //         // })
-    //     }
-    // }
-
-
-    // // Move piece down regularly
-    // useInterval(
-    //     () => handleKey('ArrowDown'),
-    //     speed * 1000
-    // )
-
-    // // Get pieces at start
-    // useEffect(() => {
-    //     emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
-    //         if (piece) 
-    //             dispatch({ type: SOCKET.GAMES.SET_PIECE, payload: piece })
-    //     })
-
-    //     emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
-    //         if (piece) 
-    //             dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
-    //     })
-
-    //     // Subscribe to line penalty sended by the players
-    //     subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount: number) => {
-    //         dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
-    //     })
-
-    //     return () => {
-    //         cancelSubscribtionToEvent(SOCKET.GAMES.LINE_PENALTY)
-    //     }
-    // }, [])
-
-    // // useEffect(() => {
-    // //     if (!nextPiece)
-    // //         emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
-    // //             if (piece) 
-    // //                 dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
-    // //         })
-    // // }, [nextPiece])
 
     // // Check game Over
     // // Send new grid spectrum
