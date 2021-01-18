@@ -2,12 +2,13 @@
 import { jsx } from '@emotion/react'
 import useEventListener from '@use-it/event-listener'
 import { useInterval } from '../../utils/useInterval'
-import { useReducer, useEffect } from 'react'
+import { useReducer, useEffect, useCallback, useState } from 'react'
 import { SOCKET } from '../../config/constants.json'
 import { 
     cancelSubscribtionToEvent,
     emitToEvent,
     emitToEventWithAcknowledgement,
+    emitToEventWithAcknowledgementPromise,
     subscribeToEvent
 } from '../../middlewares/socket'
 import { 
@@ -93,6 +94,14 @@ const reducer = (state: GamePlaying, action: any): GamePlaying => {
                 nextPiece: action.payload.nextPiece
             }
         }
+        case 'AddPieceGrid2': {
+            return {
+                ...state,
+                grid: action.payload.newGrid,
+                piece: nextPiece,
+                nextPiece: null
+            }
+        }
         case 'Ko': {
             return {
                 ...state,
@@ -106,12 +115,19 @@ const reducer = (state: GamePlaying, action: any): GamePlaying => {
 }
 
 function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
-    const [{
-        isKo,
-        piece,
-        nextPiece,
-        grid
-    }, dispatch] = useReducer(reducer, initState)
+    // const [{
+    //     isKo,
+    //     piece,
+    //     nextPiece,
+    //     grid
+    // }, dispatch] = useReducer(reducer, initState)
+
+    const [isKo, setIsKo] = useState(false)
+    const [piece, setPiece] = useState<Piece>()
+    const [nextPiece, setNextPiece] = useState<Piece>()
+    const [grid, setGrid] = useState(initState.grid)
+
+    // console.log(piece?.type, nextPiece?.type)
 
     const handleKey = (key: string) => {
         if (!piece || !key || isKo) return
@@ -119,12 +135,12 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
         if (key === "ArrowRight") {
             const updatedPiece = movePiece(piece, 1, 0)
             if (checkPosition(updatedPiece.positions, grid))
-                dispatch({ type: 'MovePiece', payload: updatedPiece })
+                setPiece(updatedPiece)
         }
         else if (key === "ArrowLeft") {
             const updatedPiece = movePiece(piece, -1, 0)
             if (checkPosition(updatedPiece.positions, grid))
-                dispatch({ type: 'MovePiece', payload: updatedPiece })
+                setPiece(updatedPiece)
         }
         // Rotation
         else if (key === "ArrowUp") {
@@ -136,20 +152,23 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
                     positions: updatedPositions,
                     structure: updatedStructure
                 }
-                dispatch({ type: 'MovePiece', payload: updatedPiece })
+                setPiece(updatedPiece)
             }
         }
         else if (key === "ArrowDown") {
             const updatedPiece = movePiece(piece, 0, 1)
             if (checkPosition(updatedPiece.positions, grid))
-                dispatch({ type: 'MovePiece', payload: updatedPiece })
+                setPiece(updatedPiece)
             else {
                 const updatedGrid = addPieceToTheGrid(piece, grid)
                 const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
                 emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
-                emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
-                    dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
+                setPiece(nextPiece)
+                emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, null, (error, nextPiece: Piece) => {
+                    if (!error)
+                        setNextPiece(nextPiece)
                 })
+                setGrid(newGrid)
             }
         }
         // Space bar
@@ -158,50 +177,157 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
             const updatedGrid = addPieceToTheGrid(updatedPiece, grid)
             const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
             emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
-            emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
-                dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
+            setPiece(nextPiece)
+            emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, null, (error, nextPiece: Piece) => {
+                if (!error)
+                    setNextPiece(nextPiece)
             })
+            setGrid(newGrid)
         }
     }
 
-    // Move piece down regularly
-    useInterval(
-        () => handleKey('ArrowDown'),
-        speed * 1000
-    )
-
-    // Get pieces at start
     useEffect(() => {
         emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
             if (piece) 
-                dispatch({ type: SOCKET.GAMES.SET_PIECE, payload: piece })
+                setPiece(piece)
         })
 
         emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
             if (piece) 
-                dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
+                setNextPiece(piece)
         })
 
         // Subscribe to line penalty sended by the players
-        subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount: number) => {
-            dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
-        })
+        // subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount: number) => {
+        //     dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
+        // })
 
         return () => {
-            cancelSubscribtionToEvent(SOCKET.GAMES.LINE_PENALTY)
+            // cancelSubscribtionToEvent(SOCKET.GAMES.LINE_PENALTY)
         }
     }, [])
+    // const handleKey = (key: string) => {
+    //     if (!piece || !key || isKo) return
 
-    // Check game Over
-    // Send new grid spectrum
-    useEffect(() => {
-        if (checkGameOver(grid)) {
-            emitToEvent(SOCKET.GAMES.GAME_OVER)
-            dispatch({ type: 'Ko' })
-        }
-        const spectrum = getGridSpectrum(grid)
-        emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
-    }, [grid])
+    //     if (key === "ArrowRight") {
+    //         const updatedPiece = movePiece(piece, 1, 0)
+    //         if (checkPosition(updatedPiece.positions, grid))
+    //             dispatch({ type: 'MovePiece', payload: updatedPiece })
+    //     }
+    //     else if (key === "ArrowLeft") {
+    //         const updatedPiece = movePiece(piece, -1, 0)
+    //         if (checkPosition(updatedPiece.positions, grid))
+    //             dispatch({ type: 'MovePiece', payload: updatedPiece })
+    //     }
+    //     // Rotation
+    //     else if (key === "ArrowUp") {
+    //         const updatedStructure = rotatePiece(piece.structure)
+    //         const updatedPositions = convertStructureToPositions(updatedStructure, piece.leftTopPosition)
+    //         if (checkPosition(updatedPositions, grid)) {
+    //             const updatedPiece = {
+    //                 ...piece,
+    //                 positions: updatedPositions,
+    //                 structure: updatedStructure
+    //             }
+    //             dispatch({ type: 'MovePiece', payload: updatedPiece })
+    //         }
+    //     }
+    //     else if (key === "ArrowDown") {
+    //         const updatedPiece = movePiece(piece, 0, 1)
+    //         if (checkPosition(updatedPiece.positions, grid))
+    //             dispatch({ type: 'MovePiece', payload: updatedPiece })
+    //         else {
+    //             const updatedGrid = addPieceToTheGrid(piece, grid)
+    //             const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
+    //             emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
+    //             // dispatch({ type: 'AddPieceGrid2', payload: {
+    //             //     newGrid,
+    //             // }})
+    //             emitToEventWithAcknowledgementPromise(SOCKET.GAMES.GET_PIECE, null)
+    //             .then((piece) => {
+    //                 dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece: piece } })
+    //             })
+    //             .catch((err) => {
+    //                 console.error(err)
+    //             })
+
+    //             // emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
+    //             //     console.log(nextPiece.type)
+    //             //     dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
+    //             // })
+    //         }
+    //     }
+    //     // Space bar
+    //     else if (key === " ") {
+    //         const updatedPiece = movePieceToLowerPlace(piece, grid)
+    //         const updatedGrid = addPieceToTheGrid(updatedPiece, grid)
+    //         const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
+    //         emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
+    //         // dispatch({ type: 'AddPieceGrid2', payload: {
+    //         //     newGrid,
+    //         // }})
+    //         emitToEventWithAcknowledgementPromise(SOCKET.GAMES.GET_PIECE, null)
+    //         .then((piece) => {
+    //             dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece: piece } })
+    //         })
+    //         .catch((err) => {
+    //             console.error(err)
+    //         })
+    //         // emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, nextPiece) => {
+    //         //     dispatch({ type: 'AddPieceGrid', payload: { newGrid, nextPiece } })
+    //         // })
+    //     }
+    // }
+
+
+    // // Move piece down regularly
+    // useInterval(
+    //     () => handleKey('ArrowDown'),
+    //     speed * 1000
+    // )
+
+    // // Get pieces at start
+    // useEffect(() => {
+    //     emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
+    //         if (piece) 
+    //             dispatch({ type: SOCKET.GAMES.SET_PIECE, payload: piece })
+    //     })
+
+    //     emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
+    //         if (piece) 
+    //             dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
+    //     })
+
+    //     // Subscribe to line penalty sended by the players
+    //     subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount: number) => {
+    //         dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
+    //     })
+
+    //     return () => {
+    //         cancelSubscribtionToEvent(SOCKET.GAMES.LINE_PENALTY)
+    //     }
+    // }, [])
+
+    // // useEffect(() => {
+    // //     if (!nextPiece)
+    // //         emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
+    // //             if (piece) 
+    // //                 dispatch({ type: SOCKET.GAMES.SET_NEXT_PIECE, payload: piece })
+    // //         })
+    // // }, [nextPiece])
+
+    // // Check game Over
+    // // Send new grid spectrum
+    // useEffect(() => {
+    //     if (checkGameOver(grid)) {
+    //         emitToEvent(SOCKET.GAMES.GAME_OVER)
+    //         dispatch({ type: 'Ko' })
+    //     }
+    //     const spectrum = getGridSpectrum(grid)
+    //     emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
+    // }, [grid])
+
+
     
     useEventListener('keydown', ({ key }: { key: string }) => handleKey(key))
 

@@ -45,7 +45,7 @@ function GameInfo({
             elevation={3}
             css={(theme: any) => css({
                 backgroundColor: `${theme.colors.dark} !important`,
-                minWidth: '300px',
+                width: '300px',
                 height: '500px',
                 padding: '20px',
                 margin: '10px 0px'

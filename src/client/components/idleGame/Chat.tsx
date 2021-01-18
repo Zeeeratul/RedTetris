@@ -43,7 +43,7 @@ function Chat() {
             elevation={3}
             css={(theme: any) => css({
                 backgroundColor: `${theme.colors.dark} !important`,
-                minWidth: '300px',
+                width: '300px',
                 height: '500px',
                 padding: '20px',
                 margin: '10px 0px'
@@ -53,6 +53,7 @@ function Chat() {
                 css={(theme: any) => css({
                     backgroundColor: `${theme.colors.darkGrey}`,
                     width: '100%',
+
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
@@ -79,6 +80,7 @@ function Chat() {
                                 borderRadius: '10px',
                                 padding: '6px 14px',
                                 margin: '3px 10px',
+                                overflowWrap: 'anywhere',
                                 color: theme.colors.text1,
                                 backgroundColor: message.sender.id === userId ? theme.colors.text2 : 'black',
                                 alignSelf: message.sender.id === userId ? 'flex-end' : 'flex-start'
