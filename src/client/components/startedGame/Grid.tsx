@@ -127,8 +127,6 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
     const [nextPiece, setNextPiece] = useState<Piece>()
     const [grid, setGrid] = useState(initState.grid)
 
-    // console.log(piece?.type, nextPiece?.type)
-
     const handleKey = (key: string) => {
         if (!piece || !key || isKo) return
 
@@ -198,12 +196,12 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
         })
 
         // Subscribe to line penalty sended by the players
-        // subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount: number) => {
-        //     dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
-        // })
+        subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount: number) => {
+            setGrid(grid => addPenaltyToGrid(grid, linesCount))
+        })
 
         return () => {
-            // cancelSubscribtionToEvent(SOCKET.GAMES.LINE_PENALTY)
+            cancelSubscribtionToEvent(SOCKET.GAMES.LINE_PENALTY)
         }
     }, [])
     // const handleKey = (key: string) => {
@@ -318,17 +316,15 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
 
     // // Check game Over
     // // Send new grid spectrum
-    // useEffect(() => {
-    //     if (checkGameOver(grid)) {
-    //         emitToEvent(SOCKET.GAMES.GAME_OVER)
-    //         dispatch({ type: 'Ko' })
-    //     }
-    //     const spectrum = getGridSpectrum(grid)
-    //     emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
-    // }, [grid])
+    useEffect(() => {
+        if (checkGameOver(grid)) {
+            emitToEvent(SOCKET.GAMES.GAME_OVER)
+            setIsKo(true)
+        }
+        const spectrum = getGridSpectrum(grid)
+        emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
+    }, [grid])
 
-
-    
     useEventListener('keydown', ({ key }: { key: string }) => handleKey(key))
 
     return (

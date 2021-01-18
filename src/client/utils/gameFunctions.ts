@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-export const movePiece = (piece: Piece, xDirection: number, yDirection: number) => {
+export const movePiece = (piece: Piece, xDirection: number, yDirection: number): Piece => {
     const newPiece = {
         ...piece,
         positions: piece.positions.map((part: Position) => ({x: part.x + xDirection, y: part.y + yDirection})),
