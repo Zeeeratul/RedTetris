@@ -23,14 +23,14 @@ function Landing({ setUser }: any) {
     
     const [toggle, setToggle] = useState(false)
 
-    // const handleSubmit = (ev: any) => {
+    // const handleSubmit = async (ev: any) => {
     //     ev.preventDefault()
     //     const { username } = ev.target.elements
     //     if (username.value) {
     //         console.log('before')
 
-    //         console.log(emitToEventWithAcknowledgementPromise(SOCKET.AUTH.LOGIN, username.value))
- 
+    //         const result = await emitToEventWithAcknowledgementPromise(SOCKET.AUTH.LOGIN, username.value)
+    //         console.log(result)
     //         console.log('after')
     //     }
     // }

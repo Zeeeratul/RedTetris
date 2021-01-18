@@ -65,6 +65,8 @@ export const emitToEventWithAcknowledgementPromise = (
 
     return new Promise((resolve, reject) => {
         socket.emit(eventName, data, (error: SocketError, data: any) => {
+            console.log(data)
+
             if (error)
                 reject(error)
             resolve(data)

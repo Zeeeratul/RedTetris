@@ -58,10 +58,11 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
     const [piece, setPiece] = useState<Piece>()
     const [nextPiece, setNextPiece] = useState<Piece>()
     const [grid, setGrid] = useState(initialGrid)
+    const [canMove, setCanMove] = useState(true)
 
-    const handleKey = (key: string) => {
-        if (!piece || !key || isKo) return
-
+    const handleKey = async (key: string) => {
+        if (!canMove || !piece || !nextPiece || !key || isKo) return
+        setCanMove(false)
         if (key === "ArrowRight") {
             const updatedPiece = movePiece(piece, 1, 0)
             if (checkPosition(updatedPiece.positions, grid))
@@ -93,11 +94,11 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
                 const updatedGrid = addPieceToTheGrid(piece, grid)
                 const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
                 emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
+                console.log('before')
+                const newNextPiece = await emitToEventWithAcknowledgementPromise(SOCKET.GAMES.GET_PIECE, null)
+                console.log('after')
                 setPiece(nextPiece)
-                emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, null, (error, nextPiece: Piece) => {
-                    if (!error)
-                        setNextPiece(nextPiece)
-                })
+                setNextPiece(newNextPiece as Piece)
                 setGrid(newGrid)
             }
         }
@@ -107,14 +108,31 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
             const updatedGrid = addPieceToTheGrid(updatedPiece, grid)
             const { newGrid, lineRemoved } = clearFullLineGrid(updatedGrid)
             emitToEvent(SOCKET.GAMES.LINE, lineRemoved)
+            console.log('before')
+            const newNextPiece = await emitToEventWithAcknowledgementPromise(SOCKET.GAMES.GET_PIECE, null)
+            console.log('after')
             setPiece(nextPiece)
-            emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, null, (error, nextPiece: Piece) => {
-                if (!error)
-                    setNextPiece(nextPiece)
-            })
+            setNextPiece(newNextPiece as Piece)
             setGrid(newGrid)
+            // setPiece(nextPiece)
+            // emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, null, (error, nextPiece: Piece) => {
+            //     if (!error)
+            //         setNextPiece(nextPiece)
+            // })
+            // setGrid(newGrid)
         }
     }
+    useEffect(() => {
+        if (!canMove) {
+            const refTimeout = setTimeout(() => {
+                setCanMove(true)
+            }, 200)
+
+            return () => {
+                clearTimeout(refTimeout)
+            }
+        }
+    }, [canMove])
 
     useEffect(() => {
         emitToEventWithAcknowledgement(SOCKET.GAMES.GET_PIECE, {}, (error, piece: Piece) => {
