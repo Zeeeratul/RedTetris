@@ -34,6 +34,7 @@ const defautGameParameters: Game = {
     players: [],
 }
 
+
 function Game() {
     const [gameParameters, setGameParameters] = useState(defautGameParameters)
     const [results, setResults] = useState([])
@@ -125,16 +126,16 @@ function Game() {
                         }}
                     >
                         <Grid speed={speed} mode={mode} />
-
                         {_.filter(players, (o: Player) => o.id !== userId).map((player: Player, index: number) => (
-                            <LittleGridSpectrum
-                                key={`little_grid_${player.id}`}
-                                spectrum={player.spectrum}
-                                gridPosition={index}
-                                playerStatus={player.status}
-                                playerId={player.id}
-                            />
-                        ))}
+                                <LittleGridSpectrum
+                                    key={`little_grid_${player.id}`}
+                                    spectrum={player.spectrum}
+                                    gridPosition={index}
+                                    playerStatus={player.status}
+                                    playerId={player.id}
+                                />
+                            ))
+                        }
                     </div>
                 )}
         </PageContainer>  
