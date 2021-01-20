@@ -58,39 +58,6 @@ export const emitToEventWithAcknowledgement = (
     }
 }
 
-export const emitToEventWithAcknowledgementPromise = (
-        eventName: string,
-        data: any,
-    ) => {
-
-    return new Promise((resolve, reject) => {
-        socket.emit(eventName, data, (error: SocketError, data: any) => {
-            console.log(data)
-
-            if (error)
-                reject(error)
-            resolve(data)
-        })
-
-    })
-        // socket.emit(eventName, data, (error: SocketError, data: any) => {
-        //     console.log(error, data)
-        //     if (error)
-        //         return error
-        //     return data
-        // })
-
-
-    // const WrapCallback = (error: SocketError, data: any) => {
-    //     return new Promise((resolve, reject) => {
-    //         if (error)
-    //             reject(error)
-    //         resolve(data)
-    //     })
-    // }
-    
-}
-
 export const disconnectSocket = () => {
     if (socket) {
         console.log('Disconnecting socket...')

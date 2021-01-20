@@ -35,7 +35,7 @@ class Sockets {
                     }
                     this.users.push(user)
                     socket.player = user
-            
+
                     callback(null, { id: socket.id, username })
                 }
                 catch (error) {

@@ -23,7 +23,7 @@ declare global {
         isKo: boolean,
         grid: Grid,
         piece: Piece | null,
-        nextPiece: Piece | null
+        nextPiece: Piece | null,
     }
 
     // Player

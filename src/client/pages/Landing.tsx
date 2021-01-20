@@ -2,7 +2,7 @@
 import { jsx, css } from '@emotion/react'
 import { useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
-import { initiateSocket, emitToEventWithAcknowledgement, emitToEventWithAcknowledgementPromise } from '../middlewares/socket'
+import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { SOCKET } from '../config/constants.json'
 import { PageContainer } from '../components/PageContainer'
 import { Navbar } from '../components/Navbar'
@@ -22,18 +22,6 @@ function Landing({ setUser }: any) {
     }, [])
     
     const [toggle, setToggle] = useState(false)
-
-    // const handleSubmit = async (ev: any) => {
-    //     ev.preventDefault()
-    //     const { username } = ev.target.elements
-    //     if (username.value) {
-    //         console.log('before')
-
-    //         const result = await emitToEventWithAcknowledgementPromise(SOCKET.AUTH.LOGIN, username.value)
-    //         console.log(result)
-    //         console.log('after')
-    //     }
-    // }
 
     const handleSubmit = (ev: any) => {
         ev.preventDefault()
