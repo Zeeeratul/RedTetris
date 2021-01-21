@@ -15,7 +15,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -23,7 +23,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -31,7 +31,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -39,7 +39,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                 </Fragment>
             )
@@ -52,7 +52,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -60,7 +60,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -68,7 +68,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -76,7 +76,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                 </Fragment>
             )
@@ -89,7 +89,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -97,7 +97,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -105,7 +105,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -113,7 +113,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                 </Fragment>
             )
@@ -126,7 +126,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -134,7 +134,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -142,7 +142,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -150,7 +150,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                 </Fragment>
             )
@@ -163,7 +163,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -171,7 +171,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -179,7 +179,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -187,7 +187,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                 </Fragment>
             )
@@ -200,7 +200,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -208,7 +208,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -216,7 +216,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -224,7 +224,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                 </Fragment>
             )
@@ -237,7 +237,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -245,7 +245,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -253,7 +253,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                     <div
                         css={{
@@ -261,7 +261,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "2 / 3"
                         }}
                     >
-                        <Cell value={pieceType} />
+                        <Cell pieceType={pieceType} />
                     </div>
                 </Fragment>
             )
@@ -274,7 +274,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value="" />
+                        <Cell pieceType="" />
                     </div>
                     <div
                         css={{
@@ -282,7 +282,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value="" />
+                        <Cell pieceType="" />
                     </div>
                     <div
                         css={{
@@ -290,7 +290,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value="" />
+                        <Cell pieceType="" />
                     </div>
                     <div
                         css={{
@@ -298,7 +298,7 @@ function createPiece(pieceType: PieceType): any {
                             gridRow: "1 / 2"
                         }}
                     >
-                        <Cell value="" />
+                        <Cell pieceType="" />
                     </div>
                 </Fragment>
             )

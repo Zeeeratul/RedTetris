@@ -20,10 +20,6 @@ import Chat from '../components/idleGame/Chat'
 
 import background from '../assets/tetris-background.jpg'
 
-// LEAVEBUTTON SOMEWHERE ....
-// RESPONSIVE GRID
-
-
 const defautGameParameters: Game = {
     leaderId: '',
     maxPlayers: 2,

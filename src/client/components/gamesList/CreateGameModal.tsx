@@ -26,7 +26,7 @@ const errorMessages: { [index: string] : string } = {
     [SOCKET.GAMES.ERROR.INVALID_NAME]: "Game name is invalid",
 }
 
-function CreateGameModal({ isOpen, isMultiplayer, close}: { isOpen: boolean, isMultiplayer: boolean, close: any }) {
+function CreateGameModal({ isOpen, isMultiplayer, close }: { isOpen: boolean, isMultiplayer: boolean, close: any }) {
 
     const history = useHistory()
     const [gameParameters, setGameParameters] = useState(defaultGameParameters)

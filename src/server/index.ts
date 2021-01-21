@@ -28,3 +28,5 @@ const server = new Server()
 
 server.listen()
 server.sockets.listenToEvents()
+
+export { Server }

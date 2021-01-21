@@ -14,7 +14,7 @@
     "@material-ui/icons": "^4.11.2",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.2",
     "@svgr/webpack": "5.4.0",
-    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/jest-dom": "^5.11.9",
     "@types/jest": "^26.0.16",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
@@ -52,7 +52,6 @@
     "html-webpack-plugin": "4.5.0",
     "identity-obj-proxy": "3.0.0",
     "jest": "26.6.0",
-    "jest-circus": "26.6.0",
     "jest-resolve": "26.6.0",
     "jest-watch-typeahead": "0.6.1",
     "lodash": "^4.17.20",
@@ -79,6 +78,7 @@
     "semver": "^7.3.2",
     "socket.io": "^3.0.0",
     "socket.io-client": "^3.0.0",
+    "socket.io-mock": "^1.3.1",
     "style-loader": "1.3.0",
     "terser-webpack-plugin": "4.2.3",
     "ts-pnp": "1.2.0",
@@ -133,7 +133,7 @@
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
     ],
     "testEnvironment": "jsdom",
-    "testRunner": "/Users/celestindelahaye/my_code/42_projects/red_tetris_cdelahay/node_modules/jest-circus/runner.js",
+    "testRunner": "<rootDir>/node_modules/jest-circus/runner.js",
     "transform": {
       "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
@@ -172,7 +172,7 @@
     ]
   },
   "devDependencies": {
-    "@testing-library/react": "^11.2.2",
+    "@testing-library/react": "^11.2.3",
     "@testing-library/user-event": "^12.5.0",
     "@types/express": "^4.17.9",
     "@types/lodash": "^4.14.165",
@@ -181,6 +181,7 @@
     "@types/socket.io": "^2.1.11",
     "@types/uuid": "^8.3.0",
     "faker": "^5.1.0",
+    "jest-circus": "^26.6.0",
     "react-error-boundary": "^3.1.0",
     "ts-node": "^9.1.0",
     "typescript": "^4.1.2"

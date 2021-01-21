@@ -17,7 +17,7 @@ function Leaderboard({ results }: { results: Result[] }) {
         <Paper
             elevation={3}
             css={(theme: any) => css({
-                backgroundColor: `${theme.colors.dark} !important`,
+                backgroundColor: `${theme?.colors?.dark} !important`,
                 width: '300px',
                 height: '500px',
                 padding: '20px',
@@ -26,7 +26,7 @@ function Leaderboard({ results }: { results: Result[] }) {
         >
             <div
                 css={(theme: any) => css({
-                    backgroundColor: `${theme.colors.darkGrey}`,
+                    backgroundColor: `${theme?.colors?.darkGrey}`,
                     width: '100%',
                     height: '100%',
                     display: 'flex',
@@ -38,7 +38,7 @@ function Leaderboard({ results }: { results: Result[] }) {
             >
                 <h1 
                     css={(theme: any) => ({
-                        color: theme.colors.text2
+                        color: theme?.colors?.text2
                     })}
                 >
                     Leaderboard
