@@ -57,8 +57,6 @@ const initState: GamePlaying = {
 }
 
 const reducer = (state: GamePlaying, action: any): GamePlaying => {
-    // console.log('in dispatch')
-
     const { nextPiece, grid } = state
 
     switch (action.type) {
@@ -102,7 +100,6 @@ const reducer = (state: GamePlaying, action: any): GamePlaying => {
             }
         }
         default:
-            console.log(action.type, ' is not supported...')
             return state
     }
 }

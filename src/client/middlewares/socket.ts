@@ -31,14 +31,12 @@ export const cancelSubscribtionToEvent = (eventName: string) => {
 
 export const emitToEvent = (eventName: string, data?: any) => {
     if (socket) {
-        console.log('emit ')
         socket.emit(eventName, data)
     }
     else {
         disconnectSocket()
     }
 }
-
 
 export const emitToEventWithAcknowledgement = (
         eventName: string,
@@ -47,13 +45,11 @@ export const emitToEventWithAcknowledgement = (
     ) => {
 
     const WrapCallback = (error: SocketError, data: any) => {
-        console.log('wrap??')
         if (error === SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
             return disconnectSocket()
         return cb(error, data)
     }
 
-    
     if (socket) {
         socket.emit(eventName, data, WrapCallback)
     }

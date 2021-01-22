@@ -138,9 +138,10 @@ function CreateGameModal({ isOpen, isMultiplayer, close }: { isOpen: boolean, is
                                 })}
                                 autoFocus
                                 inputProps={{ maxLength: 15 }}
-                                label="Name" 
+                                label="Name"
                                 value={name}
                                 variant="outlined"
+                                data-testid="gamename"
                                 onChange={handleChangeName}
                             />
                             {error &&
@@ -279,7 +280,7 @@ function CreateGameModal({ isOpen, isMultiplayer, close }: { isOpen: boolean, is
                     {isMultiplayer ? 
                         <ButtonGreyBackground
                             disabled={gameParameters.name.length < 4}
-                            title="Create" 
+                            title="Create"
                             action={createMultiplayerGame} 
                         />
                         :
