@@ -37,7 +37,8 @@ class Game {
 
     removePlayer(playerId: string) {
         const index = _.findIndex(this.players, { id: playerId })
-        this.players.splice(index, 1)
+        if (index !== -1)
+            this.players.splice(index, 1)
     }
 
     transferLeadership() {
@@ -61,6 +62,8 @@ class Game {
             throw SOCKET.GAMES.ERROR.PLAYER_KO
 
         const currentPieceIndex = player.currentPieceIndex
+        console.log('asking for a new piece: ', player.currentPieceIndex)
+
         player.incrementCurrentPieceIndex()
         // Generate new pieces if the player is close the end of the pieces heap
         if (player.currentPieceIndex + 1 > this.pieces.length)

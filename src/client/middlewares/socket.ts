@@ -1,9 +1,9 @@
-import io from 'socket.io-client'
+import { connect } from 'socket.io-client'
 import { SOCKET } from '../config/constants.json'
 let socket : SocketIOClient.Socket
 
 export const initiateSocket = () => {
-    socket = io('/')
+    socket = connect('/')
     console.log('Initiating socket...')
 }
 
@@ -31,6 +31,7 @@ export const cancelSubscribtionToEvent = (eventName: string) => {
 
 export const emitToEvent = (eventName: string, data?: any) => {
     if (socket) {
+        console.log('emit ')
         socket.emit(eventName, data)
     }
     else {
@@ -46,13 +47,16 @@ export const emitToEventWithAcknowledgement = (
     ) => {
 
     const WrapCallback = (error: SocketError, data: any) => {
+        console.log('wrap??')
         if (error === SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
             return disconnectSocket()
         return cb(error, data)
     }
+
     
-    if (socket)
+    if (socket) {
         socket.emit(eventName, data, WrapCallback)
+    }
     else {
         disconnectSocket()
     }

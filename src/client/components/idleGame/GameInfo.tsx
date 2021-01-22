@@ -18,7 +18,7 @@ const modeToText: { [index: string] : string } = {
 }
 
 const PTag = styled.p((props: any) => ({
-    color: props.theme.colors.text2,
+    color: props?.theme?.colors?.text2,
     fontSize: '18px',
     margin: '4px 0px'
 }))
@@ -44,8 +44,8 @@ function GameInfo({
         <Paper
             elevation={3}
             css={(theme: any) => css({
-                backgroundColor: `${theme.colors.dark} !important`,
-                minWidth: '300px',
+                backgroundColor: `${theme?.colors?.dark} !important`,
+                width: '300px',
                 height: '500px',
                 padding: '20px',
                 margin: '10px 0px'
@@ -53,7 +53,7 @@ function GameInfo({
         >
             <div
                 css={(theme: any) => css({
-                    backgroundColor: `${theme.colors.darkGrey}`,
+                    backgroundColor: `${theme?.colors?.darkGrey}`,
                     width: '100%',
                     height: '100%',
                     display: 'flex',
@@ -73,14 +73,14 @@ function GameInfo({
                 >
                     <h2
                         css={(theme: any) => ({
-                            color: theme.colors.text2,
+                            color: theme?.colors?.text2,
                             margin: '6px 0px'
                         })}
                     >
                         {gameName}
                     </h2>
-                    <PTag>Mode: <span css={(theme: any) => ({ color: theme.colors.text1 })}>{modeToText[mode]}</span></PTag>
-                    <PTag>Speed: <span css={(theme: any) => ({ color: theme.colors.text1 })}>{speedToText[speed]}</span></PTag>
+                    <PTag>Mode: <span css={(theme: any) => ({ color: theme?.colors?.text1 })}>{modeToText[mode]}</span></PTag>
+                    <PTag>Speed: <span css={(theme: any) => ({ color: theme?.colors?.text1 })}>{speedToText[speed]}</span></PTag>
                 </div>
 
                 <div
@@ -93,7 +93,7 @@ function GameInfo({
                 >
                     <h2
                         css={(theme:any) => ({
-                            color: theme.colors.text2,
+                            color: theme?.colors?.text2,
                             margin: '4px 0px'
                         })}
                     >
@@ -102,7 +102,7 @@ function GameInfo({
                     {players.map((player) => (
                         <PTag
                             css={(theme: any) => ({
-                                color: theme.colors.text1
+                                color: theme?.colors?.text1
                             })}
                             key={`player_name${player.id}`}
                         >

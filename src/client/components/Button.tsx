@@ -16,14 +16,14 @@ export function Button({ title, action, disabled = false, className }: { title: 
                 boxShadow: `
                     3px 3px black
                 `,
-                color: theme.colors.text2,
-                backgroundColor: theme.colors.light,
+                color: theme?.colors?.text2,
+                backgroundColor: theme?.colors?.light,
                 margin: '10px 10px 0px 10px',
                 outline: 'none',
                 transition: '100ms ease-out',
                 cursor: 'pointer',
                 '&:hover': {
-                    backgroundColor: theme.colors.lightGrey,
+                    backgroundColor: theme?.colors?.lightGrey,
                 },
                 '&:active': {
                     transition: '200ms ease-out',

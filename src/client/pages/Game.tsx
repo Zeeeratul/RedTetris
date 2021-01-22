@@ -20,10 +20,6 @@ import Chat from '../components/idleGame/Chat'
 
 import background from '../assets/tetris-background.jpg'
 
-// LEAVEBUTTON SOMEWHERE ....
-// RESPONSIVE GRID
-
-
 const defautGameParameters: Game = {
     leaderId: '',
     maxPlayers: 2,
@@ -33,6 +29,7 @@ const defautGameParameters: Game = {
     name: '',
     players: [],
 }
+
 
 function Game() {
     const [gameParameters, setGameParameters] = useState(defautGameParameters)
@@ -125,16 +122,16 @@ function Game() {
                         }}
                     >
                         <Grid speed={speed} mode={mode} />
-
                         {_.filter(players, (o: Player) => o.id !== userId).map((player: Player, index: number) => (
-                            <LittleGridSpectrum
-                                key={`little_grid_${player.id}`}
-                                spectrum={player.spectrum}
-                                gridPosition={index}
-                                playerStatus={player.status}
-                                playerId={player.id}
-                            />
-                        ))}
+                                <LittleGridSpectrum
+                                    key={`little_grid_${player.id}`}
+                                    spectrum={player.spectrum}
+                                    gridPosition={index}
+                                    playerStatus={player.status}
+                                    playerId={player.id}
+                                />
+                            ))
+                        }
                     </div>
                 )}
         </PageContainer>  

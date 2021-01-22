@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-export const movePiece = (piece: Piece, xDirection: number, yDirection: number) => {
+export const movePiece = (piece: Piece, xDirection: number, yDirection: number): Piece => {
     const newPiece = {
         ...piece,
         positions: piece.positions.map((part: Position) => ({x: part.x + xDirection, y: part.y + yDirection})),
@@ -66,7 +66,6 @@ export const checkPosition = (positions: Position[], grid: Grid) => {
     return true
 }
 
-// need to change the way it works
 export const checkGameOver = (grid: Grid, lineToCheck: number = 2): boolean => {
     const gridWidthLength = grid[0].length
 
@@ -92,7 +91,6 @@ export const addPieceToTheGrid = (piece: Piece, grid: Grid) => {
 
     return newGrid
 }
-
 
 const fillLine = (type: PieceType): PieceType[] => new Array(10).fill(type)
 

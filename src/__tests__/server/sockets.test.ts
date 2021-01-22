@@ -2,41 +2,18 @@ import io from 'socket.io-client'
 import http from 'http'
 import { Sockets } from '../../server/class/Sockets'
 import { SOCKET } from '../../client/config/constants.json'
-// import { Game } from '../../server/class/Game'
-import faker from 'faker'
 import { generateUserData } from './player.test'
 
-
 let clientSocket
-let notLoggedClientSocket
 let socketsInstance : Sockets
 let httpServer : http.Server;
 let httpServerAddr
-
-let correctGameParameters = {
-    name: 'random_game_name',
-    mode: 'classic',
-    speed: 1.5,
-    maxPlayers: 2
-}
-
-let alreadyLoggedUser = {
-    username: 'Zeeratul',
-    id: '123r2t9u953847t94hu3jk'
-}
 
 beforeAll((done) => {
     httpServer = http.createServer()
     httpServerAddr = httpServer.listen().address()
     socketsInstance = new Sockets(httpServer)
     socketsInstance.listenToEvents()
-
-    // Create a user logged
-    socketsInstance.users.push(alreadyLoggedUser)
-
-    // Create a game 
-    socketsInstance.games.createGame(correctGameParameters, alreadyLoggedUser)
-
     done()
 })
 
@@ -45,12 +22,10 @@ afterAll((done) => {
     httpServer = null
     socketsInstance = null
     clientSocket = null
-    notLoggedClientSocket = null
     done()
 })
 
-
-describe('login', () => {
+describe('login route', () => {
     beforeEach((done) => {
         clientSocket = io.connect(`http://[${httpServerAddr.address}]:${httpServerAddr.port}`, {
             reconnectionDelay: 0,
@@ -71,10 +46,11 @@ describe('login', () => {
         }, 200)
     })
 
+    const user = generateUserData()
+
     test('working', (done) => {
-        const alreadyLoggedUser = generateUserData()
-        clientSocket.emit(SOCKET.AUTH.LOGIN, alreadyLoggedUser.username, (error, data) => {
-            expect(data.username).toBe(alreadyLoggedUser.username)
+        clientSocket.emit(SOCKET.AUTH.LOGIN, user.username, (error, data) => {
+            expect(data.username).toBe(user.username)
             done()
         })
     })
@@ -87,14 +63,22 @@ describe('login', () => {
     })
 
     test('username taken', (done) => {
-        clientSocket.emit(SOCKET.AUTH.LOGIN, alreadyLoggedUser.username, (error, data) => {
+        clientSocket.emit(SOCKET.AUTH.LOGIN, user.username, (error, data) => {
+            done()
+        })
+        clientSocket.emit(SOCKET.AUTH.LOGIN, user.username, (error, data) => {
             expect(error).toBe(SOCKET.AUTH.ERROR.USERNAME_TAKEN)
             done()
         })
     })
 })
 
-describe('connected routes', () => {
+describe('createGame', () => {
+    const user = generateUserData()
+    const gameParameters = {
+        name: 'random_game_name',
+    }
+
     beforeEach((done) => {
         clientSocket = io.connect(`http://[${httpServerAddr.address}]:${httpServerAddr.port}`, {
             reconnectionDelay: 0,
@@ -103,7 +87,7 @@ describe('connected routes', () => {
         clientSocket.on('connect', () => {
             done()
         })
-        clientSocket.emit(SOCKET.AUTH.LOGIN, alreadyLoggedUser.username, (error, data) => {
+        clientSocket.emit(SOCKET.AUTH.LOGIN, user.username, (error, data) => {
             done()
         })
     })
@@ -119,9 +103,6 @@ describe('connected routes', () => {
     })
 
     test('createGame', (done) => {
-        const gameParameters = {
-            name: 'random_game_name',
-        }
         clientSocket.emit(SOCKET.GAMES.CREATE, gameParameters, (error, data) => {
             expect(data).toBe(gameParameters.name)
             done()
@@ -129,23 +110,142 @@ describe('connected routes', () => {
     })
 
     test('createGame solo', (done) => {
-        const gameParameters = {
+        clientSocket.emit(SOCKET.GAMES.CREATE, {
             isSolo: true
-        }
-        clientSocket.emit(SOCKET.GAMES.CREATE, gameParameters, (error, data) => {
+        }, (error, data) => {
             expect(data).toBeTruthy()
             done()
         })
     })
 
-    // test('createGame', (done) => {
-    //     const gameParameters = {
-    //         name: 'random_game_name',
-    //     }
-    //     clientSocket.emit(SOCKET.GAMES.CREATE, gameParameters, (error, data) => {
-    //         expect(data).toBe(gameParameters.name)
-    //         done()
-    //     })
-    // })
+    test('createGame invalid name', (done) => {
+        clientSocket.emit(SOCKET.GAMES.CREATE, {
+            name: null
+        }, (error, data) => {
+            expect(error).toBe(SOCKET.GAMES.ERROR.INVALID_NAME)
+            done()
+        })
+    })
 
+    test('createGame game name taken', (done) => {
+        clientSocket.emit(SOCKET.GAMES.CREATE, gameParameters, (error, data) => {
+            done()
+        })
+        clientSocket.emit(SOCKET.GAMES.CREATE, gameParameters, (error, data) => {
+            expect(error).toBe(SOCKET.GAMES.ERROR.NAME_TAKEN)
+            done()
+        })
+    })
+})
+
+describe('leaveGame', () => {
+    const user = generateUserData()
+
+    beforeEach((done) => {
+        clientSocket = io.connect(`http://[${httpServerAddr.address}]:${httpServerAddr.port}`, {
+            reconnectionDelay: 0,
+            forceNew: true,
+        })
+        clientSocket.on('connect', () => {
+            done()
+        })
+        clientSocket.emit(SOCKET.AUTH.LOGIN, user.username, (error, data) => {
+            done()
+        })
+    })
+
+    afterEach((done) => {
+        if (clientSocket.connected) {
+            clientSocket.disconnect()
+        }
+        // Wait a bit for the socket to be disconnected correctly
+        setTimeout(() => {
+            done()
+        }, 100)
+    })
+
+    test('leaveGame', (done) => {
+        clientSocket.emit(SOCKET.GAMES.LEAVE)
+        setTimeout(() => {
+            done()
+        }, 100)
+    })
+})
+
+describe('in Game actions', () => {
+    const user = generateUserData()
+
+    beforeEach((done) => {
+        clientSocket = io.connect(`http://[${httpServerAddr.address}]:${httpServerAddr.port}`, {
+            reconnectionDelay: 0,
+            forceNew: true,
+        })
+        clientSocket.on('connect', () => {
+            done()
+        })
+        clientSocket.emit(SOCKET.AUTH.LOGIN, user.username, (error, data) => {
+            done()
+        })
+    })
+
+    afterEach((done) => {
+        if (clientSocket.connected) {
+            clientSocket.disconnect()
+        }
+        // Wait a bit for the socket to be disconnected correctly
+        setTimeout(() => {
+            done()
+        }, 100)
+    })
+
+    test('send Message', (done) => {
+        clientSocket.emit(SOCKET.GAMES.MESSAGES)
+        setTimeout(() => {
+            done()
+        }, 100)
+    })
+
+    test('send specturm', (done) => {
+        clientSocket.emit(SOCKET.GAMES.SPECTRUM)
+        setTimeout(() => {
+            done()
+        }, 100)
+    })
+
+    test('send line penalty', (done) => {
+        clientSocket.emit(SOCKET.GAMES.LINE)
+        setTimeout(() => {
+            done()
+        }, 100)
+    })
+
+    test('get_piece', (done) => {
+        clientSocket.emit(SOCKET.GAMES.GET_PIECE)
+        setTimeout(() => {
+            done()
+        }, 100)
+    })
+
+    test('get_info', (done) => {
+        clientSocket.emit(SOCKET.GAMES.GET_INFO)
+        setTimeout(() => {
+            done()
+        }, 100)
+    })
+
+    test('game_over', (done) => {
+        clientSocket.emit(SOCKET.GAMES.GAME_OVER)
+        setTimeout(() => {
+            done()
+        }, 100)
+    })
+
+    test('get_games', (done) => {
+        const fn = jest.fn()
+        clientSocket.emit(SOCKET.GAMES.GET_GAMES, null, fn)
+        setTimeout(() => {
+            expect(fn).toHaveBeenCalled()
+            done()
+        }, 100)
+    })
 })

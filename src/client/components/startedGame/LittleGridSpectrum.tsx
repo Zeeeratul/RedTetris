@@ -1,4 +1,5 @@
 /** @jsx jsx */
+import { memo } from 'react'
 import { jsx } from '@emotion/react'
 
 function Column({ start, columnIndex }: { start: number, columnIndex: number }) {
@@ -71,4 +72,4 @@ function LittleGridSpectrum({
     )
 }
 
-export default LittleGridSpectrum
+export default memo(LittleGridSpectrum)

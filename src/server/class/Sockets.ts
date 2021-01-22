@@ -35,7 +35,7 @@ class Sockets {
                     }
                     this.users.push(user)
                     socket.player = user
-            
+
                     callback(null, { id: socket.id, username })
                 }
                 catch (error) {
@@ -81,12 +81,11 @@ class Sockets {
 
                     let gameName : string
                     if (gameParameters.isSolo) {
-                        const soloGameParameters = {
+                        gameName = this.games.createGame({
                             ...gameParameters,
                             maxPlayers: 1 as GameMaxPlayers,
-                            name: uuidv4()
-                        }
-                        gameName = this.games.createGame(soloGameParameters, socket.player)
+                            name: uuidv4().slice(0, 20)
+                        }, socket.player)
                     }
                     else
                         gameName = this.games.createGame(gameParameters, socket.player)

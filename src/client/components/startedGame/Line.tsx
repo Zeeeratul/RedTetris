@@ -55,9 +55,9 @@ const cellsColors: { [index: string] : any } = {
     },
 }
 
-function Cell({ value }: { value: string }) {
+function Cell({ pieceType }: { pieceType: PieceType }) {
 
-    if (!value)
+    if (!pieceType)
         return (
             <div className="cell"
                 css={{
@@ -76,7 +76,7 @@ function Cell({ value }: { value: string }) {
                 position: 'relative',
                 width: '100%',
                 height: '100%',
-                backgroundColor: cellsColors[value].cell,
+                backgroundColor: cellsColors[pieceType].cell,
             }}
         >
             <div 
@@ -86,7 +86,7 @@ function Cell({ value }: { value: string }) {
                     width: '100%',
                     height: '100%',
                     clipPath: "polygon(0% 0%, 15% 15%, 85% 15%, 100% 0%)",
-                    backgroundColor: cellsColors[value].top,
+                    backgroundColor: cellsColors[pieceType].top,
                 }}
             />
 
@@ -97,7 +97,7 @@ function Cell({ value }: { value: string }) {
                     width: '100%',
                     height: '100%',
                     clipPath: "polygon(100% 0%, 85% 15%, 85% 85%, 100% 100%)",
-                    backgroundColor: cellsColors[value].side,
+                    backgroundColor: cellsColors[pieceType].side,
                 }}
             />
 
@@ -108,7 +108,7 @@ function Cell({ value }: { value: string }) {
                     width: '100%',
                     height: '100%',
                     clipPath: "polygon(0% 100%, 15% 85%, 85% 85%, 100% 100%)",
-                    backgroundColor: cellsColors[value].bottom,
+                    backgroundColor: cellsColors[pieceType].bottom,
                 }}
             />
 
@@ -119,14 +119,20 @@ function Cell({ value }: { value: string }) {
                     width: '100%',
                     height: '100%',
                     clipPath: "polygon(0% 0%, 15% 15%, 15% 85%, 0% 100%)",
-                    backgroundColor: cellsColors[value].side,
+                    backgroundColor: cellsColors[pieceType].side,
                 }}
             />
         </div>
     )
 }
 
-function Line({ piecePositions, pieceType, cells, yCoord, invisible }: any) {
+function Line({ piecePositions, pieceType, cells, yCoord, invisible }: {
+    invisible: boolean,
+    piecePositions: Position[] | null,
+    pieceType: PieceType,
+    cells: PieceType[],
+    yCoord: number,
+}) {
 
     if (invisible || !piecePositions)
         return (
@@ -134,7 +140,7 @@ function Line({ piecePositions, pieceType, cells, yCoord, invisible }: any) {
                 {cells.map((cell: any, index: number) => {
                     return <Cell
                         key={`cell_${index}`}
-                        value={cell}
+                        pieceType={cell}
                     />
                 })}
             </React.Fragment>
@@ -146,7 +152,7 @@ function Line({ piecePositions, pieceType, cells, yCoord, invisible }: any) {
                     const pieceHere = piecePositions.some((item: any) => _.isEqual(item, { x: index, y: yCoord }))
                     return <Cell
                         key={`cell_${index}`}
-                        value={pieceHere ? pieceType : cell}
+                        pieceType={pieceHere ? pieceType : cell}
                     />
                 })}
             </React.Fragment>

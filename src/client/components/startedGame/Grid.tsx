@@ -2,7 +2,7 @@
 import { jsx } from '@emotion/react'
 import useEventListener from '@use-it/event-listener'
 import { useInterval } from '../../utils/useInterval'
-import { useReducer, useEffect } from 'react'
+import { useReducer, useEffect, memo } from 'react'
 import { SOCKET } from '../../config/constants.json'
 import { 
     cancelSubscribtionToEvent,
@@ -53,10 +53,12 @@ const initState: GamePlaying = {
     ],
     piece: null,
     nextPiece: null,
-    isKo: false
+    isKo: false,
 }
 
 const reducer = (state: GamePlaying, action: any): GamePlaying => {
+    // console.log('in dispatch')
+
     const { nextPiece, grid } = state
 
     switch (action.type) {
@@ -90,7 +92,7 @@ const reducer = (state: GamePlaying, action: any): GamePlaying => {
                 ...state,
                 grid: action.payload.newGrid,
                 piece: nextPiece,
-                nextPiece: action.payload.nextPiece
+                nextPiece: action.payload.nextPiece,
             }
         }
         case 'Ko': {
@@ -110,7 +112,7 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
         isKo,
         piece,
         nextPiece,
-        grid
+        grid,
     }, dispatch] = useReducer(reducer, initState)
 
     const handleKey = (key: string) => {
@@ -164,7 +166,7 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
         }
     }
 
-    // Move piece down regularly
+    // // Move piece down regularly
     useInterval(
         () => handleKey('ArrowDown'),
         speed * 1000
@@ -203,7 +205,7 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
         emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
     }, [grid])
     
-    useEventListener('keydown', ({ key }: { key: string }) => handleKey(key))
+    useEventListener('keyup', ({ key }: { key: string }) => handleKey(key))
 
     return (
         <div
@@ -267,4 +269,4 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
     )
 }
 
-export default Grid
+export default memo(Grid)
