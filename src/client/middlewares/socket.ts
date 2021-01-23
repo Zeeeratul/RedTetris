@@ -3,7 +3,6 @@ import { SOCKET } from '../config/constants.json'
 let socket : SocketIOClient.Socket
 
 export const initiateSocket = () => {
-    console.log(process.env.NODE_ENV)
     socket = connect('/')
 }
 

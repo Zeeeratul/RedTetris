@@ -11,11 +11,7 @@ class Sockets {
     users: User[];
 
     constructor(http: http.Server) {
-        this.io = new Server(http, {
-            cors: {
-                origin: process.env.PROD_URL,
-                methods: ["GET", "POST"]
-        }})
+        this.io = new Server(http)
         this.games = new Games()
         this.users = []
     }
