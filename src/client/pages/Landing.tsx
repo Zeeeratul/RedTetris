@@ -2,7 +2,7 @@
 import { jsx, css } from '@emotion/react'
 import { useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
-import { initiateSocket, emitToEventWithAcknowledgement, emitToEvent } from '../middlewares/socket'
+import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { SOCKET } from '../config/constants.json'
 import { PageContainer } from '../components/PageContainer'
 import { Navbar } from '../components/Navbar'

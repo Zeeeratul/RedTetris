@@ -3,12 +3,12 @@ import { SOCKET } from '../config/constants.json'
 let socket : SocketIOClient.Socket
 
 export const initiateSocket = () => {
+    console.log(process.env.NODE_ENV)
     socket = connect('/')
-    console.log('Initiating socket...')
 }
 
 export const subscribeToEvent = (eventName: string, cb: CallbackFunction) => {
-    if (socket)
+    if (socket && socket.connected)
         socket.on(eventName, (error: SocketError, data: any) => {
             if (error === SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
                 return disconnectSocket()
@@ -20,7 +20,7 @@ export const subscribeToEvent = (eventName: string, cb: CallbackFunction) => {
 }
 
 export const cancelSubscribtionToEvent = (eventName: string) => {
-    if (socket) {
+    if (socket && socket.connected) {
         if (eventName)
             socket.off(eventName)
     }
@@ -30,7 +30,7 @@ export const cancelSubscribtionToEvent = (eventName: string) => {
 }
 
 export const emitToEvent = (eventName: string, data?: any) => {
-    if (socket) {
+    if (socket && socket.connected) {
         socket.emit(eventName, data)
     }
     else {
@@ -50,7 +50,7 @@ export const emitToEventWithAcknowledgement = (
         return cb(error, data)
     }
 
-    if (socket) {
+    if (socket && socket.connected) {
         socket.emit(eventName, data, WrapCallback)
     }
     else {
@@ -60,7 +60,6 @@ export const emitToEventWithAcknowledgement = (
 
 export const disconnectSocket = () => {
     if (socket) {
-        console.log('Disconnecting socket...')
         socket.disconnect()
     }
     window.location.href = '/'

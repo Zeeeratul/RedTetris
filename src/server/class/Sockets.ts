@@ -11,7 +11,11 @@ class Sockets {
     users: User[];
 
     constructor(http: http.Server) {
-        this.io = new Server(http)
+        this.io = new Server(http, {
+            cors: {
+                origin: process.env.PROD_URL,
+                methods: ["GET", "POST"]
+        }})
         this.games = new Games()
         this.users = []
     }
@@ -92,7 +96,7 @@ class Sockets {
 
                     socket.player.gameName = gameName
                     socket.join(gameName)
-                    callback(null, gameName)
+                    callback(null, `#${gameName}[${socket.player.username}]`)
                 }
                 catch (error) {
                     console.error(error)
@@ -107,11 +111,11 @@ class Sockets {
 
                     const game = this.games.joinGame(gameNameToJoin, socket.player)
 
-                    const info = game.info()
-                    socket.player.gameName = info.name
-                    socket.join(info.name)
-                    socket.to(info.name).emit(SOCKET.GAMES.GET_INFO, null, info)
-                    callback(null, info.name)
+                    const gameInfo = game.info()
+                    socket.player.gameName = gameInfo.name
+                    socket.join(gameInfo.name)
+                    socket.to(gameInfo.name).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
+                    callback(null, `#${gameInfo.name}[${socket.player.username}]`)
                 }
                 catch (error) {
                     console.log('error', error)

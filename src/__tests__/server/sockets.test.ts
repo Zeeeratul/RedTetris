@@ -104,7 +104,7 @@ describe('createGame', () => {
 
     test('createGame', (done) => {
         clientSocket.emit(SOCKET.GAMES.CREATE, gameParameters, (error, data) => {
-            expect(data).toBe(gameParameters.name)
+            expect(data).toBe(`#${gameParameters.name}[${user.username}]`)
             done()
         })
     })
