@@ -7,7 +7,8 @@ export const initiateSocket = () => {
 }
 
 export const subscribeToEvent = (eventName: string, cb: CallbackFunction) => {
-    if (socket && socket.connected)
+    // if (socket && socket.connected)
+    if (socket)
         socket.on(eventName, (error: SocketError, data: any) => {
             if (error === SOCKET.SERVER_ERROR.USER_NOT_CONNECTED)
                 return disconnectSocket()
