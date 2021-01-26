@@ -183,7 +183,8 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
 
         // Subscribe to line penalty sended by the players
         subscribeToEvent(SOCKET.GAMES.LINE_PENALTY, (error, linesCount: number) => {
-            dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
+            if (linesCount)
+                dispatch({ type: SOCKET.GAMES.LINE_PENALTY, payload: linesCount })
         })
 
         return () => {
@@ -232,12 +233,12 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
                     clipPath: `polygon(15px 0px, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0% calc(100% - 15px), 0% 100%, 0px 15px)`
                 })}
             >
-                {piece && grid.map((line, index) => (
+                {grid.map((line, index) => (
                     <Line
                         key={`line_${index}`} 
                         invisible={mode === 'invisible'}
-                        piecePositions={isKo ? null : piece.positions}
-                        pieceType={piece.type}
+                        piecePositions={piece && !isKo ? piece.positions : null}
+                        pieceType={piece && !isKo ? piece.type : null}
                         cells={line}
                         yCoord={index}
                     />

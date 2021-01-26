@@ -62,7 +62,7 @@ class Games {
 
         if (!game.isLeader(userData.id))
             throw SOCKET.GAMES.ERROR.NOT_LEADER
-
+        game.reset()
         game.status = 'started'
         return game
     }

@@ -178,8 +178,8 @@ class Sockets {
 
                     if (gameOver) {
                         const results = game.getResults()
-                        this.io.in(gameName).emit(SOCKET.GAMES.RESULTS, null, results)
                         game.reset()
+                        this.io.in(gameName).emit(SOCKET.GAMES.RESULTS, null, results)
                     }
                     const info = game.info()
                     this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
