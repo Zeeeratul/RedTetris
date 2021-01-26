@@ -38,13 +38,17 @@ export const Navbar = ({ userConnected = false, userInGame = false }: { userConn
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                paddingRight: '5px'
             }}
         >
             <h1 
                 css={{
                     color: 'red',
                     fontSize: '40px',
-                    marginLeft: '10px'
+                    marginLeft: '10px',
+                    '@media (max-width: 500px)': {
+                        fontSize: '30px'
+                    }
                 }}
             >
                 Red Tetris

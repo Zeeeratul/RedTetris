@@ -3,9 +3,9 @@ import { jsx, css } from '@emotion/react'
 import { useState, useEffect, useContext } from 'react'
 import { Paper } from '@material-ui/core'
 import { UserContext } from '../../utils/userContext';
-import SendIcon from '@material-ui/icons/Send';
 import { emitToEvent, subscribeToEvent, cancelSubscribtionToEvent } from '../../middlewares/socket'
 import { SOCKET } from '../../config/constants.json'
+import SendIcon from '@material-ui/icons/Send';
 
 function Chat() {
     const { id: userId } = useContext(UserContext)
@@ -14,11 +14,9 @@ function Chat() {
 
     useEffect(() => {
         subscribeToEvent(SOCKET.GAMES.MESSAGES, (error, message: Message) => {
-            if (!error) {
+            if (message && !error) {
                 setMessages((messages) => [...messages, message])
             }
-            else 
-                console.error(error)
         })
 
         return () => {

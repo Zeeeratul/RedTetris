@@ -2,8 +2,7 @@
 import { jsx, css } from '@emotion/react'
 import { useEffect, useState } from 'react'
 import { useHistory } from "react-router-dom"
-import { initiateSocket, emitToEventWithAcknowledgement,
-subscribeToEvent } from '../middlewares/socket'
+import { initiateSocket, emitToEventWithAcknowledgement } from '../middlewares/socket'
 import { SOCKET } from '../config/constants.json'
 import { PageContainer } from '../components/PageContainer'
 import { Navbar } from '../components/Navbar'
@@ -50,7 +49,6 @@ function Landing({ setUser }: { setUser: React.Dispatch<React.SetStateAction<{
                     alignItems: 'center',
                 }}
             >
-                {error}
                 <Paper 
                     elevation={3}
                     css={(theme: any) => css({

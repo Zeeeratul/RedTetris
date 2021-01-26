@@ -4,6 +4,7 @@ import { Games } from './Games'
 import { SOCKET } from '../config/constants.json'
 import { Server } from 'socket.io'
 import { v4 as uuidv4 } from 'uuid'
+import chalk from 'chalk'
 
 class Sockets {
     io: Server;
@@ -39,7 +40,7 @@ class Sockets {
                     callback(null, { id: socket.id, username })
                 }
                 catch (error) {
-                    console.error(error)
+                    console.log(chalk.red(error))
                     callback(error)
                 }
             })
@@ -70,7 +71,7 @@ class Sockets {
                     }
                 }
                 catch (error) {
-                    console.error(error)
+                    console.log(chalk.red(error))
                 }
             })
 
@@ -95,7 +96,7 @@ class Sockets {
                     callback(null, `#${gameName}[${socket.player.username}]`)
                 }
                 catch (error) {
-                    console.error(error)
+                    console.log(chalk.red(error))
                     return callback(error)
                 }
             })
@@ -114,7 +115,7 @@ class Sockets {
                     callback(null, `#${gameInfo.name}[${socket.player.username}]`)
                 }
                 catch (error) {
-                    console.log('error', error)
+                    console.log(chalk.red(error))
                     return callback(error)
                 }
             })
@@ -141,7 +142,7 @@ class Sockets {
                     }
                 }
                 catch (error) {
-                    console.log('error', error)
+                    console.log(chalk.red(error))
                 }
             })
 
@@ -157,7 +158,7 @@ class Sockets {
                     this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
                 }
                 catch (error) {
-                    console.log('error', error)
+                    console.log(chalk.red(error))
                 }
             })
 
@@ -184,7 +185,7 @@ class Sockets {
                     this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, info)
                 }
                 catch (error) {
-                    console.log('error', error)
+                    console.log(chalk.red(error))
                 }
             })
 
@@ -203,7 +204,7 @@ class Sockets {
                     socket.to(gameName).emit(SOCKET.GAMES.GET_INFO, null, game.info())
                 }
                 catch (error) {
-                    console.log('error', error)
+                    console.log(chalk.red(error))
                 }
             })
             
@@ -225,7 +226,7 @@ class Sockets {
                     this.io.in(gameName).emit(SOCKET.GAMES.GET_INFO, null, gameInfo)
                 }
                 catch (error) {
-                    console.error(error)
+                    console.log(chalk.red(error))
                 }
             })
 
@@ -243,7 +244,7 @@ class Sockets {
                     callback(null, piece)
                 }
                 catch (error) {
-                    console.error(error)
+                    console.log(chalk.red(error))
                 }
             })
                         
@@ -263,7 +264,7 @@ class Sockets {
                     }
                 }
                 catch (error) {
-                    console.log('error', error)
+                    console.log(chalk.red(error))
                     socket.emit(SOCKET.GAMES.GET_INFO, error)
                 }
             })
@@ -287,7 +288,7 @@ class Sockets {
                     this.io.in(gameName).emit(SOCKET.GAMES.MESSAGES, null, message)
                 }
                 catch (error) {
-                    console.log('error', error)
+                    console.log(chalk.red(error))
                 }
             })
 
@@ -300,7 +301,7 @@ class Sockets {
                     callback(null, games)
                 }
                 catch (error) {
-                    console.error(error)
+                    console.log(chalk.red(error))
                     callback(error)
                 }
             })

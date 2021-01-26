@@ -112,7 +112,7 @@ function Game() {
                             `,
                             '@media (max-width: 800px)': {
                                 gridTemplateColumns: '1fr 1fr',
-                                gridTemplateRows: '2fr 1fr 1fr',
+                                gridTemplateRows: '2fr auto auto',
                                 gridTemplateAreas: `
                                     "main_grid main_grid"
                                     "little_grid_1 little_grid_2"
@@ -122,7 +122,8 @@ function Game() {
                         }}
                     >
                         <Grid speed={speed} mode={mode} />
-                        {_.filter(players, (o: Player) => o.id !== userId).map((player: Player, index: number) => (
+                        {_.filter(players, (o: Player) => o.id !== userId)
+                            .map((player: Player, index: number) => (
                                 <LittleGridSpectrum
                                     key={`little_grid_${player.id}`}
                                     spectrum={player.spectrum}

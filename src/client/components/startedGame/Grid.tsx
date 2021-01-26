@@ -1,9 +1,9 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import useEventListener from '@use-it/event-listener'
 import { useInterval } from '../../utils/useInterval'
 import { useReducer, useEffect, memo } from 'react'
 import { SOCKET } from '../../config/constants.json'
+import useEventListener from '@use-it/event-listener'
 import { 
     cancelSubscribtionToEvent,
     emitToEvent,
@@ -202,8 +202,12 @@ function Grid({ speed, mode }: { speed: GameSpeed, mode: GameMode }) {
         emitToEvent(SOCKET.GAMES.SPECTRUM, spectrum)
     }, [grid])
     
-    useEventListener('keyup', ({ key }: { key: string }) => handleKey(key))
-
+    useEventListener('keyup',
+        ({ key }: { key: string }) => {
+            handleKey(key)
+        },
+    )
+    
     return (
         <div
             id="grid_container"

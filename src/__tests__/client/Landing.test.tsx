@@ -8,7 +8,7 @@ jest.mock('react-router-dom', () => {
   return {
     useHistory: () => ({
       push: (path) => {
-        console.log(path)
+        console.log('redirect to: ', path)
       }
     })
   }

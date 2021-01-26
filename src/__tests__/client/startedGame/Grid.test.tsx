@@ -51,7 +51,6 @@ const piece = {
 jest.mock('../../../client/middlewares/socket', () => {
   return {
     emitToEventWithAcknowledgement: () => (event, data, cb) => {
-      console.log('called')
       if (event === 'get_games')
         return cb(null, games)
       else if (event === "get_piece")

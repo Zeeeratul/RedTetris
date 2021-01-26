@@ -32,6 +32,7 @@ function LittleGridSpectrum({
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                margin: '10px 0px'
             }}
         >
             <div
