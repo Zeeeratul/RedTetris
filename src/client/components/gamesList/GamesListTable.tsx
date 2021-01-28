@@ -46,7 +46,7 @@ const GamesListTable = () => {
                 getGames()
             }
             else {
-                history.replace(`/game/${gameName}`)
+                history.push(`/game/${gameName}`)
             }
         })
     }
