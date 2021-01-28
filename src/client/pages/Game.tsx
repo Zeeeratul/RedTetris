@@ -126,10 +126,8 @@ function Game() {
                             .map((player: Player, index: number) => (
                                 <LittleGridSpectrum
                                     key={`little_grid_${player.id}`}
-                                    spectrum={player.spectrum}
+                                    player={player}
                                     gridPosition={index}
-                                    playerStatus={player.status}
-                                    playerId={player.id}
                                 />
                             ))
                         }

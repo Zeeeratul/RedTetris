@@ -6,9 +6,11 @@ import faker from 'faker'
 
 const LittleGridSpectrumProps = {
     gridPosition: 1,
-    spectrum: Array(10).fill(19),
-    playerStatus: 'playing',
-    playerId: faker.random.uuid()
+    player: {
+        spectrum: Array(10).fill(19),
+        status: 'playing',
+        id: faker.random.uuid()
+    }
 }
 
 test('LittleGridSpectrum renders without crashing', () => {
@@ -21,9 +23,11 @@ test('LittleGridSpectrum renders without crashing', () => {
 
 const LittleGridSpectrumPropsKo = {
     gridPosition: 1,
-    spectrum: Array(10).fill(19),
-    playerStatus: 'KO',
-    playerId: faker.random.uuid()
+    player: {
+        spectrum: Array(10).fill(19),
+        status: 'KO',
+        id: faker.random.uuid()
+    }
 }
 
 test('LittleGridSpectrum renders without crashing KO player', () => {
